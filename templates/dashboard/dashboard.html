@@ -115,7 +115,7 @@
     </script>
     </div>
     <!-- TradingView Widget END -->
-    
+
 
     <div class="container-fluid">
 
@@ -190,7 +190,9 @@
                                 <tr>
                                     <th>Symbol</th>
                                     <th>Name</th>
-                                    <th>Current Price</th>
+                                    <th>Quantity</th>
+                                    <th>Purchase Price</th>
+                                    <th>Current Value</th>
                                     <th>Last Updated</th>
                                 </tr>
                                 </thead>
@@ -199,7 +201,9 @@
                                     <tr>
                                         <td>{{ stock.symbol }}</td>
                                         <td>{{ stock.name }}</td>
-                                        <td>${{ stock.current_price|floatformat:2 }}</td>
+                                        <td>{{ stock.quantity }}</td>
+                                        <td>{{ stock.purchase_price|floatformat:2 }}</td>
+                                        <td>{{ stock.current_value|floatformat:2 }}</td>
                                         <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>
                                     </tr>
                                 {% endfor %}

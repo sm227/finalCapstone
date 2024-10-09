@@ -36,14 +36,28 @@ def dashboard(request):
 
     )
     resp = broker.fetch_balance()
+
+    # 보유 종목 리스트 가공
+    stock_holdings = []
+    for comp in resp['output1']:
+        stock_holdings.append({
+            'symbol': comp['pdno'],
+            'name': comp['prdt_name'],
+            'quantity': int(comp['hldg_qty']),
+            'purchase_price': float(comp['pchs_amt']),
+            'current_value': float(comp['evlu_amt']),
+            'last_updated': timezone.now()  # 임시로 현재 시간
+        })
+
     total_value = resp['output2'][0]['tot_evlu_amt']
     print(resp['output2'][0]['tot_evlu_amt'])
     pprint.pprint(resp)
+
     context = {
         'acc_no': "50117588-01",
-        'stocks': mock_stocks,
+        'stocks': stock_holdings,
         'total_value': total_value,
-        'total_stocks': len(mock_stocks),
+        'total_stocks': len(stock_holdings),
     }
 
 
