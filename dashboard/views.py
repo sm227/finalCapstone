@@ -29,14 +29,25 @@ def dashboard(request):
         api_key=os.getenv('api_key'),
         api_secret=os.getenv('api_secret'),
         acc_no=os.getenv('acc_no'),
-        mock=True
-
+        mock=False
     )
-    resp = broker.fetch_balance()
+
+    try:
+        resp = broker.fetch_balance()
+    except KeyError as e:
+        # KeyError 발생 시 예외 처리
+        print(f"KeyError: {e}. Please check the API response structure.")
+        return render(request, 'dashboard/dashboard.html', {'error': str(e)})
+
+        # 전체 응답 확인
+    pprint.pprint(resp)  # API 응답 출력
 
     # 보유 종목 리스트 가공
     stock_holdings = []
-    if resp['output1']:  # 보유 종목이 있을 때
+    total_value = 0  # 기본값 설정
+
+    # 보유 종목 데이터 처리
+    if resp.get('output1'):  # 보유 종목이 있을 때
         for comp in resp['output1']:
             stock_holdings.append({
                 'symbol': comp['pdno'],
@@ -46,11 +57,12 @@ def dashboard(request):
                 'current_value': float(comp['evlu_amt']),
                 'last_updated': timezone.now()
             })
-    else:  # 보유 종목이 없을 때
-        total_value = 0
-        stock_holdings = []  # 빈 리스트 반환
 
-    total_value = resp['output2'][0].get('tot_evlu_amt', total_value)  # KeyError 방지
+    # total_value 계산
+    if resp.get('output2') and resp['output2']:
+        total_value = resp['output2'][0].get('tot_evlu_amt', 0)
+
+
 
 
     # total_value 계산
@@ -74,8 +86,8 @@ def dashboard(request):
         'total_stocks': len(stock_holdings),
     }
 
-    resp = broker.fetch_balance()
-    print(resp)  # 응답 내용 출력
+    #resp = broker.fetch_balance()
+    #print(resp)  # 응답 내용 출력
 
     # test()
     return render(request, 'dashboard/dashboard.html', context)
