@@ -54,7 +54,7 @@ def dashboard(request):
             'last_updated': timezone.now()
         })
 
-    total_value = balance['output3'].get('evlu_amt_smtl', 0)  # 총 평가금액
+    total_value = balance['output3'].get('tot_asst_amt', 0)  # 자산
 
     total_profit_loss = balance['output3'].get('tot_evlu_pfls_amt', 0)  # 총 평가손익 금액
 
