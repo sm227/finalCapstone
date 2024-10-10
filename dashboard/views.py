@@ -29,55 +29,34 @@ def dashboard(request):
         api_key=os.getenv('api_key'),
         api_secret=os.getenv('api_secret'),
         acc_no=os.getenv('acc_no'),
-        mock=False
+        exchange='나스닥',
+        mock=True
     )
 
-    try:
-        resp = broker.fetch_balance()
-    except KeyError as e:
-        # KeyError 발생 시 예외 처리
-        print(f"KeyError: {e}. Please check the API response structure.")
-        return render(request, 'dashboard/dashboard.html', {'error': str(e)})
-
-        # 전체 응답 확인
-    pprint.pprint(resp)  # API 응답 출력
+    balance = broker.fetch_present_balance()
+    pprint.pprint(balance)
 
     # 보유 종목 리스트 가공
     stock_holdings = []
     total_value = 0  # 기본값 설정
 
     # 보유 종목 데이터 처리
-    if resp.get('output1'):  # 보유 종목이 있을 때
-        for comp in resp['output1']:
-            stock_holdings.append({
-                'symbol': comp['pdno'],
-                'name': comp['prdt_name'],
-                'quantity': int(comp['hldg_qty']),
-                'purchase_price': float(comp['pchs_amt']),
-                'current_value': float(comp['evlu_amt']),
-                'last_updated': timezone.now()
-            })
+    for comp in balance['output1']:
+        stock_holdings.append({
+            'symbol': comp['pdno'],
+            'name': comp['prdt_name'],
+            'country': comp['natn_kor_name'],  # 국가 정보 추가
+            'exchange_code': comp['ovrs_excg_cd'],  # 거래소 코드 추가
+            'market_name': comp['tr_mket_name'],  # 시장 이름 추가
+            'profit_loss_rate': float(comp['evlu_pfls_rt1']),  # 평가손익률 추가
+            'exchange_rate': float(comp['bass_exrt']),  # 기준 환율 추가
+            'purchase_amount_foreign': float(comp['frcr_pchs_amt']),  # 외화 매입 금액 추가
+            'last_updated': timezone.now()
+        })
 
-    # total_value 계산
-    if resp.get('output2') and resp['output2']:
-        total_value = resp['output2'][0].get('tot_evlu_amt', 0)
+    total_value = balance['output3'].get('evlu_amt_smtl', 0)  # 총 평가금액
 
-
-
-
-    # total_value 계산
-    # total_value = 0  # 기본값 설정
-    # if 'output2' in resp and resp['output2']:
-    #     total_value = resp['output2'][0].get('tot_evlu_amt', 0)
-    #
-    #     # tr_cont가 없는 경우 처리
-    #     if 'tr_cont' not in resp['output2'][0]:
-    #         print("Warning: 'tr_cont' is missing.")
-
-
-
-    print(resp['output2'][0]['tot_evlu_amt'])
-    pprint.pprint(resp)
+    total_profit_loss = balance['output3'].get('tot_evlu_pfls_amt', 0)  # 총 평가손익 금액
 
     context = {
         'acc_no': "50117588-01",
@@ -86,10 +65,6 @@ def dashboard(request):
         'total_stocks': len(stock_holdings),
     }
 
-    #resp = broker.fetch_balance()
-    #print(resp)  # 응답 내용 출력
-
-    # test()
     return render(request, 'dashboard/dashboard.html', context)
 
 # def test():
