@@ -214,7 +214,7 @@
                                         <td>{{ stock.exchange_code }}</td>
                                         <td>{{ stock.market_name }}</td>
                                         <td style="color: {% if stock.profit_loss_rate > 0 %} #20b16c {% else %} #ef454a {% endif %};">
-                                            {{ stock.profit_loss_rate|floatformat:2 }}
+                                            {{ stock.profit_loss_rate|floatformat:2 }}%
                                         </td>
                                         <td>{{ stock.exchange_rate }}</td>
                                         <td>{{ stock.purchase_amount_foreign }}</td>
