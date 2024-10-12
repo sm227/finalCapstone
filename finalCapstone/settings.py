@@ -30,6 +30,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'dashboard',
+    'landing',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
