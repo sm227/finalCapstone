@@ -213,7 +213,9 @@
                                         <td>{{ stock.country }}</td>
                                         <td>{{ stock.exchange_code }}</td>
                                         <td>{{ stock.market_name }}</td>
-                                        <td>{{ stock.profit_loss_rate|floatformat:2 }}</td>
+                                        <td style="color: {% if stock.profit_loss_rate > 0 %} #20b16c {% else %} #ef454a {% endif %};">
+                                            {{ stock.profit_loss_rate|floatformat:2 }}%
+                                        </td>
                                         <td>{{ stock.exchange_rate }}</td>
                                         <td>{{ stock.purchase_amount_foreign }}</td>
                                         <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>
