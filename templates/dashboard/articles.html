@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        .card {
+            background-color: #1e1e1e;
+            border-color: #333;
+            height: 300px; /* 카드 높이 고정 */
+        }
+
+        .table {
+            color: #e0e0e0;
+        }
+
+        .modal-content {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+
+        .bg-light {
+            background-color: #333 !important;
+        }
+
+        .text-dark {
+            color: #e0e0e0 !important;
+        }
+    </style>
+
+    <!-- sidebar -->
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dashboard' %}">
+                                <i class="bi bi-house-door"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-graph-up"></i> Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-wallet2"></i> Portfolio
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'articles' %}">
+                                <i class="bi bi-newspaper"></i> Articles
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">News</h1>
+                </div>
+
+                <!-- 기사 -->
+                <div class="row">
+                    {% for article in news %}
+                        <div class="col-md-4 article-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <a href="{{ article.link }}" class="text-light" style="text-decoration: none;">{{ article.title }}</a>
+                                    </h5>
+                                    <p class="card-text">{{ article.content|truncatewords:30 }}</p>
+                                    <button class="btn btn-primary" data-content="{{ article.content }}" data-title="{{ article.title }}" data-bs-toggle="modal" data-bs-target="#articleModal">Read More</button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            
+                <div class="modal fade" id="articleModal" tabindex="-1" aria-labelledby="articleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="articleModalLabel">Article</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="modal-body-content">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    
+    <!-- read more 클릭 시 팝업 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const buttons = document.querySelectorAll('.btn-primary');
+            const modalBody = document.getElementById('modal-body-content');
+            const modalTitle = document.getElementById('articleModalLabel');
+
+            buttons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const content = this.getAttribute('data-content');
+                    const title = this.getAttribute('data-title');
+
+                    modalBody.innerHTML = `<p>${content}</p>`;
+                    modalTitle.textContent = title;
+                });
+            });
+        });
+    </script>
+{% endblock %}
