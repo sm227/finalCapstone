@@ -129,9 +129,8 @@ def summarize_article(request):
         try:
 
             # 본인 API 키 삽입 (세션 생성)
-            gemini_key = os.environ.get('sk-NYg7WcfCqr94_uOglGg5m7sUQMp39MK7-pAhE_YCUvT3BlbkFJDdU6z7w7OsLRTFYZSNOwzU6fA2JnJsyP9cH8oIPB0A')
             # gemini_client = Gemini(api_key=gemini_key)
-            genai.configure(api_key='AIzaSyB842rnY66Om_-2SwSnh-R98c7v_OWiB9Q')
+            genai.configure(api_key=os.getenv('gemini_api_key'))
 
 
             # 기사 요약 프롬프트 생성
