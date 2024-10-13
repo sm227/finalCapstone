@@ -129,7 +129,7 @@ def summarize_article(request):
         try:
 
             # 본인 API 키 삽입 (세션 생성)
-            # gemini_client = Gemini(api_key=gemini_key)
+
             genai.configure(api_key=os.getenv('gemini_api_key'))
 
 
