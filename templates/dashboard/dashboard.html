@@ -130,7 +130,7 @@
                 <div class="position-sticky">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active text-light" href="#">
+                            <a class="nav-link active text-light" href="{% url 'dashboard' %}}">
                                 <i class="bi bi-house-door"></i> Dashboard
                             </a>
                         </li>
@@ -142,6 +142,11 @@
                         <li class="nav-item">
                             <a class="nav-link text-light" href="#">
                                 <i class="bi bi-wallet2"></i> Portfolio
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="{% url 'articles' %}">
+                                <i class="bi bi-newspaper"></i> Articles
                             </a>
                         </li>
                     </ul>

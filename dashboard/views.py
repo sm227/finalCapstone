@@ -8,23 +8,78 @@ from .models import Stock
 from django.utils import timezone
 import mojito
 import pprint
+import requests
+from bs4 import BeautifulSoup
+import json
+import os
+
+
+def crawl_news():
+    url = "https://www.investing.com/news/stock-market-news"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36'
+    }
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'html.parser')
+    news_list = soup.select('a[data-test="article-title-link"]')[:15]
+
+    news_data = []
+    for news in news_list:
+        title = news.get_text(strip=True)
+        link = news['href']
+        if not link.startswith("https"):
+            link = 'https://www.investing.com' + link
+        news_data.append({
+            'title': title,
+            'link': link
+        })
+    return news_data
+
+
+def crawl_article_content(article_url):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36'
+    }
+    response = requests.get(article_url, headers=headers)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'html.parser')
+    article_body = soup.select_one('div.article_WYSIWYG__O0uhw')
+
+    if article_body:
+        return article_body.get_text(strip=True)
+    else:
+        return "No article content found."
+
+
+def save_to_json(data, filename="news_data.json"):
+    with open(filename, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+
+def articles(request):
+    news_data = crawl_news()
+    news_with_content = []
+
+    for news in news_data:
+        article_content = crawl_article_content(news['link'])
+        news_with_content.append({
+            'title': news['title'],
+            'link': news['link'],
+            'content': article_content
+        })
+
+    context = {
+        'news': news_with_content,
+    }
+
+    return render(request, 'dashboard/articles.html', context)
 
 
 def dashboard(request):
     load_dotenv()
 
-    # 임시 데이터 생성
-    # mock_stocks = [
-    #     {'symbol': 'AAPL', 'name': 'Apple Inc.', 'current_price': 150.25, 'last_updated': timezone.now()},
-    #     {'symbol': 'GOOGL', 'name': 'Alphabet Inc.', 'current_price': 2750.80, 'last_updated': timezone.now()},
-    #     {'symbol': 'MSFT', 'name': 'Microsoft Corporation', 'current_price': 305.50, 'last_updated': timezone.now()},
-    #     {'symbol': 'AMZN', 'name': 'Amazon.com Inc.', 'current_price': 3380.75, 'last_updated': timezone.now()},
-    #     {'symbol': 'FB', 'name': 'Facebook, Inc.', 'current_price': 330.20, 'last_updated': timezone.now()},
-    # ]
-
-    # 총 포트폴리오 가치 계산
-    # total_value = sum(stock['current_price'] for stock in mock_stocks)
-
+    # 주식 API 데이터 가져오기
     broker = mojito.KoreaInvestment(
         api_key=os.getenv('api_key'),
         api_secret=os.getenv('api_secret'),
@@ -34,53 +89,42 @@ def dashboard(request):
     )
 
     balance = broker.fetch_present_balance()
-    pprint.pprint(balance)
-
-    # 보유 종목 리스트 가공
     stock_holdings = []
-    total_value = 0  # 기본값 설정
+    total_value = 0
 
-    # 보유 종목 데이터 처리
     for comp in balance['output1']:
         stock_holdings.append({
             'symbol': comp['pdno'],
             'name': comp['prdt_name'],
-            'country': comp['natn_kor_name'],  # 국가 정보 추가
-            'exchange_code': comp['ovrs_excg_cd'],  # 거래소 코드 추가
-            'market_name': comp['tr_mket_name'],  # 시장 이름 추가
-            'profit_loss_rate': float(comp['evlu_pfls_rt1']),  # 평가손익률 추가
-            'exchange_rate': float(comp['bass_exrt']),  # 기준 환율 추가
-            'purchase_amount_foreign': float(comp['frcr_pchs_amt']),  # 외화 매입 금액 추가
+            'country': comp['natn_kor_name'],
+            'exchange_code': comp['ovrs_excg_cd'],
+            'market_name': comp['tr_mket_name'],
+            'profit_loss_rate': float(comp['evlu_pfls_rt1']),
+            'exchange_rate': float(comp['bass_exrt']),
+            'purchase_amount_foreign': float(comp['frcr_pchs_amt']),
             'last_updated': timezone.now()
         })
 
-    total_value = balance['output3'].get('tot_asst_amt', 0)  # 자산
+    total_value = balance['output3'].get('tot_asst_amt', 0)
 
-    total_profit_loss = balance['output3'].get('tot_evlu_pfls_amt', 0)  # 총 평가손익 금액
+    # 뉴스 데이터 가져오기
+    news_data = crawl_news()
+    news_with_content = []
+
+    for news in news_data:
+        article_content = crawl_article_content(news['link'])
+        news_with_content.append({
+            'title': news['title'],
+            'link': news['link'],
+            'content': article_content
+        })
 
     context = {
-        'acc_no': "50117588-01",
+        'acc_no': os.getenv('acc_no'),
         'stocks': stock_holdings,
         'total_value': total_value,
         'total_stocks': len(stock_holdings),
+        'news': news_with_content,  # 뉴스 데이터 추가
     }
 
     return render(request, 'dashboard/dashboard.html', context)
-
-# def test():
-#
-#
-#     # with open("../../koreainvestment.key") as f:
-#     #     lines = f.readlines()
-#     #
-#     # key = lines[0].strip()
-#     # secret = lines[1].strip()
-#     # acc_no = lines[2].strip()
-#
-#     broker = mojito.KoreaInvestment(
-#         api_key="PS2osgVtJebLijhOGFbRwYiw9lKwXQfK8PEk",
-#         api_secret="TcmO8QRKiSVA+ZQIV8+mXXYdbPM1iMVZrChj5X4Pi83EhBV2YLlPDnWsn5zfi3OCLyQ1quEoBYpH262PxWlbSVPuA7YaSR5MGGnE9/cCter0+CY9jfGH/sbkdIgF/fCjgi5zKLg1J84lpuAy+Dr6UCAWfvtnkXLnkZuPKB5Jz+gsmp/arVE=",
-#         acc_no="50117588-01"
-#     )
-#     resp = broker.fetch_balance()
-#     pprint.pprint(resp)
