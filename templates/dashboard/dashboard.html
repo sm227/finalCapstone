@@ -30,8 +30,8 @@
         .text-dark {
             color: #e0e0e0 !important;
         }
-        
-        /* 로딩창 스타일 */
+
+        /* 로딩창 */
         #loading {
             display: none;
             position: fixed;
@@ -60,19 +60,6 @@
             width: 0;
             background-color: #007bff;
             transition: width 0.4s ease;
-        }
-
-        .modal-content {
-            background-color: #1e1e1e;
-            color: #e0e0e0;
-        }
-
-        .bg-light {
-            background-color: #333 !important;
-        }
-
-        .text-dark {
-            color: #e0e0e0 !important;
         }
     </style>
 
@@ -197,7 +184,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" href="{% url 'articles' %}">
+                            <a class="nav-link text-light" id="crawl-articles-btn" href="#">
                                 <i class="bi bi-newspaper"></i> Articles
                             </a>
                         </li>
@@ -300,94 +287,44 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- TradingView Widget Script -->
-                <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        const stockLinks = document.querySelectorAll('.stock-link');
-                        const modal = new bootstrap.Modal(document.getElementById('tradingViewModal'));
-
-                        stockLinks.forEach(link => {
-                            link.addEventListener('click', function (e) {
-                                e.preventDefault();
-                                const symbol = this.getAttribute('data-symbol');
-                                document.getElementById('tradingViewModalLabel').textContent = `${this.textContent} (${symbol})`;
-
-                                // Clear previous widget
-                                document.getElementById('tradingview_widget_container').innerHTML = '';
-
-                                // Create new TradingView widget
-                                new TradingView.widget({
-                                    "autosize": true,
-                                    "symbol": symbol,
-                                    "interval": "D",
-                                    "timezone": "Etc/UTC",
-                                    "theme": "dark",
-                                    "style": "1",
-                                    "locale": "en",
-                                    "toolbar_bg": "#f1f3f6",
-                                    "enable_publishing": false,
-                                    "allow_symbol_change": true,
-                                    "container_id": "tradingview_widget_container"
-                                });
-
-                                // Hide loading modal after loading
-                                setTimeout(() => {
-                                    loadingModal.style.display = 'none';
-                                }, 2000); // Simulating loading time of 2 seconds
-                            });
-                        });
-
-                        // Articles 버튼 클릭 이벤트
-                        document.getElementById('crawl-articles-btn').addEventListener('click', function (event) {
-                            event.preventDefault();
-                            crawlArticles();
-                        });
-
-                        // 크롤링 함수
-                        function crawlArticles() {
-                            // 로딩창 표시
-                            document.getElementById('loading').style.display = 'block';
-                            const progressBar = document.querySelector('.progress');
-
-                            // 프로그레스 바 초기화
-                            progressBar.style.width = '0%';
-
-                            // 비동기 요청 시작
-                            fetch("{% url 'articles' %}")
-                                .then(response => {
-                                    if (!response.ok) {
-                                        throw new Error('Network response was not ok');
-                                    }
-                                    return response.text();
-                                })
-                                .then(html => {
-                                    // 로딩창 숨김
-                                    document.getElementById('loading').style.display = 'none';
-
-                                    // 크롤링 결과를 articles-content에 로드
-                                    document.getElementById('articles-content').innerHTML = html;
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                    document.getElementById('loading').style.display = 'none';
-                                });
-
-                            // 프로그레스 바 애니메이션
-                            let width = 0;
-                            const interval = setInterval(() => {
-                                if (width >= 100) {
-                                    clearInterval(interval);
-                                } else {
-                                    width += 10;
-                                    progressBar.style.width = width + '%';
-                                }
-                            }, 300);
-                        }
-                    });
-                </script>
             </main>
         </div>
     </div>
+
+    <!-- TradingView Widget Script -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Articles 버튼 클릭 이벤트
+            document.getElementById('crawl-articles-btn').addEventListener('click', function (event) {
+                event.preventDefault();
+                showLoading();
+                window.location.href = "{% url 'articles' %}";
+            });
+
+            // 로딩창 표시 함수
+            function showLoading() {
+                document.getElementById('loading').style.display = 'block';
+                const progressBar = document.querySelector('.progress');
+                progressBar.style.width = '0%';
+
+                let width = 0;
+                const interval = setInterval(() => {
+                    if (width >= 100) {
+                        clearInterval(interval);
+                    } else {
+                        width += 10;
+                        progressBar.style.width = width + '%';
+                    }
+                }, 1500);
+                
+                window.onload = function () {
+                    clearInterval(interval);
+                    progressBar.style.width = '100%';
+                    document.getElementById('loading').style.display = 'none';
+                };
+            }
+        });
+    </script>
 {% endblock %}

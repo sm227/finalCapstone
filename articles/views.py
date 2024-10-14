@@ -1,12 +1,4 @@
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-import os
-import openai
 from django.utils.html import escape
-
-# articles/views.py
-
 import requests
 from bs4 import BeautifulSoup
 import json
@@ -15,8 +7,6 @@ import os
 import google.generativeai as genai
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
-openai.api_key = os.getenv('OPENAI_API_KEY')
 
 def crawl_news():
     url = "https://www.investing.com/news/stock-market-news"

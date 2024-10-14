@@ -6,5 +6,4 @@ urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('articles/', include('articles.urls')),
-    # path('ROI', views.ROI, name='ROI'),
 ]
