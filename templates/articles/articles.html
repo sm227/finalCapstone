@@ -31,46 +31,8 @@
         .text-dark {
             color: #e0e0e0 !important;
         }
-
-        /* 로딩창 스타일 */
-        #loading {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 9999;
-            color: #fff;
-            text-align: center;
-            padding-top: 20%;
-        }
-
-        .progress-bar {
-            width: 50%;
-            height: 30px;
-            background-color: #333;
-            margin: 20px auto;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        .progress {
-            height: 100%;
-            width: 0;
-            background-color: #007bff;
-            transition: width 0.4s ease;
-        }
+        
     </style>
-
-    <!-- 로딩창 -->
-    <div id="loading">
-        <div class="progress-bar">
-            <div class="progress"></div>
-        </div>
-        <p>Loading...</p>
-    </div>
 
     <!-- sidebar -->
     <div class="container-fluid">
@@ -114,10 +76,14 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">
-                                        <a href="{{ article.link }}" class="text-light" style="text-decoration: none;">{{ article.title }}</a>
+                                        <a href="{{ article.link }}" class="text-light"
+                                           style="text-decoration: none;">{{ article.title }}</a>
                                     </h5>
                                     <p class="card-text">{{ article.content|truncatewords:30 }}</p>
-                                    <button class="btn btn-primary" data-content="{{ article.content }}" data-title="{{ article.title }}" data-bs-toggle="modal" data-bs-target="#articleModal">Read More</button>
+                                    <button class="btn btn-primary" data-content="{{ article.content }}"
+                                            data-title="{{ article.title }}" data-bs-toggle="modal"
+                                            data-bs-target="#articleModal">Read More
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -125,12 +91,14 @@
                 </div>
 
                 <!-- Read More 모달 -->
-                <div class="modal fade" id="articleModal" tabindex="-1" aria-labelledby="articleModalLabel" aria-hidden="true">
+                <div class="modal fade" id="articleModal" tabindex="-1" aria-labelledby="articleModalLabel"
+                     aria-hidden="true">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="articleModalLabel">Article</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <div id="modal-body-content"></div>
@@ -177,65 +145,20 @@
                         'Content-Type': 'application/json',
                         'X-CSRFToken': '{{ csrf_token }}',
                     },
-                    body: JSON.stringify({ content: currentArticleContent })
+                    body: JSON.stringify({content: currentArticleContent})
                 })
-                .then(response => response.json())
-                .then(data => {
-                    summaryContent.innerHTML = `<h5>요약:</h5><p>${data.summary.replace(/\n/g, '<br>')}</p>`;
-                })
-                .catch(error => console.error('Error:', error));
+                    .then(response => response.json())
+                    .then(data => {
+                        summaryContent.innerHTML = `<h5>요약:</h5><p>${data.summary.replace(/\n/g, '<br>')}</p>`;
+                    })
+                    .catch(error => console.error('Error:', error));
             });
 
-            function formatContent(content) {
-                return content.split('\n\n').map(paragraph => `<p>${paragraph.replace(/\n/g, '<br>')}</p>`).join('');
-            }
-
-            // 크롤링 함수
-            function crawlArticles() {
-                // 로딩창 표시
-                document.getElementById('loading').style.display = 'block';
-                const progressBar = document.querySelector('.progress');
-
-                // 프로그레스 바 초기화
-                progressBar.style.width = '0%';
-
-                // 비동기 요청 시작
-                fetch("{% url 'articles' %}")
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.text();
-                    })
-                    .then(html => {
-                        // 로딩창 숨김
-                        document.getElementById('loading').style.display = 'none';
-
-                        // 크롤링 결과를 articles-content에 로드
-                        document.getElementById('articles-content').innerHTML = html;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        document.getElementById('loading').style.display = 'none';
-                    });
-
-                // 프로그레스 바 애니메이션
-                let width = 0;
-                const interval = setInterval(() => {
-                    if (width >= 100) {
-                        clearInterval(interval);
-                    } else {
-                        width += 10;
-                        progressBar.style.width = width + '%';
-                    }
-                }, 300);
-            }
-
-            // Articles 버튼 클릭 이벤트
+            // 새로고침만 되는 Articles 버튼 클릭 이벤트
             document.getElementById('crawl-articles-btn').addEventListener('click', function (event) {
-                event.preventDefault();
-                crawlArticles();
+                window.location.reload();
             });
         });
+
     </script>
 {% endblock %}
