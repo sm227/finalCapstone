@@ -40,8 +40,6 @@ def dashboard(request):
     PnL = balance['output3'].get('tot_evlu_pfls_amt')
 
 
-    # print(PnL)
-
     context = {
         'acc_no': os.getenv('acc_no'),
         'stocks': stock_holdings,
