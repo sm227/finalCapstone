@@ -1,4 +1,9 @@
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import os
+import openai
+from django.utils.html import escape
 
 # articles/views.py
 
@@ -12,6 +17,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from tensorboard import summary
 
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 def crawl_news():
     url = "https://www.investing.com/news/stock-market-news"
@@ -21,7 +27,7 @@ def crawl_news():
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     soup = BeautifulSoup(response.text, 'html.parser')
-    news_list = soup.select('a[data-test="article-title-link"]')[:15]
+    news_list = soup.select('a[data-test="article-title-link"]')[:30]
 
     news_data = []
     for news in news_list:
@@ -46,7 +52,10 @@ def crawl_article_content(article_url):
     article_body = soup.select_one('div.article_WYSIWYG__O0uhw')
 
     if article_body:
-        return article_body.get_text(strip=True)
+        paragraphs = article_body.find_all('p')
+        formatted_content = '\n\n'.join(p.get_text(strip=True) for p in paragraphs)
+        return formatted_content
+        #return article_body.get_text(strip=True)
     else:
         return "No article content found."
 
@@ -74,7 +83,6 @@ def articles(request):
 
     return render(request, 'articles/articles.html', context)
 
-
 # 프롬프트 생성 함수
 def generate_summary_prompt(article_title, article_content):
     """
@@ -91,6 +99,9 @@ def generate_summary_prompt(article_title, article_content):
     이 글을 핵심 사항을 다루면서 요약하고 요약 내용을 글머리말로 표현해 주세요:
     - 짧고 명확한 문장을 사용합니다.
     - 가장 중요한 정보에 집중하세요.
+    - 불필요한 기호나 목록 표시 없이 깔끔하게 작성하세요.
+    - 가독성이 좋게 문단을 나눠주고 줄바꿈을 확실하게 해주세요.
+    - 만약, 기사 내용이 너무 짧다면, 기사 전문을 한국어로 번역을 해주세요.
     """
     return prompt
 
@@ -145,8 +156,9 @@ def summarize_article(request):
 
             if response:
                 # summary = response.generated_texts[0]  # 요약된 텍스트
-                summary = response.text
-                return JsonResponse({'summary': summary})
+                summary = response.text.strip()
+                summary_html = escape(summary).replace('\n', '<br>')
+                return JsonResponse({'summary': summary_html})
             else:
                 return JsonResponse({'summary': '요약 실패'}, status=500)
 
