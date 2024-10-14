@@ -3,6 +3,10 @@
 {% load static %}
 
 {% block content %}
+    <head>
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    </head>
+
     <style>
         body {
             background-color: #121212;
@@ -12,7 +16,60 @@
         .card {
             background-color: #1e1e1e;
             border-color: #333;
-            height: 300px;
+            margin: 15px;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 300px;
+        }
+
+        .card-footer {
+            background-color: #1e1e1e;
+            border-top: none;
+            display: flex;
+        }
+
+        .card-body {
+            background-color: #1e1e1e;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: transparent transparent;
+            {#padding-right: 10px;#}
+        }
+
+        .card-body::-webkit-scrollbar {
+            width: 5px;
+            background: transparent;
+        }
+
+        .card-body::-webkit-scrollbar-thumb {
+            background-color: #888;
+            border-radius: 10px;
+        }
+
+        .card-body::-webkit-scrollbar-thumb:hover {
+            background-color: #555; 
+        }
+
+        .card-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        
+        .card-body::-webkit-scrollbar-button {
+            display: none; 
+        }
+
+        .card-body p {
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            align-self: flex-start;
+            margin-top: auto;
         }
 
         .table {
@@ -31,7 +88,34 @@
         .text-dark {
             color: #e0e0e0 !important;
         }
-        
+
+        #loading-spinner {
+            display: none;
+            width: 3rem;
+            height: 3rem;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #loading-message {
+            text-align: center;
+            margin-top: 10px;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
     </style>
 
     <!-- sidebar -->
@@ -43,6 +127,11 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'dashboard' %}">
                                 <i class="bi bi-house-door"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="{% url 'trading' %}">
+                                <i class="bi bi-currency-exchange"></i> Trading
                             </a>
                         </li>
                         <li class="nav-item">
@@ -70,20 +159,22 @@
                 </div>
 
                 <!-- 기사 -->
-                <div class="row" id="articles-content">
+                <div class="row g-3" id="articles-content">
                     {% for article in news %}
                         <div class="col-md-4 article-card">
-                            <div class="card">
-                                <div class="card-body">
+                            <div class="card h-100">
+                                <div class="card-body overflow-auto" style="max-height: 300px;">
                                     <h5 class="card-title">
                                         <a href="{{ article.link }}" class="text-light"
                                            style="text-decoration: none;">{{ article.title }}</a>
                                     </h5>
                                     <p class="card-text">{{ article.content|truncatewords:30 }}</p>
-                                    <button class="btn btn-primary" data-content="{{ article.content }}"
-                                            data-title="{{ article.title }}" data-bs-toggle="modal"
-                                            data-bs-target="#articleModal">Read More
-                                    </button>
+                                    <div class="card-footer">
+                                        <button class="btn btn-primary" data-content="{{ article.content }}"
+                                                data-title="{{ article.title }}" data-bs-toggle="modal"
+                                                data-bs-target="#articleModal">Read More
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -102,12 +193,15 @@
                             </div>
                             <div class="modal-body">
                                 <div id="modal-body-content"></div>
+                                <div id="loading-spinner"></div>
+                                <p id="loading-message" style="text-align: center; display: none;">Generating
+                                    summary...</p>
                                 <hr>
                                 <div id="summary-content"></div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button id="summarize-btn" class="btn btn-info">요약하기</button> <!-- 요약하기 버튼 -->
+                                <button id="summarize-btn" class="btn btn-info">Summarize</button> <!-- 요약하기 버튼 -->
                             </div>
                         </div>
                     </div>
@@ -123,6 +217,8 @@
             const modalBody = document.getElementById('modal-body-content');
             const modalTitle = document.getElementById('articleModalLabel');
             const summaryContent = document.getElementById('summary-content');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const loadingMessage = document.getElementById('loading-message');
             let currentArticleContent = '';
 
             buttons.forEach(button => {
@@ -139,6 +235,9 @@
 
             // 요약하기 버튼 클릭 이벤트
             document.getElementById('summarize-btn').addEventListener('click', function () {
+                loadingSpinner.style.display = 'block';
+                loadingMessage.style.display = 'block';
+
                 fetch("{% url 'summarize_article' %}", {
                     method: 'POST',
                     headers: {
@@ -149,8 +248,11 @@
                 })
                     .then(response => response.json())
                     .then(data => {
+                        loadingSpinner.style.display = 'none';
+                        loadingMessage.style.display = 'none';
                         summaryContent.innerHTML = `<h5>요약:</h5><p>${data.summary.replace(/\n/g, '<br>')}</p>`;
                     })
+
                     .catch(error => console.error('Error:', error));
             });
 

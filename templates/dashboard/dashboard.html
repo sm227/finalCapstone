@@ -3,6 +3,7 @@
 {% load static %}
 
 {% block content %}
+    
     <style>
         body {
             background-color: #121212;
@@ -47,6 +48,7 @@
         }
 
         .progress-bar {
+            position: relative;
             width: 50%;
             height: 30px;
             background-color: #333;
@@ -61,12 +63,23 @@
             background-color: #007bff;
             transition: width 0.4s ease;
         }
+
+        #progress-percent {
+            position: absolute;
+            top: 50%; 
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            z-index: 1;
+        }
     </style>
 
     <!-- 로딩창 -->
     <div id="loading">
         <div class="progress-bar">
             <div class="progress"></div>
+            <span id="progress-percent">0%</span>
         </div>
         <p>Loading...</p>
     </div>
@@ -174,6 +187,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link text-light" href="{% url 'trading' %}">
+                                <i class="bi bi-currency-exchange"></i> Trading
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link text-light" href="#">
                                 <i class="bi bi-graph-up"></i> Analytics
                             </a>
@@ -197,7 +215,7 @@
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">AI Stock Investment Dashboard</h1>
                 </div>
-                <p>계좌번호 : {{ acc_no }}</p>
+                <p>Account Num : {{ acc_no }}</p>
 
                 <!-- Summary Cards -->
                 <div class="row mb-4">
@@ -210,10 +228,12 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div {% if PnL > 0 %} class="card text-white bg-success mb-3" {% else %} class="card text-white bg-danger mb-3" {% endif %}>
+                        <div {% if PnL > 0 %} class="card text-white bg-success mb-3" {% else %}
+                                              class="card text-white bg-danger mb-3" {% endif %}>
                             <div class="card-body">
                                 <h5 class="card-title">PnL</h5>
-                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma}} KRW{% else %} {{ PnL|floatformat:0 |intcomma}} KRW  {% endif %}    </p>
+                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma }}
+                                    KRW{% else %} {{ PnL|floatformat:0 |intcomma }} KRW  {% endif %}    </p>
                             </div>
                         </div>
                     </div>
@@ -295,37 +315,37 @@
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            
+
             const stockLinks = document.querySelectorAll('.stock-link');
-                        const modal = new bootstrap.Modal(document.getElementById('tradingViewModal'));
+            const modal = new bootstrap.Modal(document.getElementById('tradingViewModal'));
 
-                        stockLinks.forEach(link => {
-                            link.addEventListener('click', function (e) {
-                                e.preventDefault();
-                                const symbol = this.getAttribute('data-symbol');
-                                document.getElementById('tradingViewModalLabel').textContent = `${this.textContent} (${symbol})`;
+            stockLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const symbol = this.getAttribute('data-symbol');
+                    document.getElementById('tradingViewModalLabel').textContent = `${this.textContent} (${symbol})`;
 
-                                // Clear previous widget
-                                document.getElementById('tradingview_widget_container').innerHTML = '';
+                    // Clear previous widget
+                    document.getElementById('tradingview_widget_container').innerHTML = '';
 
-                                // Create new TradingView widget
-                                new TradingView.widget({
-                                    "autosize": true,
-                                    "symbol": symbol,
-                                    "interval": "D",
-                                    "timezone": "Etc/UTC",
-                                    "theme": "dark",
-                                    "style": "1",
-                                    "locale": "en",
-                                    "toolbar_bg": "#f1f3f6",
-                                    "enable_publishing": false,
-                                    "allow_symbol_change": true,
-                                    "container_id": "tradingview_widget_container"
-                                });
+                    // Create new TradingView widget
+                    new TradingView.widget({
+                        "autosize": true,
+                        "symbol": symbol,
+                        "interval": "D",
+                        "timezone": "Etc/UTC",
+                        "theme": "dark",
+                        "style": "1",
+                        "locale": "en",
+                        "toolbar_bg": "#f1f3f6",
+                        "enable_publishing": false,
+                        "allow_symbol_change": true,
+                        "container_id": "tradingview_widget_container"
+                    });
 
-                                modal.show();
-                            });
-                        });
+                    modal.show();
+                });
+            });
 
             // Articles 버튼 클릭 이벤트
             document.getElementById('crawl-articles-btn').addEventListener('click', function (event) {
@@ -338,18 +358,22 @@
             function showLoading() {
                 document.getElementById('loading').style.display = 'block';
                 const progressBar = document.querySelector('.progress');
+                const percentDisplay = document.getElementById('progress-percent');
+                const loadingMessage = document.querySelector('#loading p');
                 progressBar.style.width = '0%';
 
                 let width = 0;
                 const interval = setInterval(() => {
                     if (width >= 100) {
                         clearInterval(interval);
+                        loadingMessage.textContent = "Still working...";
                     } else {
-                        width += 10;
+                        width += 0.5;
                         progressBar.style.width = width + '%';
+                        percentDisplay.textContent = Math.floor(width) + '%';
                     }
-                }, 1500);
-                
+                }, 50);
+
                 window.onload = function () {
                     clearInterval(interval);
                     progressBar.style.width = '100%';
