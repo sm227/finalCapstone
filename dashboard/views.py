@@ -38,11 +38,15 @@ def dashboard(request):
 
     total_value = balance['output3'].get('tot_asst_amt', 0)
 
+    PnL = balance['output3'].get('tot_evlu_pfls_amt')
+
+
     context = {
         'acc_no': os.getenv('acc_no'),
         'stocks': stock_holdings,
         'total_value': total_value,
         'total_stocks': len(stock_holdings),
+        'PnL': float(PnL)
     }
 
     return render(request, 'dashboard/dashboard.html', context)
