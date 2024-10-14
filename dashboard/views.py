@@ -4,7 +4,8 @@ from dotenv import load_dotenv
 from .models import Stock
 from django.utils import timezone
 import mojito
-
+import time
+from django.http import JsonResponse
 
 def dashboard(request):
     load_dotenv()
@@ -45,3 +46,22 @@ def dashboard(request):
     }
 
     return render(request, 'dashboard/dashboard.html', context)
+
+# 비동기 작업을 시작하는 함수
+def start_long_task(request):
+    # 작업을 시작할 때 세션에 진행 상태 초기화
+    request.session['progress_status'] = 0
+
+    # 시간이 오래 걸리는 작업 시뮬레이션
+    for i in range(10):
+        time.sleep(1)  # 각 단계마다 1초 대기
+        request.session['progress_status'] = (i + 1) * 10  # 10%씩 진행
+        request.session.modified = True  # 세션 변경을 알리기 위해 세션을 수정
+
+    return JsonResponse({'status': 'Task started'})
+
+# 진행 상태를 클라이언트에 전달하는 뷰
+def get_progress_status(request):
+    # 세션에 저장된 진행 상태를 반환
+    progress_status = request.session.get('progress_status', 0)
+    return JsonResponse({'progress': progress_status})
