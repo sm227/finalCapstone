@@ -205,7 +205,7 @@
                         <div class="card text-white bg-primary">
                             <div class="card-body">
                                 <h5 class="card-title">Total Amount</h5>
-                                <p class="card-text display-6">{{ total_value|floatformat:0|intcomma }} 원</p>
+                                <p class="card-text display-6">{{ total_value|floatformat:0|intcomma }} KRW</p>
                             </div>
                         </div>
                     </div>
@@ -213,7 +213,7 @@
                         <div {% if PnL > 0 %} class="card text-white bg-success mb-3" {% else %} class="card text-white bg-danger mb-3" {% endif %}>
                             <div class="card-body">
                                 <h5 class="card-title">PnL</h5>
-                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma}} 원{% else %} -{{ PnL|floatformat:0 |intcomma}} 원  {% endif %}    </p>
+                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma}} KRW{% else %} {{ PnL|floatformat:0 |intcomma}} KRW  {% endif %}    </p>
                             </div>
                         </div>
                     </div>
