@@ -10,7 +10,6 @@ import os
 import google.generativeai as genai
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from tensorboard import summary
 
 
 def crawl_news():
