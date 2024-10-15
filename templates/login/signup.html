@@ -2,59 +2,67 @@
 {% load static %}
 
 {% block content %}
-<style>
-    body {
-        background-color: #121212;
-        color: #e0e0e0;
-    }
-    .card {
-        background-color: #1e1e1e;
-        border-color: #333;
-    }
-    .form-control {
-        background-color: #333;
-        border-color: #444;
-        color: #e0e0e0;
-    }
-    .btn-primary {
-        background-color: #007bff;
-        border-color: #007bff;
-    }
-</style>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="text-center">회원가입</h3>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="username" class="form-label">아이디</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">비밀번호</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="api_key" class="form-label">API Key</label>
-                            <input type="text" class="form-control" id="api_key" name="api_key" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="api_secret" class="form-label">API Secret Key</label>
-                            <input type="text" class="form-control" id="api_secret" name="api_secret" required>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">회원가입</button>
-                        </div>
-                    </form>
+        .card {
+            background-color: #1e1e1e;
+            border-color: #333;
+        }
+
+        .form-control {
+            background-color: #333;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+    </style>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">회원가입</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="username" class="form-label">아이디</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">비밀번호</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="api_key" class="form-label">API Key</label>
+                                <input type="text" class="form-control" id="api_key" name="api_key" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="api_secret" class="form-label">API Secret Key</label>
+                                <input type="text" class="form-control" id="api_secret" name="api_secret" required>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">회원가입</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
-</div>
 {% endblock %}

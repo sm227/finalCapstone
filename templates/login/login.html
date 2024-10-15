@@ -48,9 +48,14 @@
                             </div>
                         </form>
                     </div>
-                <a href="{% url 'signup' %}" class="text-center">회원가입</a>
+                    <a href="{% url 'signup' %}" class="text-center">회원가입</a>
                 </div>
             </div>
         </div>
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
     </div>
 {% endblock %}
