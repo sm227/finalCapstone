@@ -43,7 +43,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
+    # 'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
@@ -134,5 +134,5 @@ LOGIN_REDIRECT_URL = 'dashboard'  # 'dashboard'는 여러분의 대시보드 뷰
 LOGIN_URL = 'login'
 
 # CSRF 쿠키와 세션 쿠키를 안전하게 만들기 위한 설정
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
