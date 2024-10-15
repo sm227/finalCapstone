@@ -178,7 +178,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="{% url 'articles' %}">
+                            <a class="nav-link active" href="{% url 'articles' %}" id="crawl-articles-btn">
                                 <i class="bi bi-newspaper"></i> Articles
                             </a>
                         </li>
@@ -267,6 +267,17 @@
                 const symbol = "AAPL";
                 const quantity = document.getElementById('quantity').value;
 
+                const buySound = new Audio("{% static 'mp3/buy.mp3' %}");
+                const sellSound = new Audio("{% static 'mp3/sell.mp3' %}");
+                const buyFailedSound = new Audio("{% static 'mp3/buyFailed.mp3' %}");
+                const sellFailedSound = new Audio("{% static 'mp3/sellFailed.mp3' %}");
+
+                {#if (action === 'buy') {#}
+                {#    buySound.play();#}
+                {# else if (action === 'sell') {#}
+                {#    sellSound.play();#}
+
+
                 fetch("#", {
                     method: 'POST',
                     headers: {
@@ -280,15 +291,30 @@
                         if (data.success) {
                             const message = action === 'buy' ? 'Buy order placed successfully!' : 'Sell order placed successfully!';
                             showToast(message);
+                            if (action === 'buy') {
+                                buySound.play();
+                            } else {
+                                sellSound.play();
+                            }
                         } else {
                             const message = action === 'buy' ? 'The buy order was not executed.' : 'The sell order was not executed.';
                             showToast(message);
+                            if (action === 'buy') {
+                                buyFailedSound.play();
+                            } else {
+                                sellFailedSound.play();
+                            }
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
                         const message = action === 'buy' ? 'The buy order was not executed.' : 'The sell order was not executed.';
                         showToast(message);
+                        if (action === 'buy') {
+                            buyFailedSound.play();
+                        } else {
+                            sellFailedSound.play();
+                        }
                     });
             }
 
@@ -300,13 +326,13 @@
                 const toast = new bootstrap.Toast(toastElement);
                 toast.show();
             }
-            
+
             // Articles 버튼 클릭 이벤트
             document.getElementById('crawl-articles-btn').addEventListener('click', function (event) {
                 event.preventDefault();
                 showLoading();
-                
-                setTimeout(function(){
+
+                setTimeout(function () {
                     window.location.href = "{% url 'articles' %}";
                 }, 100);
             });
