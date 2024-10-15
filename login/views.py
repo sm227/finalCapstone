@@ -15,13 +15,14 @@ def signup(request):
         password = request.POST['password']
         api_key = request.POST['api_key']
         api_secret = request.POST['api_secret']
+        acc_num = request.POST['acc_num']
 
         if User.objects.filter(username=username).exists():
             messages.error(request, '이미 존재하는 사용자명입니다.')
             return render(request, 'login/signup.html')
 
         user = User.objects.create_user(username=username, password=password)
-        UserProfile.objects.create(user=user, api_key=api_key, api_secret=api_secret)
+        UserProfile.objects.create(user=user, api_key=api_key, api_secret=api_secret, acc_num=acc_num)
 
         messages.success(request, '회원가입이 완료되었습니다. 로그인해주세요.')
         return redirect('login')
