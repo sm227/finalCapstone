@@ -122,6 +122,9 @@
         }
     </script>
     <!-- TradingView Widget END -->
+     {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}">로그아웃</a>
+    {% endif %}
 
     <div class="container-fluid">
         <div class="row">

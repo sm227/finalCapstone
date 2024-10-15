@@ -1,8 +1,9 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 # Create your views here.
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import UserProfile
@@ -42,3 +43,10 @@ def user_login(request):
             messages.error(request, '아이디 또는 비밀번호가 올바르지 않습니다.')
 
     return render(request, 'login/login.html')
+
+
+@login_required
+def user_logout(request):
+    logout(request)
+    messages.success(request, "성공적으로 로그아웃되었습니다.")
+    return redirect('login')  # 로
