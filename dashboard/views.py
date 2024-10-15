@@ -25,7 +25,7 @@ def dashboard(request):
     broker = mojito.KoreaInvestment(
         api_key=user_profile.api_key,
         api_secret=user_profile.api_secret,
-        acc_no=os.getenv('acc_no'),  # acc_no는 여전히 환경 변수에서 가져옵니다.
+        acc_no=user_profile.acc_num,  # acc_no는 여전히 환경 변수에서 가져옵니다.
         exchange='나스닥',
         mock=True
     )

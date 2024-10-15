@@ -8,6 +8,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     api_key = models.CharField(max_length=100)
     api_secret = models.CharField(max_length=100)
+    acc_num = models.CharField(max_length=100)
 
     def __str__(self):
         return self.user.username
