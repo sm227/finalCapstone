@@ -34,5 +34,6 @@ jobs:
           source venv/bin/activate
           pip install -r requirements.txt
           python3 manage.py migrate
-          python3 manage.py runserver 0.0.0.0:8000
+          nohup python3 manage.py runserver 0.0.0.0:8000 > django.log 2>&1 &
+          sleep 2
           echo "Deployment completed"
