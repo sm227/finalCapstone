@@ -30,7 +30,7 @@ jobs:
         key: ${{ secrets.ORACLE_SSH_PRIVATE_KEY }}
         script: |
           cd /home/ubuntu/AiStock/finalCapstone
-          git pull origin master
+          sudo git pull origin master
           source venv/bin/activate
           pip install -r requirements.txt
           python3 manage.py migrate
