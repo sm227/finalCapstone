@@ -29,10 +29,10 @@ jobs:
         username: ${{ secrets.ORACLE_USER }}
         key: ${{ secrets.ORACLE_SSH_PRIVATE_KEY }}
         script: |
-          
-          cd /AiStock/finalCapstone
+          sudo pkill -f runserver
+          cd /home/ubuntu/AiStock/finalCapstone
           git pull origin main
           source venv/bin/activate
           pip install -r requirements.txt
-          python manage.py migrate
-          python manage.py runserver 0.0.0.0:8000
+          python3 manage.py migrate
+          nohup python3 manage.py runserver 0.0.0.0:8000 &
