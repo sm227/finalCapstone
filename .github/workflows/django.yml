@@ -29,7 +29,6 @@ jobs:
         username: ${{ secrets.ORACLE_USER }}
         key: ${{ secrets.ORACLE_SSH_PRIVATE_KEY }}
         script: |
-          sudo pkill -f runserver
           cd /home/ubuntu/AiStock/finalCapstone
           git pull origin main
           source venv/bin/activate
