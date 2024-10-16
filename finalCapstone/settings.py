@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-sck3$w3hl=lv=t&p*^95apyb4&b7is#vz2&b__8rm-m16_8&#-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["144.24.66.142",'localhost','127.0.0.1']
 
 # Application definition
 
@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'landing',
     'articles',
     'trading',
+    'login',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,10 +45,10 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
+    # 'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -116,7 +117,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # Default primary key field type
@@ -125,3 +126,15 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# 메시지 프레임워크 설정
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+# 로그인 후 리다이렉트될 URL
+LOGIN_REDIRECT_URL = 'dashboard'  # 'dashboard'는 여러분의 대시보드 뷰의 name입니다.
+
+# 로그인이 필요한 페이지에 접근했을 때 리다이렉트될 URL
+LOGIN_URL = 'login'
+
+# CSRF 쿠키와 세션 쿠키를 안전하게 만들기 위한 설정
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
