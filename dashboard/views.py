@@ -9,7 +9,8 @@ import mojito
 from login.models import UserProfile
 from django.contrib import messages
 
-@login_required
+
+@login_required(login_url='login')
 def dashboard(request):
     load_dotenv()
 
@@ -43,6 +44,7 @@ def dashboard(request):
             'exchange_code': comp['ovrs_excg_cd'],
             'market_name': comp['tr_mket_name'],
             'profit_loss_rate': float(comp['evlu_pfls_rt1']),
+
             'exchange_rate': float(comp['bass_exrt']),
             'purchase_amount_foreign': float(comp['frcr_pchs_amt']),
             'last_updated': timezone.now(),
@@ -60,7 +62,3 @@ def dashboard(request):
     }
 
     return render(request, 'dashboard/dashboard.html', context)
-
-
-# def ROI(request):
-#     return render(request,"dashboard/views.py")

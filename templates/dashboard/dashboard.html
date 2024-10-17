@@ -139,6 +139,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link text-light" href="{% url 'trading' %}">
+                                <i class="bi bi-currency-exchange"></i> Trading
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link text-light" href="#">
                                 <i class="bi bi-graph-up"></i> Analytics
                             </a>
@@ -162,15 +167,15 @@
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">AI Stock Investment Dashboard</h1>
                 </div>
-                <p>계좌번호 : {{ acc_no }}</p>
+                <p>Account Num : {{ acc_no }}</p>
 
                 <!-- Summary Cards -->
                 <div class="row mb-4">
                     <div class="col-md-4">
                         <div class="card text-white bg-primary">
                             <div class="card-body">
-                                <h5 class="card-title">총 자산</h5>
-                                <p class="card-text display-6">{{ total_value|floatformat:0|intcomma }} 원</p>
+                                <h5 class="card-title">Total Amount</h5>
+                                <p class="card-text display-6">{{ total_value|floatformat:0|intcomma }} KRW</p>
                             </div>
                         </div>
                     </div>
