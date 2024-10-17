@@ -113,11 +113,10 @@
 
         /* 폼 컨테이너 스타일 */
         .custom-form-container {
-            background-color: black;
+            background-color: #121212;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 300px;
+        {#box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);#} max-width: 300px;
         }
 
         /* 입력 필드 스타일 */
@@ -221,6 +220,24 @@
             text-transform: uppercase;
         }
 
+        .custom-form-container {
+            width: 100%; /* 100% 너비 */
+            max-width: 300px; /* 최대 너비를 400px로 고정 */
+            min-width: 300px; /* 최소 너비를 300px로 고정 */
+            margin: 0 auto; /* 가운데 정렬 */
+        }
+
+
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* 파이어폭스 */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
     </style>
 
     <!-- 로딩창 -->
@@ -294,11 +311,12 @@
                                            placeholder="Enter stock code" required>
                                 </div>
 
-                                <div class="custom-form-group">
+                                <div class="custom-form-group" style="position: relative">
                                     <label for="price">Price:</label>
                                     <input type="number" id="buy_price" name="price" class="custom-input"
                                            placeholder="Enter price"
-                                           step="0.01" required>
+                                           step="0.01" required style="padding-right: 50px;">
+                                    <span style="position: absolute; right: 20px; top: 69%; transform: translateY(-50%); color: black;">US$</span>
                                 </div>
 
                                 <div class="custom-form-group">
@@ -314,7 +332,7 @@
 
                         <!-- 매도 -->
                         <div id="sellFormContainer" style="display: none;">
-                            <form method="POST" action="{% url 'place_order' %}" id="sellForm">
+                            <form method="POST" action="{% url 'place_order_sell' %}" id="sellForm">
                                 {% csrf_token %}
                                 <div class="custom-form-group">
                                     <label for="sell_stock_code">Stock Code:</label>
@@ -322,11 +340,12 @@
                                            placeholder="Enter stock code" required>
                                 </div>
 
-                                <div class="custom-form-group">
+                                <div class="custom-form-group" style="position: relative">
                                     <label for="sell_price">Price:</label>
                                     <input type="number" id="sell_price" name="price" class="custom-input"
                                            placeholder="Enter price"
                                            step="0.01" required>
+                                    <span style="position: absolute; right: 20px; top: 69%; transform: translateY(-50%); color: black;">US$</span>
                                 </div>
 
                                 <div class="custom-form-group">
@@ -345,13 +364,12 @@
 
                 <!-- 토스트 -->
                 <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                        <div class="toast-header">
-                            <strong class="me-auto">Alert</strong>
-                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>
-                        <div class="toast-body" id="toast-message">
-                            The buy order was not executed.
+                    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="background-color: #2B3139">
+                        <div class="d-flex">
+                            <div class="toast-body text-white" id="toast-message">
+                                Order notional cannot be less than 134.6 USDT. This does not apply to reduce only orders.
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                         </div>
                     </div>
                 </div>
@@ -467,19 +485,19 @@
                         if (data.message === 'complete') {
                             // 주문 성공 시 사운드 재생
                             buySound.play();
-                            showToast('Order placed successfully!');
+                            showToast('success','매수 주문이 성공적으로 체결되었습니다');
 
                             //widget.setSymbol(enteredSymbol, "D");
                         } else if (data.message === 'market_not_open') {
                             buyFailedSound.play();
-                            showToast('모의투자 장 시작전 입니다.');
+                            showToast('failed','매수 가능 시간이 아닙니다 <br> 모의투자 가능 시간 ( 23:30 ~ 06:00 )<br> 서머타임 적용 시 ( 22:30 ~ 05:00 )');
                         } else if (data.message === 'stockcode_not_exist') {
                             buyFailedSound.play();
-                            showToast('해당 종목이 없습니다. <br> 종목 코드를 다시 한번 확인하세요')
+                            showToast('failed','해당 종목이 없습니다 <br> 종목 코드를 다시 한번 확인하세요')
                         } else {
                             // 주문 실패 시 실패 사운드 재생
                             buyFailedSound.play();
-                            showToast('The buy order was not executed.');
+                            showToast('failed','매수 주문이 체결되지 않았습니다 <br> 잔고를 확인해 주세요');
                         }
                     })
                     .catch(error => {
@@ -493,6 +511,7 @@
 
             document.getElementById('sellForm').addEventListener('submit', function (event) {
                 event.preventDefault();
+                console.log('sell form submitted');
 
                 const sellSound = new Audio("{% static 'mp3/sell.mp3' %}");
                 const sellFailedSound = new Audio("{% static 'mp3/sellFailed.mp3' %}");
@@ -538,36 +557,39 @@
                         if (data.message === 'complete') {
                             // 주문 성공 시 사운드 재생
                             sellSound.play();
-                            showToast('Order placed successfully!');
+                            showToast('success','매도 주문이 성공적으로 체결되었습니다');
 
                             //widget.setSymbol(enteredSymbol, "D");
                         } else if (data.message === 'market_not_open') {
                             sellFailedSound.play();
-                            showToast('모의투자 장 시작전 입니다.');
+                            showToast('failed','매도 가능 시간이 아닙니다 <br> 모의투자 가능 시간 ( 23:30 ~ 06:00 )<br> 서머타임 적용 시 ( 22:30 ~ 05:00 )');
                         } else if (data.message === 'stockcode_not_exist') {
                             sellFailedSound.play();
-                            showToast('해당 종목이 없습니다. <br> 종목 코드를 다시 한번 확인하세요')
+                            showToast('failed','해당 종목이 없습니다 <br> 종목 코드를 다시 한번 확인하세요')
                         } else {
                             // 주문 실패 시 실패 사운드 재생
                             sellFailedSound.play();
-                            showToast('The buy order was not executed.');
+                            showToast('매도 주문이 정상적으로 이루어지지 않았습니다');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
                         // 에러 발생 시 실패 사운드 재생
                         sellFailedSound.play();
-                        showToast('An error occurred while placing the sell order.');
+                        showToast('failed','매도 주문이 체결되지 않았습니다. <br> 잔고를 확인해 주세요.');
                     });
             });
 
 
-            function showToast(message) {
+            function showToast(status, message) {
                 const toastMessage = document.getElementById('toast-message');
-                toastMessage.innerHTML = message;
+                let imagePath = status === 'success' ? '{% static "img/success.png" %}' : '{% static "img/failed.png" %}';
+                toastMessage.innerHTML = `<img src="${imagePath}" alt="${status}" style="width: 20px; height: 20px; margin-right: 10px;"> ${message}`;
 
                 const toastElement = document.getElementById('toast');
-                const toast = new bootstrap.Toast(toastElement);
+                const toast = new bootstrap.Toast(toastElement, {
+                    autohide: false
+                });
                 toast.show();
             }
         });
