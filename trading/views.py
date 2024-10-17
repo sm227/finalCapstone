@@ -5,7 +5,6 @@ from login.models import UserProfile
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from dotenv import load_dotenv
-from pykis import PyKis
 import json
 from django.views.decorators.csrf import csrf_exempt
 

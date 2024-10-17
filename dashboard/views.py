@@ -10,6 +10,7 @@ from login.models import UserProfile
 from django.contrib import messages
 
 
+@login_required(login_url='login')
 def dashboard(request):
     load_dotenv()
 
