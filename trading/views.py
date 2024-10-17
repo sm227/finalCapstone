@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-import mojito
+import module.koreainvestment as mojito
 from django.http import JsonResponse
 from login.models import UserProfile
 from django.contrib.auth.decorators import login_required
