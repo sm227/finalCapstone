@@ -53,6 +53,10 @@ def place_order(request):
             # 주문 응답 처리
             if response.get('rt_cd') == '0' and '모의투자 매수주문이 완료 되었습니다.' in response.get('msg1', ''):
                 return JsonResponse({'message': 'complete'})
+            elif '모의투자 장시작전 입니다.' in response.get('msg1', ''):
+                return JsonResponse({'message': 'market_not_open'}, status=400)
+            elif '모의투자 주문처리가 안되었습니다(매매불가 종목)' in response.get('msg1', ''):
+                return JsonResponse({'message': 'stockcode_not_exist'}, status=400)
             else:
                 err_message = response.get('msg1', 'Unknown error')
                 return JsonResponse({'message': f'failed: {err_message}'}, status=400)
@@ -64,6 +68,62 @@ def place_order(request):
             return JsonResponse({'message': f'error: {str(e)}'}, status=400)
 
         return JsonResponse({'message': 'Invalid request method'}, status=405)
+
+
+@csrf_exempt
+def place_order_sell(request):
+    # 현재 로그인한 사용자의 UserProfile 가져오기
+    try:
+        user_profile = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        # UserProfile이 없는 경우 에러 처리
+        return JsonResponse({'message': '사용자 프로필을 찾을 수 없습니다.'}, status=400)
+
+    # 한국투자 API 연결
+    broker = mojito.KoreaInvestment(
+        api_key=user_profile.api_key,
+        api_secret=user_profile.api_secret,
+        acc_no=user_profile.acc_num,  # 계좌 번호
+        exchange='나스닥',  # 애플 주식을 구매할 때 사용 (NASDAQ)
+        mock=True  # 모의 투자 모드
+    )
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            stock_code = data.get('stock_code')
+            price = float(data.get('price'))
+            quantity = int(data.get('quantity', 1))
+
+            if price is None or quantity is None or stock_code is None:
+                return JsonResponse({'message': '필수 매개변수가 누락되었습니다.'}, status=400)
+
+            response = broker.create_oversea_order(
+                side='sell',
+                symbol=stock_code,
+                price=price,
+                quantity=quantity,
+                order_type="00"
+            )
+            print(response)
+            if response.get('rt_cd') == '0' and '모의투자 매도주문이 완료 되었습니다.' in response.get('msg1', ''):
+                return JsonResponse({'message': 'complete'})
+            elif '모의투자 장시작전 입니다.' in response.get('msg1', ''):
+                return JsonResponse({'message': 'market_not_open'}, status=400)
+            elif '모의투자 주문처리가 안되었습니다(매매불가 종목)' in response.get('msg1', ''):
+                return JsonResponse({'message': 'stockcode_not_exist'}, status=400)
+            else:
+                err_message = response.get('msg1', 'Unknown error')
+                return JsonResponse({'message': f'failed: {err_message}'}, status=400)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'message': 'Invalid JSON format'}, status=400)
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            return JsonResponse({'message': f'error: {str(e)}'}, status=400)
+
+
+    return JsonResponse({'message': 'Invalid request method'}, status=405)
 
 
 def trading(request):
