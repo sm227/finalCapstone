@@ -89,22 +89,27 @@
                 <div class="position-sticky">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'dashboard' %}">
+                            <a class="nav-link text-light" href="{% url 'dashboard' %}">
                                 <i class="bi bi-house-door"></i> Dashboard
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link text-light" href="{% url 'trading' %}">
+                                <i class="bi bi-currency-exchange"></i> Trading
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="#">
                                 <i class="bi bi-graph-up"></i> Analytics
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link text-light" href="#">
                                 <i class="bi bi-wallet2"></i> Portfolio
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="{% url 'articles' %}">
+                            <a class="nav-link active text-light" href="{% url 'articles' %}">
                                 <i class="bi bi-newspaper"></i> Articles
                             </a>
                         </li>

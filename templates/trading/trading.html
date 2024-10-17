@@ -53,7 +53,7 @@
         }
 
         .toast-header {
-            background-color: #2c2c2c;
+            background-color: darkgreen;
             color: #ffffff;
         }
 
@@ -99,6 +99,145 @@
             z-index: 1;
         }
 
+        .trading-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        /* 차트 영역 */
+        .chart-container {
+            flex: 1;
+            margin-right: 20px;
+        }
+
+        /* 폼 컨테이너 스타일 */
+        .custom-form-container {
+            background-color: #121212;
+            padding: 20px;
+            border-radius: 10px;
+        {#box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);#} max-width: 300px;
+        }
+
+        /* 입력 필드 스타일 */
+        .custom-form-group {
+            margin-bottom: 15px;
+        }
+
+        .custom-form-group label {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .custom-input {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            width: 100%;
+            font-size: 16px;
+            box-shadow: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .custom-input:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        /* 매수, 매도 버튼 스타일 */
+        .custom-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .custom-btn.sell {
+            background-color: #dc3545;
+        }
+
+        .custom-btn:hover {
+            background-color: #218838;
+        }
+
+        .custom-btn.sell:hover {
+            background-color: #c82333;
+        }
+
+        /* 버튼 컨테이너 */
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 매수(Buy) 버튼 기본 및 활성화 상태 */
+        #page1-btn .page-link {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            border: 1px solid #1e1e1e;
+        }
+
+        #page1-btn .page-link:hover {
+            background-color: #218838;
+            color: #ffffff;
+        }
+
+        /* 매수 활성화 상태 */
+        #page1-btn.active .page-link {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: #ffffff;
+        }
+
+        /* 매도 활성화 상태 */
+        #page2-btn .page-link {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            border: 1px solid #1e1e1e;
+        }
+
+        #page2-btn .page-link:hover {
+            background-color: #c82333;
+            color: #ffffff;
+        }
+
+        /* 매도 활성화 상태 */
+        #page2-btn.active .page-link {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: #ffffff;
+        }
+
+        .custom-input {
+            text-transform: uppercase;
+        }
+
+        .custom-form-container {
+            width: 100%; /* 100% 너비 */
+            max-width: 300px; /* 최대 너비를 400px로 고정 */
+            min-width: 300px; /* 최소 너비를 300px로 고정 */
+            margin: 0 auto; /* 가운데 정렬 */
+        }
+
+
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* 파이어폭스 */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
     </style>
 
     <!-- 로딩창 -->
@@ -149,34 +288,88 @@
                     <h1 class="h2">Trading</h1>
                 </div>
 
-                <!-- TradingView 차트 -->
-                <div id="tradingview-widget"></div>
+                <div class="trading-container">
+                    <div class="chart-container">
+                        <div id="tradingview-widget"></div>
 
-                <!-- 매수 주문 -->
-                <form method="POST" action="{% url 'place_order' %}" id="buyForm">
-                    {% csrf_token %}
-                    <div class="trade-quantity">
-                        <label for="price">Price:</label>
-                        <input type="number" id="price" name="price" class="form-control mb-2" step="0.01"
-                               placeholder="Enter price" required>
                     </div>
-                    <div class="trade-quantity">
-                        <label for="quantity">Quantity:</label>
-                        <input type="number" id="quantity" name="quantity" value="1" class="form-control mb-2" min="1"
-                               required>
+                    <!-- 매수 주문 -->
+                    <div class="custom-form-container">
+                        <!-- 페이지네이션 버튼 -->
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item active" id="page1-btn"><a class="page-link" href="#">Buy</a></li>
+                            <li class="page-item" id="page2-btn"><a class="page-link" href="#">Sell</a></li>
+                        </ul>
+
+                        <!-- 매수 -->
+                        <div id="buyFormContainer">
+                            <form method="POST" action="{% url 'place_order' %}" id="buyForm">
+                                {% csrf_token %}
+                                <div class="custom-form-group">
+                                    <label for="stock_code">Stock Code:</label>
+                                    <input type="text" id="buy_stock_code" name="stock_code" class="custom-input"
+                                           placeholder="Enter stock code" required>
+                                </div>
+
+                                <div class="custom-form-group" style="position: relative">
+                                    <label for="price">Price:</label>
+                                    <input type="number" id="buy_price" name="price" class="custom-input"
+                                           placeholder="Enter price"
+                                           step="0.01" required style="padding-right: 50px;">
+                                    <span style="position: absolute; right: 20px; top: 69%; transform: translateY(-50%); color: black;">US$</span>
+                                </div>
+
+                                <div class="custom-form-group">
+                                    <label for="quantity">Quantity:</label>
+                                    <input type="number" id="buy_quantity" name="quantity" class="custom-input"
+                                           value="1" min="1"
+                                           required>
+                                </div>
+
+                                <button type="submit" class="custom-btn">Buy</button>
+                            </form>
+                        </div>
+
+                        <!-- 매도 -->
+                        <div id="sellFormContainer" style="display: none;">
+                            <form method="POST" action="{% url 'place_order_sell' %}" id="sellForm">
+                                {% csrf_token %}
+                                <div class="custom-form-group">
+                                    <label for="sell_stock_code">Stock Code:</label>
+                                    <input type="text" id="sell_stock_code" name="stock_code" class="custom-input"
+                                           placeholder="Enter stock code" required>
+                                </div>
+
+                                <div class="custom-form-group" style="position: relative">
+                                    <label for="sell_price">Price:</label>
+                                    <input type="number" id="sell_price" name="price" class="custom-input"
+                                           placeholder="Enter price"
+                                           step="0.01" required>
+                                    <span style="position: absolute; right: 20px; top: 69%; transform: translateY(-50%); color: black;">US$</span>
+                                </div>
+
+                                <div class="custom-form-group">
+                                    <label for="sell_quantity">Quantity:</label>
+                                    <input type="number" id="sell_quantity" name="quantity" class="custom-input"
+                                           value="1" min="1"
+                                           required>
+                                </div>
+
+                                <button type="submit" class="custom-btn sell">Sell</button>
+                            </form>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-success" id="submit">Submit</button>
-                </form>
+
+                </div>
 
                 <!-- 토스트 -->
                 <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                        <div class="toast-header">
-                            <strong class="me-auto">Alert</strong>
-                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>
-                        <div class="toast-body" id="toast-message">
-                            The buy order was not executed.
+                    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="background-color: #2B3139">
+                        <div class="d-flex">
+                            <div class="toast-body text-white" id="toast-message">
+                                Order notional cannot be less than 134.6 USDT. This does not apply to reduce only orders.
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                         </div>
                     </div>
                 </div>
@@ -184,16 +377,54 @@
         </div>
     </div>
 
-    <!-- TradingView Widget Script -->
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <!-- stock code 입력 부분 대문자 변환 -->
+    <script>
+        document.getElementById('buy_stock_code').addEventListener('input', function (event) {
+            event.target.value = event.target.value.toUpperCase();
+        });
+    </script>
+
+    <script>
+        document.getElementById('sell_stock_code').addEventListener('input', function (event) {
+            event.target.value = event.target.value.toUpperCase();
+        });
+    </script>
+
+
+    <!-- 페이지네이션 -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            let selectedSymbol = 'AAPL';
+            const buyFormContainer = document.getElementById('buyFormContainer');
+            const sellFormContainer = document.getElementById('sellFormContainer');
+            const page1Btn = document.getElementById('page1-btn');
+            const page2Btn = document.getElementById('page2-btn');
+
+            page1Btn.addEventListener('click', function () {
+                buyFormContainer.style.display = 'block';
+                sellFormContainer.style.display = 'none';
+                page1Btn.classList.add('active');
+                page2Btn.classList.remove('active');
+            });
+
+            page2Btn.addEventListener('click', function () {
+                buyFormContainer.style.display = 'none';
+                sellFormContainer.style.display = 'block';
+                page2Btn.classList.add('active');
+                page1Btn.classList.remove('active');
+            });
+        });
+    </script>
+
+    <!-- TradingView Widget Script -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
             // TradingView 차트 로드
-            new TradingView.widget({
+            let widget = new TradingView.widget({
                 "container_id": "tradingview-widget",
                 "autosize": true,
-                "symbol": selectedSymbol,
+                "symbol": 'AAPL',
                 "interval": "D",
                 "timezone": "Etc/UTC",
                 "theme": "dark",
@@ -203,32 +434,39 @@
                 "enable_publishing": false,
                 "allow_symbol_change": true,
                 "hide_side_toolbar": false,
-                "onSymbolChange": function (newSymbol) {
-                    selectedSymbol = newSymbol.ticker || newSymbol.name;
-                    console.log("selected stock code: ", selectedSymbol);
-                }
+                "symbol_change_on": true,
             });
 
             // 매수 주문 제출 시 처리
             document.getElementById('buyForm').addEventListener('submit', function (event) {
-                event.preventDefault();  // 기본 제출 동작을 막음
+                event.preventDefault();
 
                 const buySound = new Audio("{% static 'mp3/buy.mp3' %}");
                 const buyFailedSound = new Audio("{% static 'mp3/buyFailed.mp3' %}");
-                const symbol = "AAPL";
-                const quantity = document.getElementById('quantity').value;
-                const price = document.getElementById('price').value; // 가격 필드에서 값 가져오기
+                //const symbol = "AAPL";
+                const enteredSymbol = document.getElementById('buy_stock_code').value;
+                const quantity = document.getElementById('buy_quantity').value;
+                const price = document.getElementById('buy_price').value; // 가격 필드에서 값 가져오기
+
+                //selectedSymbol = getSelectedSymbol();
 
                 console.log("price:", price);
                 console.log("quantity:", quantity);
-                console.log("stock code:", selectedSymbol);
+                console.log("stock code:", enteredSymbol);
 
-                if (!price || !quantity || !selectedSymbol) {
+                if (!price || !quantity || !enteredSymbol) {
                     console.error("price or quantity is missing");
                     buyFailedSound.play();
                     showToast('Price or quantity is missing');
                     return;
                 }
+
+                if (!enteredSymbol) {
+                    console.error("No stock symbol selected");
+                    showToast('No stock symbol selected');
+                    return;
+                }
+
 
                 fetch("{% url 'place_order' %}", {
                     method: 'POST',
@@ -237,7 +475,7 @@
                         'X-CSRFToken': '{{ csrf_token }}'  // CSRF 토큰 추가
                     },
                     body: JSON.stringify({
-                        stock_code: selectedSymbol,
+                        stock_code: enteredSymbol,
                         quantity: quantity,
                         price: price  // 사용자가 입력한 가격 사용
                     })
@@ -247,11 +485,19 @@
                         if (data.message === 'complete') {
                             // 주문 성공 시 사운드 재생
                             buySound.play();
-                            showToast('Order placed successfully!');
+                            showToast('success','매수 주문이 성공적으로 체결되었습니다');
+
+                            //widget.setSymbol(enteredSymbol, "D");
+                        } else if (data.message === 'market_not_open') {
+                            buyFailedSound.play();
+                            showToast('failed','매수 가능 시간이 아닙니다 <br> 모의투자 가능 시간 ( 23:30 ~ 06:00 )<br> 서머타임 적용 시 ( 22:30 ~ 05:00 )');
+                        } else if (data.message === 'stockcode_not_exist') {
+                            buyFailedSound.play();
+                            showToast('failed','해당 종목이 없습니다 <br> 종목 코드를 다시 한번 확인하세요')
                         } else {
                             // 주문 실패 시 실패 사운드 재생
                             buyFailedSound.play();
-                            showToast('The buy order was not executed.');
+                            showToast('failed','매수 주문이 체결되지 않았습니다 <br> 잔고를 확인해 주세요');
                         }
                     })
                     .catch(error => {
@@ -262,12 +508,88 @@
                     });
             });
 
-            function showToast(message) {
+
+            document.getElementById('sellForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+                console.log('sell form submitted');
+
+                const sellSound = new Audio("{% static 'mp3/sell.mp3' %}");
+                const sellFailedSound = new Audio("{% static 'mp3/sellFailed.mp3' %}");
+                //const symbol = "AAPL";
+                const enteredSymbol = document.getElementById('sell_stock_code').value;
+                const quantity = document.getElementById('sell_quantity').value;
+                const price = document.getElementById('sell_price').value; // 가격 필드에서 값 가져오기
+
+                //selectedSymbol = getSelectedSymbol();
+
+                console.log("price:", price);
+                console.log("quantity:", quantity);
+                console.log("stock code:", enteredSymbol);
+
+                if (!price || !quantity || !enteredSymbol) {
+                    console.error("price or quantity is missing");
+                    sellFailedSound.play();
+                    showToast('Price or quantity is missing');
+                    return;
+                }
+
+                if (!enteredSymbol) {
+                    console.error("No stock symbol selected");
+                    showToast('No stock symbol selected');
+                    return;
+                }
+
+
+                fetch("{% url 'place_order_sell' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'  // CSRF 토큰 추가
+                    },
+                    body: JSON.stringify({
+                        stock_code: enteredSymbol,
+                        quantity: quantity,
+                        price: price  // 사용자가 입력한 가격 사용
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message === 'complete') {
+                            // 주문 성공 시 사운드 재생
+                            sellSound.play();
+                            showToast('success','매도 주문이 성공적으로 체결되었습니다');
+
+                            //widget.setSymbol(enteredSymbol, "D");
+                        } else if (data.message === 'market_not_open') {
+                            sellFailedSound.play();
+                            showToast('failed','매도 가능 시간이 아닙니다 <br> 모의투자 가능 시간 ( 23:30 ~ 06:00 )<br> 서머타임 적용 시 ( 22:30 ~ 05:00 )');
+                        } else if (data.message === 'stockcode_not_exist') {
+                            sellFailedSound.play();
+                            showToast('failed','해당 종목이 없습니다 <br> 종목 코드를 다시 한번 확인하세요')
+                        } else {
+                            // 주문 실패 시 실패 사운드 재생
+                            sellFailedSound.play();
+                            showToast('매도 주문이 정상적으로 이루어지지 않았습니다');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // 에러 발생 시 실패 사운드 재생
+                        sellFailedSound.play();
+                        showToast('failed','매도 주문이 체결되지 않았습니다. <br> 잔고를 확인해 주세요.');
+                    });
+            });
+
+
+            function showToast(status, message) {
                 const toastMessage = document.getElementById('toast-message');
-                toastMessage.textContent = message;
+                let imagePath = status === 'success' ? '{% static "img/success.png" %}' : '{% static "img/failed.png" %}';
+                toastMessage.innerHTML = `<img src="${imagePath}" alt="${status}" style="width: 20px; height: 20px; margin-right: 10px;"> ${message}`;
 
                 const toastElement = document.getElementById('toast');
-                const toast = new bootstrap.Toast(toastElement);
+                const toast = new bootstrap.Toast(toastElement, {
+                    autohide: false
+                });
                 toast.show();
             }
         });

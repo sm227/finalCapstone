@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from dotenv import load_dotenv
 from .models import Stock
 from django.utils import timezone
-import mojito
+import module.koreainvestment as mojito
 from login.models import UserProfile
 from django.contrib import messages
 
