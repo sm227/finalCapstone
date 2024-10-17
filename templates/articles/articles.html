@@ -16,60 +16,7 @@
         .card {
             background-color: #1e1e1e;
             border-color: #333;
-            margin: 15px;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 300px;
-        }
-
-        .card-footer {
-            background-color: #1e1e1e;
-            border-top: none;
-            display: flex;
-        }
-
-        .card-body {
-            background-color: #1e1e1e;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: transparent transparent;
-            {#padding-right: 10px;#}
-        }
-
-        .card-body::-webkit-scrollbar {
-            width: 5px;
-            background: transparent;
-        }
-
-        .card-body::-webkit-scrollbar-thumb {
-            background-color: #888;
-            border-radius: 10px;
-        }
-
-        .card-body::-webkit-scrollbar-thumb:hover {
-            background-color: #555; 
-        }
-
-        .card-body::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        
-        .card-body::-webkit-scrollbar-button {
-            display: none; 
-        }
-
-        .card-body p {
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            align-self: flex-start;
-            margin-top: auto;
+            height: 300px;
         }
 
         .table {
@@ -89,33 +36,54 @@
             color: #e0e0e0 !important;
         }
 
-        #loading-spinner {
-            display: none;
-            width: 3rem;
-            height: 3rem;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #ffffff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
+
+        .progress {
+            height: 30px;
+            background-color: #f0f0f0;
+            border-radius: 15px;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
 
-        @keyframes spin {
+        .progress-bar {
+            background-image: linear-gradient(45deg,
+            rgba(255, 255, 255, .15) 25%, transparent 25%,
+            transparent 50%, rgba(255, 255, 255, .15) 50%,
+            rgba(255, 255, 255, .15) 75%, transparent 75%,
+            transparent);
+            background-size: 40px 40px;
+            animation: stripes 1s linear infinite;
+        }
+
+        @keyframes stripes {
             0% {
-                transform: rotate(0deg);
+                background-position: 0 0;
             }
             100% {
-                transform: rotate(360deg);
+                background-position: 40px 0;
             }
         }
 
-        #loading-message {
-            text-align: center;
-            margin-top: 10px;
-            color: #ffffff;
+        #progressMessage {
+            font-size: 1.2em;
             font-weight: bold;
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
 
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
     </style>
 
     <!-- sidebar -->
@@ -130,11 +98,6 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" href="{% url 'trading' %}">
-                                <i class="bi bi-currency-exchange"></i> Trading
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" href="#">
                                 <i class="bi bi-graph-up"></i> Analytics
                             </a>
@@ -145,7 +108,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" id="crawl-articles-btn" href="{% url 'articles' %}">
+                            <a class="nav-link active" href="{% url 'articles' %}">
                                 <i class="bi bi-newspaper"></i> Articles
                             </a>
                         </li>
@@ -157,19 +120,29 @@
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">News</h1>
                 </div>
+                <!-- 프로그레스 바 및 메시지 -->
+                <div class="mb-3">
+                    <div class="progress" style="height: 20px;">
+                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;"
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%
+                        </div>
+                    </div>
+                    <p id="progressMessage" class="mt-2 text-center"></p>
+                </div>
 
-                <!-- 기사 -->
-                <div class="row g-3" id="articles-content">
-                    {% for article in news %}
-                        <div class="col-md-4 article-card">
-                            <div class="card h-100">
-                                <div class="card-body overflow-auto" style="max-height: 300px;">
-                                    <h5 class="card-title">
-                                        <a href="{{ article.link }}" class="text-light"
-                                           style="text-decoration: none;">{{ article.title }}</a>
-                                    </h5>
-                                    <p class="card-text">{{ article.content|truncatewords:30 }}</p>
-                                    <div class="card-footer">
+                <!-- 기사 컨테이너 -->
+                <div id="articlesContainer" class="row">
+                    <!-- 기사 -->
+                    <div class="row">
+                        {% for article in news %}
+                            <div class="col-md-4 article-card">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <a href="{{ article.link }}" class="text-light"
+                                               style="text-decoration: none;">{{ article.title }}</a>
+                                        </h5>
+                                        <p class="card-text">{{ article.content|truncatewords:30 }}</p>
                                         <button class="btn btn-primary" data-content="{{ article.content }}"
                                                 data-title="{{ article.title }}" data-bs-toggle="modal"
                                                 data-bs-target="#articleModal">Read More
@@ -177,8 +150,8 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 </div>
 
                 <!-- Read More 모달 -->
@@ -191,19 +164,13 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                             </div>
-                            <div class="modal-body">
-                                <div id="modal-body-content"></div>
-                                <div id="loading-spinner"></div>
-                                <p id="loading-message" style="text-align: center; display: none;">Generating
-                                    summary...</p>
-                                <hr>
-                                <div id="summary-content"></div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button id="summarize-btn" class="btn btn-info">Summarize</button> <!-- 요약하기 버튼 -->
+                            <div class="modal-body" id="modal-body-content">
                             </div>
                         </div>
+{#                        <div class="modal-footer">#}
+{#                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>#}
+{##}
+{#                        </div>#}
                     </div>
                 </div>
             </main>
@@ -213,30 +180,109 @@
     <!-- 스크립트: 요약하기 버튼 클릭 시 Ajax 요청 -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const buttons = document.querySelectorAll('.btn-primary');
-            const modalBody = document.getElementById('modal-body-content');
-            const modalTitle = document.getElementById('articleModalLabel');
-            const summaryContent = document.getElementById('summary-content');
-            const loadingSpinner = document.getElementById('loading-spinner');
-            const loadingMessage = document.getElementById('loading-message');
+            const progressBar = document.getElementById('progressBar');
+            const progressMessage = document.getElementById('progressMessage');
+            const articlesContainer = document.getElementById('articlesContainer');
+            const modalBodyContent = document.getElementById('modal-body-content');
+            const articleModalLabel = document.getElementById('articleModalLabel');
+
+            let currentArticleTitle = '';
             let currentArticleContent = '';
+            let lastMessage = '';
 
-            buttons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const content = this.getAttribute('data-content');
-                    const title = this.getAttribute('data-title');
-                    currentArticleContent = content; // 현재 기사 내용을 저장
+            const eventSource = new EventSource("{% url 'articles' %}");
 
-                    modalBody.innerHTML = `<p>${content.replace(/\n/g, '<br>')}</p>`;
-                    modalTitle.textContent = title;
-                    summaryContent.innerHTML = ''; // 요약 내용을 초기화
-                });
+            eventSource.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+
+                // 프로그레스 바 업데이트
+                const progress = data.progress;
+                progressBar.style.width = progress + '%';
+                progressBar.setAttribute('aria-valuenow', progress);
+                progressBar.textContent = Math.round(progress) + '%';
+
+                // 프로그레스 메시지 업데이트 (새로운 메시지일 때만)
+                if (data.message !== lastMessage) {
+                    progressMessage.classList.remove('fade-in');
+                    void progressMessage.offsetWidth; // 리플로우 트리거
+                    progressMessage.classList.add('fade-in');
+                    progressMessage.textContent = data.message;
+                    lastMessage = data.message;
+                }
+
+                // 새 기사 추가
+                const article = data.article;
+                const articleCard = createArticleCard(article);
+                articlesContainer.appendChild(articleCard);
+
+                // 모든 기사가 로드되면 연결 종료
+                if (progress >= 100) {
+                    eventSource.close();
+                    progressMessage.textContent = "모든 기사를 불러왔습니다!";
+                    progressMessage.style.color = '#28a745';  // 녹색으로 변경
+                    progressBar.classList.remove('progress-bar-animated');  // 애니메이션 중지
+                }
+            };
+
+            eventSource.onerror = function (error) {
+                console.error("EventSource failed:", error);
+                eventSource.close();
+                progressMessage.textContent = "기사를 불러오는 중 오류가 발생했습니다.";
+                progressMessage.style.color = '#dc3545';  // 빨간색으로 변경
+            };
+
+            function createArticleCard(article) {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'col-md-4 article-card';
+                cardDiv.innerHTML = `
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="${article.link}" class="text-light" style="text-decoration: none;">${article.title}</a>
+                    </h5>
+                    <p class="card-text">${article.content.substring(0, 100)}...</p>
+                    <button class="btn btn-primary read-more" data-content="${encodeURIComponent(article.content)}" data-title="${encodeURIComponent(article.title)}">Read More</button>
+                </div>
+            </div>
+        `;
+                return cardDiv;
+            }
+
+            // Read More 버튼 클릭 이벤트
+            articlesContainer.addEventListener('click', function (e) {
+                if (e.target.classList.contains('read-more')) {
+                    const content = decodeURIComponent(e.target.getAttribute('data-content'));
+                    const title = decodeURIComponent(e.target.getAttribute('data-title'));
+                    modalBodyContent.innerHTML = `
+                <h5>${title}</h5>
+                <p>${content}</p>
+                <button id="summarize-btn" class="btn btn-info mt-3">요약하기</button>
+                <div id="summary-container" class="mt-3"></div>
+                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+
+            `;
+                    articleModalLabel.textContent = title;
+                    currentArticleTitle = title;
+                    currentArticleContent = content;
+
+                    // 요약하기 버튼에 이벤트 리스너 추가
+                    document.getElementById('summarize-btn').addEventListener('click', summarizeArticle);
+
+                    new bootstrap.Modal(document.getElementById('articleModal')).show();
+                }
             });
 
-            // 요약하기 버튼 클릭 이벤트
-            document.getElementById('summarize-btn').addEventListener('click', function () {
-                loadingSpinner.style.display = 'block';
-                loadingMessage.style.display = 'block';
+            function summarizeArticle() {
+                const summaryContainer = document.getElementById('summary-container');
+                summaryContainer.innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border text-info" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">요약 중...</p>
+            </div>
+        `;
 
                 fetch("{% url 'summarize_article' %}", {
                     method: 'POST',
@@ -244,23 +290,25 @@
                         'Content-Type': 'application/json',
                         'X-CSRFToken': '{{ csrf_token }}',
                     },
-                    body: JSON.stringify({content: currentArticleContent})
+                    body: JSON.stringify({
+                        title: currentArticleTitle,
+                        content: currentArticleContent
+                    })
                 })
                     .then(response => response.json())
                     .then(data => {
-                        loadingSpinner.style.display = 'none';
-                        loadingMessage.style.display = 'none';
-                        summaryContent.innerHTML = `<h5>요약:</h5><p>${data.summary.replace(/\n/g, '<br>')}</p>`;
+                        summaryContainer.innerHTML = `
+                <h6 class="mt-4">요약:</h6>
+                <p>${data.summary.replace(/\n/g, '<br>')}</p>
+            `;
                     })
-
-                    .catch(error => console.error('Error:', error));
-            });
-
-            // 새로고침만 되는 Articles 버튼 클릭 이벤트
-            document.getElementById('crawl-articles-btn').addEventListener('click', function (event) {
-                window.location.reload();
-            });
+                    .catch(error => {
+                        console.error('Error:', error);
+                        summaryContainer.innerHTML = '<p class="text-danger">요약을 생성하는 중 오류가 발생했습니다.</p>';
+                    });
+            }
         });
+
 
     </script>
 {% endblock %}

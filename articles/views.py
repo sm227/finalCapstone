@@ -1,12 +1,17 @@
-from django.utils.html import escape
+from django.shortcuts import render
+
+# articles/views.py
+
 import requests
 from bs4 import BeautifulSoup
 import json
 from django.shortcuts import render
 import os
 import google.generativeai as genai
-from django.http import JsonResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+
 
 def crawl_news():
     url = "https://www.investing.com/news/stock-market-news"
@@ -16,7 +21,7 @@ def crawl_news():
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     soup = BeautifulSoup(response.text, 'html.parser')
-    news_list = soup.select('a[data-test="article-title-link"]')[:30]
+    news_list = soup.select('a[data-test="article-title-link"]')[:15]
 
     news_data = []
     for news in news_list:
@@ -41,10 +46,7 @@ def crawl_article_content(article_url):
     article_body = soup.select_one('div.article_WYSIWYG__O0uhw')
 
     if article_body:
-        paragraphs = article_body.find_all('p')
-        formatted_content = '\n\n'.join(p.get_text(strip=True) for p in paragraphs)
-        return formatted_content
-        #return article_body.get_text(strip=True)
+        return article_body.get_text(strip=True)
     else:
         return "No article content found."
 
@@ -54,23 +56,33 @@ def save_to_json(data, filename="news_data.json"):
         json.dump(data, f, ensure_ascii=False, indent=4)
 
 
+@require_http_methods(["GET"])
 def articles(request):
     news_data = crawl_news()
-    news_with_content = []
+    total_articles = len(news_data)
 
-    for news in news_data:
-        article_content = crawl_article_content(news['link'])
-        news_with_content.append({
-            'title': news['title'],
-            'link': news['link'],
-            'content': article_content
-        })
+    messages = [
+        "모든 기사를 검색하는 중...",
+        "기사를 열심히 가져오는 중...",
+        "최신 뉴스를 수집하는 중...",
+        "흥미로운 기사를 찾고 있어요...",
+        "기사를 꼼꼼히 살펴보는 중...",
+    ]
 
-    context = {
-        'news': news_with_content,
-    }
+    def generate_progress():
+        for i, news in enumerate(news_data, 1):
+            article_content = crawl_article_content(news['link'])
+            progress = (i / total_articles) * 100
+            message_index = min(4, i * 5 // total_articles)
+            message = messages[message_index]
+            yield f"data: {json.dumps({'progress': progress, 'message': message, 'article': {'title': news['title'], 'link': news['link'], 'content': article_content}})}\n\n"
 
-    return render(request, 'articles/articles.html', context)
+    return StreamingHttpResponse(generate_progress(), content_type='text/event-stream')
+
+
+@require_http_methods(["GET"])
+def articles_page(request):
+    return render(request, 'articles/articles.html')
 
 # 프롬프트 생성 함수
 def generate_summary_prompt(article_title, article_content):
@@ -142,14 +154,13 @@ def summarize_article(request):
             model = genai.GenerativeModel("gemini-1.5-pro" ,safety_settings=safety_settings)
 
             response = model.generate_content(prompt)
-            #print('hello world')
-            #print(response.text)
+            print('hello world')
+            print(response.text)
 
             if response:
                 # summary = response.generated_texts[0]  # 요약된 텍스트
-                summary = response.text.strip()
-                summary_html = escape(summary).replace('\n', '<br>')
-                return JsonResponse({'summary': summary_html})
+                summary = response.text
+                return JsonResponse({'summary': summary})
             else:
                 return JsonResponse({'summary': '요약 실패'}, status=500)
 

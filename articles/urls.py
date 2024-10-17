@@ -5,8 +5,8 @@ from . import views
 from trading import views as trading_views
 
 urlpatterns = [
-    path('', views.articles, name='articles'),
-    path('articles/', views.articles, name='articles'),
+    path('', views.articles_page, name='articles_page'),
     path('summarize_article/', views.summarize_article, name='summarize_article'),
+    path('api/articles/', views.articles, name='articles'),
     path('trading/', trading_views.trading, name='trading'),
 ]

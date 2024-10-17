@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -175,49 +177,49 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <nav>
-            <div class="logo">SunrizeAI Pro</div>
-            <ul class="nav-links">
-                <li><a href="#features">기능</a></li>
-                <li><a href="#about">소개</a></li>
-                <li><a href="#contact">문의</a></li>
-            </ul>
-        </nav>
+<div class="container">
+    <nav>
+        <div class="logo">SunrizeAI Pro</div>
+        <ul class="nav-links">
+            <li><a href="#features">기능</a></li>
+            <li><a href="#about">소개</a></li>
+            <li><a href="#contact">문의</a></li>
+        </ul>
+    </nav>
 
-        <section class="hero">
-            <div class="hero-content">
-                <h1>AI로 투자의 <br>미래를 열다</h1>
-                <p>최첨단 인공지능 기술로 주식 시장을 분석하고 자동으로 거래합니다. 당신의 투자, 더 스마트하게.</p>
-                <a href="{% url 'dashboard' %}" class="cta-button">무료로 시작하기</a>
-            </div>
-            <div class="hero-image">
-                <img src="https://via.placeholder.com/500x300" alt="AI Trading Dashboard">
-            </div>
-        </section>
+    <section class="hero">
+        <div class="hero-content">
+            <h1>AI로 투자의 <br>미래를 열다</h1>
+            <p>최첨단 인공지능 기술로 주식 시장을 분석하고 자동으로 거래합니다. 당신의 투자, 더 스마트하게.</p>
+            <a href="{% url 'dashboard' %}" class="cta-button">무료로 시작하기</a>
+        </div>
+        <div class="hero-image">
+            <img src="{% static 'img/landing.png' %}" alt="AI Trading Dashboard">
+        </div>
+    </section>
 
-        <section id="features" class="features">
-            <h2>주요 기능</h2>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <i class="fas fa-chart-line"></i>
-                    <h3>AI 주가 예측</h3>
-                    <p>빅데이터와 머신러닝을 활용한 정확한 주가 예측으로 투자 결정을 돕습니다.</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-robot"></i>
-                    <h3>자동 매매</h3>
-                    <p>24시간 끊임없이 시장을 모니터링하고 최적의 타이밍에 자동으로 거래합니다.</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-shield-alt"></i>
-                    <h3>리스크 관리</h3>
-                    <p>고급 알고리즘으로 포트폴리오 리스크를 실시간 분석하고 관리합니다.</p>
-                </div>
+    <section id="features" class="features">
+        <h2>주요 기능</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>AI 주가 예측</h3>
+                <p>빅데이터와 머신러닝을 활용한 정확한 주가 예측으로 투자 결정을 돕습니다.</p>
             </div>
-        </section>
-    </div>
+            <div class="feature-card">
+                <i class="fas fa-robot"></i>
+                <h3>자동 매매</h3>
+                <p>24시간 끊임없이 시장을 모니터링하고 최적의 타이밍에 자동으로 거래합니다.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-shield-alt"></i>
+                <h3>리스크 관리</h3>
+                <p>고급 알고리즘으로 포트폴리오 리스크를 실시간 분석하고 관리합니다.</p>
+            </div>
+        </div>
+    </section>
+</div>
 
-    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+<script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
 </body>
 </html>
