@@ -27,63 +27,21 @@
             margin-top: 20px;
         }
 
-        .trade-buttons {
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-        }
-
         .trade-quantity {
             display: flex;
             align-items: center;
             margin-right: 10px;
-        }
-
-        .trade-buttons button {
-            margin-right: 10px;
-            align-items: center;
-        }
-
-        .trade-quantity {
-            display: flex;
-            align-items: center;
-            margin-right: 10px; /* 버튼과의 간격 조정 */
         }
 
         .trade-quantity input {
-            width: 60px; /* 수량 입력 칸 너비 조정 */
-            text-align: center; /* 가운데 정렬 */
-            margin: 0 5px; /* 버튼과의 간격 조정 */
-            border-radius: 5px; /* 모서리 둥글게 */
-            border: 1px solid #1e1e1e; /* 테두리 색상 */
-            background-color: #1e1e1e; /* 배경색 */
-            color: black; /* 텍스트 색상 */
-            height: 40px;
-        }
-
-        .trade-buttons .btn-success {
-            background-color: darkolivegreen;
-            border-color: darkolivegreen;
-        }
-
-        .trade-buttons .btn-danger {
-            background-color: maroon;
-            border-color: maroon;
-        }
-
-        .trade-quantity button {
-            width: 40px;
-            height: 40px;
+            width: 150px;
+            text-align: center;
+            margin: 0 5px;
             border-radius: 5px;
-            color: #1e1e1e;
-            background-color: gray;
-        }
-
-        .trade-buttons button {
-            padding: 10px 20px;
-            border-radius: 5px;
+            border: 1px solid #1e1e1e;
+            background-color: #1e1e1e;
+            color: black;
             height: 40px;
-            align-self: stretch;
         }
 
         .toast {
@@ -194,16 +152,21 @@
                 <!-- TradingView 차트 -->
                 <div id="tradingview-widget"></div>
 
-                <!-- 매수/매도 -->
-                <div class="trade-buttons">
+                <!-- 매수 주문 -->
+                <form method="POST" action="{% url 'place_order' %}" id="buyForm">
+                    {% csrf_token %}
                     <div class="trade-quantity">
-                        <button id="decrease-btn" class="btn btn-secondary">-</button>
-                        <input type="number" id="quantity" value="1" class="form-control mb-2" min="1" readonly>
-                        <button id="increase-btn" class="btn btn-secondary">+</button>
+                        <label for="price">Price:</label>
+                        <input type="number" id="price" name="price" class="form-control mb-2" step="0.01"
+                               placeholder="Enter price" required>
                     </div>
-                    <button id="buy-btn" class="btn btn-success">Buy</button>
-                    <button id="sell-btn" class="btn btn-danger">Sell</button>
-                </div>
+                    <div class="trade-quantity">
+                        <label for="quantity">Quantity:</label>
+                        <input type="number" id="quantity" name="quantity" value="1" class="form-control mb-2" min="1"
+                               required>
+                    </div>
+                    <button type="submit" class="btn btn-success" id="submit">Submit</button>
+                </form>
 
                 <!-- 토스트 -->
                 <div class="toast-container position-fixed bottom-0 end-0 p-3">
@@ -225,11 +188,12 @@
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            let selectedSymbol = 'AAPL';
             // TradingView 차트 로드
             new TradingView.widget({
                 "container_id": "tradingview-widget",
                 "autosize": true,
-                "symbol": "AAPL",
+                "symbol": selectedSymbol,
                 "interval": "D",
                 "timezone": "Etc/UTC",
                 "theme": "dark",
@@ -239,84 +203,64 @@
                 "enable_publishing": false,
                 "allow_symbol_change": true,
                 "hide_side_toolbar": false,
-            });
-
-            // 수량 증가 및 감소 기능
-            document.getElementById('increase-btn').addEventListener('click', function () {
-                const quantityInput = document.getElementById('quantity');
-                quantityInput.value = parseInt(quantityInput.value) + 1;
-            });
-
-            document.getElementById('decrease-btn').addEventListener('click', function () {
-                const quantityInput = document.getElementById('quantity');
-                if (quantityInput.value > 1) {
-                    quantityInput.value = parseInt(quantityInput.value) - 1;
+                "onSymbolChange": function (newSymbol) {
+                    selectedSymbol = newSymbol.ticker || newSymbol.name;
+                    console.log("selected stock code: ", selectedSymbol);
                 }
             });
 
-            // 매수/매도 요청 처리
-            document.getElementById('buy-btn').addEventListener('click', function () {
-                tradeStock('buy');
-            });
-
-            document.getElementById('sell-btn').addEventListener('click', function () {
-                tradeStock('sell');
-            });
-
-            function tradeStock(action) {
-                const symbol = "AAPL";
-                const quantity = document.getElementById('quantity').value;
+            // 매수 주문 제출 시 처리
+            document.getElementById('buyForm').addEventListener('submit', function (event) {
+                event.preventDefault();  // 기본 제출 동작을 막음
 
                 const buySound = new Audio("{% static 'mp3/buy.mp3' %}");
-                const sellSound = new Audio("{% static 'mp3/sell.mp3' %}");
                 const buyFailedSound = new Audio("{% static 'mp3/buyFailed.mp3' %}");
-                const sellFailedSound = new Audio("{% static 'mp3/sellFailed.mp3' %}");
+                const symbol = "AAPL";
+                const quantity = document.getElementById('quantity').value;
+                const price = document.getElementById('price').value; // 가격 필드에서 값 가져오기
 
-                {#if (action === 'buy') {#}
-                {#    buySound.play();#}
-                {# else if (action === 'sell') {#}
-                {#    sellSound.play();#}
+                console.log("price:", price);
+                console.log("quantity:", quantity);
+                console.log("stock code:", selectedSymbol);
 
+                if (!price || !quantity || !selectedSymbol) {
+                    console.error("price or quantity is missing");
+                    buyFailedSound.play();
+                    showToast('Price or quantity is missing');
+                    return;
+                }
 
-                fetch("#", {
+                fetch("{% url 'place_order' %}", {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRFToken': '{{ csrf_token }}'
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'  // CSRF 토큰 추가
                     },
-                    body: `symbol=${symbol}&quantity=${quantity}&action=${action}`
+                    body: JSON.stringify({
+                        stock_code: selectedSymbol,
+                        quantity: quantity,
+                        price: price  // 사용자가 입력한 가격 사용
+                    })
                 })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.success) {
-                            const message = action === 'buy' ? 'Buy order placed successfully!' : 'Sell order placed successfully!';
-                            showToast(message);
-                            if (action === 'buy') {
-                                buySound.play();
-                            } else {
-                                sellSound.play();
-                            }
+                        if (data.message === 'complete') {
+                            // 주문 성공 시 사운드 재생
+                            buySound.play();
+                            showToast('Order placed successfully!');
                         } else {
-                            const message = action === 'buy' ? 'The buy order was not executed.' : 'The sell order was not executed.';
-                            showToast(message);
-                            if (action === 'buy') {
-                                buyFailedSound.play();
-                            } else {
-                                sellFailedSound.play();
-                            }
+                            // 주문 실패 시 실패 사운드 재생
+                            buyFailedSound.play();
+                            showToast('The buy order was not executed.');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        const message = action === 'buy' ? 'The buy order was not executed.' : 'The sell order was not executed.';
-                        showToast(message);
-                        if (action === 'buy') {
-                            buyFailedSound.play();
-                        } else {
-                            sellFailedSound.play();
-                        }
+                        // 에러 발생 시 실패 사운드 재생
+                        buyFailedSound.play();
+                        showToast('An error occurred while placing the buy order.');
                     });
-            }
+            });
 
             function showToast(message) {
                 const toastMessage = document.getElementById('toast-message');
@@ -325,42 +269,6 @@
                 const toastElement = document.getElementById('toast');
                 const toast = new bootstrap.Toast(toastElement);
                 toast.show();
-            }
-
-            // Articles 버튼 클릭 이벤트
-            document.getElementById('crawl-articles-btn').addEventListener('click', function (event) {
-                event.preventDefault();
-                showLoading();
-
-                setTimeout(function () {
-                    window.location.href = "{% url 'articles' %}";
-                }, 100);
-            });
-
-            // 로딩창 표시 함수
-            function showLoading() {
-                document.getElementById('loading').style.display = 'block';
-                const progressBar = document.querySelector('.progress');
-                const percentDisplay = document.getElementById('progress-percent');
-                const loadingMessage = document.querySelector('#loading p');
-                progressBar.style.width = '0%';
-
-                let width = 0;
-                const interval = setInterval(() => {
-                    if (width >= 100) {
-                        clearInterval(interval);
-                        loadingMessage.textContent = "Still working...";
-                    } else {
-                        width += 0.5;
-                        progressBar.style.width = width + '%';
-                        percentDisplay.textContent = Math.floor(width) + '%';
-                    }
-                }, 50);
-                window.onload = function () {
-                    clearInterval(interval);
-                    progressBar.style.width = '100%';
-                    document.getElementById('loading').style.display = 'none';
-                };
             }
         });
     </script>

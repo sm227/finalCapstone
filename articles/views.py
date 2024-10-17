@@ -1,3 +1,5 @@
+import random
+
 from django.shortcuts import render
 
 # articles/views.py
@@ -84,6 +86,7 @@ def articles(request):
 def articles_page(request):
     return render(request, 'articles/articles.html')
 
+
 # 프롬프트 생성 함수
 def generate_summary_prompt(article_title, article_content):
     """
@@ -146,12 +149,11 @@ def summarize_article(request):
 
             genai.configure(api_key=os.getenv('gemini_api_key'))
 
-
             # 기사 요약 프롬프트 생성
             prompt = generate_summary_prompt(article_title, article_content)
 
             # 요약 요청
-            model = genai.GenerativeModel("gemini-1.5-pro" ,safety_settings=safety_settings)
+            model = genai.GenerativeModel("gemini-1.5-pro", safety_settings=safety_settings)
 
             response = model.generate_content(prompt)
             print('hello world')
