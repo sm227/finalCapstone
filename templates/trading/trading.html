@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <head>
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        .bg-light {
+            background-color: #333 !important;
+        }
+
+        .text-dark {
+            color: #e0e0e0 !important;
+        }
+
+        #tradingview-widget {
+            width: 100%;
+            height: 500px;
+            margin-top: 20px;
+        }
+
+        .trade-quantity {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+
+        .trade-quantity input {
+            width: 150px;
+            text-align: center;
+            margin: 0 5px;
+            border-radius: 5px;
+            border: 1px solid #1e1e1e;
+            background-color: #1e1e1e;
+            color: black;
+            height: 40px;
+        }
+
+        .toast {
+            background-color: #ffffff;
+            color: black;
+            border: none;
+            box-shadow: none;
+            border-radius: 0.5rem;
+        }
+
+        .toast-header {
+            background-color: #2c2c2c;
+            color: #ffffff;
+        }
+
+        /* 로딩창 */
+        #loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            color: #fff;
+            text-align: center;
+            padding-top: 20%;
+        }
+
+        .progress-bar {
+            position: relative;
+            width: 50%;
+            height: 30px;
+            background-color: #333;
+            margin: 20px auto;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0;
+            background-color: #007bff;
+            transition: width 0.4s ease;
+        }
+
+        #progress-percent {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+    </style>
+
+    <!-- 로딩창 -->
+    <div id="loading">
+        <div class="progress-bar">
+            <div class="progress"></div>
+            <span id="progress-percent">0%</span>
+        </div>
+        <p>Loading...</p>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dashboard' %}">
+                                <i class="bi bi-house-door"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="{% url 'trading' %}">
+                                <i class="bi bi-currency-exchange"></i> Trading
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-graph-up"></i> Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-wallet2"></i> Portfolio
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'articles' %}" id="crawl-articles-btn">
+                                <i class="bi bi-newspaper"></i> Articles
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Trading</h1>
+                </div>
+
+                <!-- TradingView 차트 -->
+                <div id="tradingview-widget"></div>
+
+                <!-- 매수 주문 -->
+                <form method="POST" action="{% url 'place_order' %}" id="buyForm">
+                    {% csrf_token %}
+                    <div class="trade-quantity">
+                        <label for="price">Price:</label>
+                        <input type="number" id="price" name="price" class="form-control mb-2" step="0.01"
+                               placeholder="Enter price" required>
+                    </div>
+                    <div class="trade-quantity">
+                        <label for="quantity">Quantity:</label>
+                        <input type="number" id="quantity" name="quantity" value="1" class="form-control mb-2" min="1"
+                               required>
+                    </div>
+                    <button type="submit" class="btn btn-success" id="submit">Submit</button>
+                </form>
+
+                <!-- 토스트 -->
+                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">Alert</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body" id="toast-message">
+                            The buy order was not executed.
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- TradingView Widget Script -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let selectedSymbol = 'AAPL';
+            // TradingView 차트 로드
+            new TradingView.widget({
+                "container_id": "tradingview-widget",
+                "autosize": true,
+                "symbol": selectedSymbol,
+                "interval": "D",
+                "timezone": "Etc/UTC",
+                "theme": "dark",
+                "style": "1",
+                "locale": "en",
+                "toolbar_bg": "#f1f3f6",
+                "enable_publishing": false,
+                "allow_symbol_change": true,
+                "hide_side_toolbar": false,
+                "onSymbolChange": function (newSymbol) {
+                    selectedSymbol = newSymbol.ticker || newSymbol.name;
+                    console.log("selected stock code: ", selectedSymbol);
+                }
+            });
+
+            // 매수 주문 제출 시 처리
+            document.getElementById('buyForm').addEventListener('submit', function (event) {
+                event.preventDefault();  // 기본 제출 동작을 막음
+
+                const buySound = new Audio("{% static 'mp3/buy.mp3' %}");
+                const buyFailedSound = new Audio("{% static 'mp3/buyFailed.mp3' %}");
+                const symbol = "AAPL";
+                const quantity = document.getElementById('quantity').value;
+                const price = document.getElementById('price').value; // 가격 필드에서 값 가져오기
+
+                console.log("price:", price);
+                console.log("quantity:", quantity);
+                console.log("stock code:", selectedSymbol);
+
+                if (!price || !quantity || !selectedSymbol) {
+                    console.error("price or quantity is missing");
+                    buyFailedSound.play();
+                    showToast('Price or quantity is missing');
+                    return;
+                }
+
+                fetch("{% url 'place_order' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'  // CSRF 토큰 추가
+                    },
+                    body: JSON.stringify({
+                        stock_code: selectedSymbol,
+                        quantity: quantity,
+                        price: price  // 사용자가 입력한 가격 사용
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message === 'complete') {
+                            // 주문 성공 시 사운드 재생
+                            buySound.play();
+                            showToast('Order placed successfully!');
+                        } else {
+                            // 주문 실패 시 실패 사운드 재생
+                            buyFailedSound.play();
+                            showToast('The buy order was not executed.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // 에러 발생 시 실패 사운드 재생
+                        buyFailedSound.play();
+                        showToast('An error occurred while placing the buy order.');
+                    });
+            });
+
+            function showToast(message) {
+                const toastMessage = document.getElementById('toast-message');
+                toastMessage.textContent = message;
+
+                const toastElement = document.getElementById('toast');
+                const toast = new bootstrap.Toast(toastElement);
+                toast.show();
+            }
+        });
+    </script>
+{% endblock %}

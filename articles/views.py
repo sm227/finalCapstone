@@ -86,6 +86,7 @@ def articles(request):
 def articles_page(request):
     return render(request, 'articles/articles.html')
 
+
 # 프롬프트 생성 함수
 def generate_summary_prompt(article_title, article_content):
     """
@@ -109,6 +110,7 @@ def generate_summary_prompt(article_title, article_content):
     - 투자 전략을 말해줄 때, '투자 결정은 본인의 판단과 책임 하에 이루어 져야 합니다' 와 같은 말을 '꼭' 첨부하세요.
     """
     return prompt
+
 
 @csrf_exempt
 def summarize_article(request):
@@ -147,12 +149,11 @@ def summarize_article(request):
 
             genai.configure(api_key=os.getenv('gemini_api_key'))
 
-
             # 기사 요약 프롬프트 생성
             prompt = generate_summary_prompt(article_title, article_content)
 
             # 요약 요청
-            model = genai.GenerativeModel("gemini-1.5-pro" ,safety_settings=safety_settings)
+            model = genai.GenerativeModel("gemini-1.5-pro", safety_settings=safety_settings)
 
             response = model.generate_content(prompt)
             print('hello world')
