@@ -1064,13 +1064,13 @@ class KoreaInvestment:
 
 
         # 주야간원장 구분 호출
-        resp = self.fetch_oversea_day_night()
-        psbl = resp['output']['PSBL_YN']
+        # resp = self.fetch_oversea_day_night()
+        # psbl = resp['output']['PSBL_YN']
 
         if self.mock:
-            tr_id = "VTTS3012R" if psbl == 'N' else 'VTTT3012R'
+            tr_id = "VTTS3012R"
         else:
-            tr_id = "TTTS3012R" if psbl == 'N' else 'JTTT3012R'
+            tr_id = "TTTS3012R"
 
         # request header
         headers = {
@@ -1088,8 +1088,8 @@ class KoreaInvestment:
         params = {
             'CANO': self.acc_no_prefix,
             'ACNT_PRDT_CD': self.acc_no_postfix,
-            'OVRS_EXCG_CD': exchange_cd,
-            'TR_CRCY_CD': currency_cd,
+            'OVRS_EXCG_CD': 'NASD',
+            'TR_CRCY_CD': 'USD',
             'CTX_AREA_FK200': ctx_area_fk200,
             'CTX_AREA_NK200': ctx_area_nk200
         }

@@ -260,22 +260,22 @@
             -moz-appearance: textfield;
         }
 
-        
+
         {# pc 환경 #}
         @media (min-width: 768px) {
             .trading-container {
-                flex-direction: row; 
+                flex-direction: row;
             }
         }
 
         {# 모바일 환경 #}
         @media (max-width: 767px) {
             .trading-container {
-                flex-direction: column; 
+                flex-direction: column;
             }
 
             .chart-container {
-                margin-right: 0; 
+                margin-right: 0;
                 width: 100%;
             }
 
@@ -438,10 +438,12 @@
                     <div class="card-body">
                         <h5 class="card-title">Pnl</h5>
                         {#<h5 class="card-text display-6">{{ total_value|floatformat:0|intcomma }} KRW</h5>#}
-
-                        <h3 class="card-text display-6" style="color: {% if PnL > 0 %}green{% else %}red{% endif %};">
+                        <h3 class="card-text display-6"
+                            style="color: {% if PnL > 0 %}green{% elif PnL < 0 %}red{% else %}white{% endif %};">
                             {% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma }} KRW
-                            {% else %} -{{ PnL|floatformat:0 |intcomma }} KRW
+                            {% elif PnL < 0 %} -{{ PnL|floatformat:0 |intcomma }} KRW
+                            {% else %}
+                                0 KRW
                             {% endif %}</h3>
                         <div class="table-responsive">
                             <table class="table table-dark table-striped table-sm">
@@ -449,12 +451,9 @@
                                 <tr>
                                     <th>Symbol</th>
                                     <th>Name</th>
-                                    <th>Country</th>
+                                    <th>Amount</th>
                                     <th>Exchange Code</th>
-                                    <th>Market Name</th>
                                     <th>Profit Loss Rate</th>
-                                    <th>Exchange Rate</th>
-                                    <th>Purchase Amount Foreign</th>
                                     <th>Last Updated</th>
                                 </tr>
                                 </thead>
@@ -465,14 +464,11 @@
                                         <td><a href="#" class="stock-link text-light"
                                                data-symbol="{{ stock.symbol }}"
                                                onclick="setStockCode('{{ stock.symbol }}')">{{ stock.name }}</a></td>
-                                        <td>{{ stock.country }}</td>
+                                        <td>{{ stock.amount }}</td>
                                         <td>{{ stock.exchange_code }}</td>
-                                        <td>{{ stock.market_name }}</td>
                                         <td style="color: {% if stock.profit_loss_rate > 0 %} #20b16c {% else %} #ef454a {% endif %};">
                                             {{ stock.profit_loss_rate|floatformat:2 }}%
                                         </td>
-                                        <td>{{ stock.exchange_rate }}</td>
-                                        <td>{{ stock.purchase_amount_foreign }}</td>
                                         <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>
                                     </tr>
                                 {% endfor %}
@@ -500,6 +496,7 @@
         </div>
     </div>
 
+    <!-- stock 입력란에 symbol 가져오기 -->
     <script>
         function setStockCode(symbol) {
             document.getElementById('sell_stock_code').value = symbol;
@@ -547,6 +544,72 @@
 
     <!-- TradingView Widget Script -->
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
+    <!-- 주식 보유 종목 새로고침 -->
+    <script>
+        function refreshStockData() {
+            fetch("{% url 'get_stock_data' %}")
+                .then(response => response.json())
+                .then(data => {
+                    const pnlElement = document.querySelector('.card-text.display-6');
+                    const formattedPnL = Math.abs(data.PnL).toFixed(0);
+                    const formattedPnLCom = Number(formattedPnL).toLocaleString();
+
+                    if (data.PnL > 0) {
+                        pnlElement.textContent = `+${formattedPnLCom} KRW`;
+                        pnlElement.style.color = 'green';
+                    } else if (data.PnL < 0) {
+                    } else if (data.PnL < 0) {
+                        pnlElement.textContent = `-${formattedPnLCom} KRW`;
+                        pnlElement.style.color = 'red';
+                    } else {
+                        pnlElement.textContent = `0 KRW`;
+                        pnlElement.style.color = 'white';
+                    }
+
+                    const stockTableBody = document.querySelector('table tbody');
+                    stockTableBody.innerHTML = ''; // 기존 내용 비우기
+
+                    data.stocks.forEach(stock => {
+
+                        const lastUpdatedDate = new Date(stock.last_updated);
+                        const formattedDate = lastUpdatedDate.toLocaleString('en', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                        });
+
+                        const row = `
+                    <tr>
+                        <td>${stock.symbol}</td>
+                        <td><a href="#" class="stock-link text-light" data-symbol="${stock.symbol}" onclick="setStockCode('${stock.symbol}')">${stock.name}</a></td>
+                        <td>${stock.amount}</td>
+                        <td>${stock.exchange_code}</td>
+                        <td style="color: ${stock.profit_loss_rate > 0 ? '#20b16c' : '#ef454a'};">
+                            ${stock.profit_loss_rate.toFixed(2)}%
+                        </td>
+                        <td>${formattedDate}</td>
+                    </tr>
+                `;
+                        stockTableBody.innerHTML += row;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching stock data:', error);
+                });
+        }
+
+        <!-- 매수, 매도 걸리는 시간 때문에 setTimeout 사용해 한번 더 새로고침 -->
+        function refreshStockDataTwice() {
+            refreshStockData();
+            setTimeout(refreshStockData, 2000);
+        }
+    </script>
+
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -639,12 +702,12 @@
                         buyFailedSound.play();
                         showToast('An error occurred while placing the buy order.');
                     });
+                refreshStockDataTwice();
             });
 
 
             document.getElementById('sellForm').addEventListener('submit', function (event) {
                 event.preventDefault();
-                console.log('sell form submitted');
 
                 const sellSound = new Audio("{% static 'mp3/sell.mp3' %}");
                 const sellFailedSound = new Audio("{% static 'mp3/sellFailed.mp3' %}");
@@ -702,11 +765,15 @@
                         } else if (data.message === 'stockcode_not_exist') {
                             sellFailedSound.play();
                             showToast('failed', '해당 종목이 없습니다 <br> 종목 코드를 다시 한번 확인하세요')
+                        } else if (data.message === 'does_not_have') {
+                            sellFailedSound.play();
+                            showToast('failed', '보유 수량이 부족합니다 <br> 매도 가능한 수량을 확인한 후 다시 시도해 주세요')
                         } else {
                             // 주문 실패 시 실패 사운드 재생
                             sellFailedSound.play();
                             showToast('매도 주문이 정상적으로 이루어지지 않았습니다');
                         }
+                        refreshStockDataTwice();
                     })
                     .catch(error => {
                         console.error('Error:', error);
@@ -714,7 +781,9 @@
                         sellFailedSound.play();
                         showToast('failed', '매도 주문이 체결되지 않았습니다. <br> 잔고를 확인해 주세요.');
                     });
+                {#refreshStockDataTwice();#}
             });
+            refreshStockDataTwice();
 
 
             function showToast(status, message) {
