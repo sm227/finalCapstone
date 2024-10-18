@@ -44,7 +44,6 @@ def dashboard(request):
             'exchange_code': comp['ovrs_excg_cd'],
             'market_name': comp['tr_mket_name'],
             'profit_loss_rate': float(comp['evlu_pfls_rt1']),
-
             'exchange_rate': float(comp['bass_exrt']),
             'unit_amt': float(comp['frcr_pchs_amt']),
             'last_updated': timezone.now(),
