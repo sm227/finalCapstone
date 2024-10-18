@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-
+{% load humanize %}
 {% block content %}
     <head>
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
@@ -11,6 +11,28 @@
         body {
             background-color: #121212;
             color: #e0e0e0;
+        }
+
+        .card {
+            background-color: #1e1e1e;
+            border-color: #333;
+        }
+
+        .table {
+            color: #e0e0e0;
+        }
+
+        .modal-content {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+
+        .bg-light {
+            background-color: #333 !important;
+        }
+
+        .text-dark {
+            color: #e0e0e0 !important;
         }
 
         .bg-light {
@@ -287,12 +309,78 @@
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Trading</h1>
                 </div>
+                <!-- Summary Cards -->
+                <div class="row mb-4">
+                    {#                    <div class="col-md-4">#}
+                    {#                        <div class="card text-white bg-primary">#}
+                    {#                            <div class="card-body">#}
+                    {#                                <h5 class="card-title">Total Amount</h5>#}
+                    {#                                <p class="card-text display-6">{{ total_value|floatformat:0|intcomma }} KRW</p>#}
+                    {#                            </div>#}
+                    {#                        </div>#}
+                    {#                    </div>#}
+                    {#                    <div class="col-md-4">#}
+                    {#                        <div {% if PnL > 0 %} class="card text-white bg-success mb-3" {% else %}#}
+                    {#                                              class="card text-white bg-danger mb-3" {% endif %}>#}
+                    {#                            <div class="card-body">#}
+                    {#                                <h5 class="card-title">PnL</h5>#}
+                    {#                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma }}#}
+                    {#                                    원{% else %} -{{ PnL|floatformat:0 |intcomma }} 원{% endif %}</p>#}
+                    {#                            </div>#}
+                    {#                        </div>#}
+                    {#                    </div>#}
+                </div>
+
+                <!-- Stocks Table -->
+{#                <div class="card">#}
+{#                    <div class="card-header">#}
+{#                        <h5>Your Stocks</h5>#}
+{#                    </div>#}
+{#                    <div class="card-body">#}
+{#                        <div class="table-responsive">#}
+{#                            <table class="table table-dark table-striped table-sm">#}
+{#                                <thead>#}
+{#                                <tr>#}
+{#                                    <th>Symbol</th>#}
+{#                                    <th>Name</th>#}
+{#                                    <th>Country</th>#}
+{#                                    <th>Exchange Code</th>#}
+{#                                    <th>Market Name</th>#}
+{#                                    <th>Profit Loss Rate</th>#}
+{#                                    <th>Exchange Rate</th>#}
+{#                                    <th>Purchase Amount Foreign</th>#}
+{#                                    <th>Last Updated</th>#}
+{#                                </tr>#}
+{#                                </thead>#}
+{#                                <tbody>#}
+{#                                {% for stock in stocks %}#}
+{#                                    <tr>#}
+{#                                        <td>{{ stock.symbol }}</td>#}
+{#                                        <td><a href="#" class="stock-link text-light"#}
+{#                                               data-symbol="{{ stock.symbol }}">{{ stock.name }}</a></td>#}
+{#                                        <td>{{ stock.country }}</td>#}
+{#                                        <td>{{ stock.exchange_code }}</td>#}
+{#                                        <td>{{ stock.market_name }}</td>#}
+{#                                        <td style="color: {% if stock.profit_loss_rate > 0 %} #20b16c {% else %} #ef454a {% endif %};">#}
+{#                                            {{ stock.profit_loss_rate|floatformat:2 }}%#}
+{#                                        </td>#}
+{#                                        <td>{{ stock.exchange_rate }}</td>#}
+{#                                        <td>{{ stock.purchase_amount_foreign }}</td>#}
+{#                                        <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>#}
+{#                                    </tr>#}
+{#                                {% endfor %}#}
+{#                                </tbody>#}
+{#                            </table>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
 
                 <div class="trading-container">
                     <div class="chart-container">
                         <div id="tradingview-widget"></div>
 
                     </div>
+
                     <!-- 매수 주문 -->
                     <div class="custom-form-container">
                         <!-- 페이지네이션 버튼 -->
@@ -359,17 +447,90 @@
                             </form>
                         </div>
                     </div>
+                </div>
+                <!-- Summary Cards -->
+                <div class="row mb-4">
+                    {#                    <div class="col-md-4">#}
+                    {#                        <div class="card text-white bg-primary">#}
+                    {#                            <div class="card-body">#}
+                    {#                                <h5 class="card-title">Total Amount</h5>#}
+                    {#                                <p class="card-text display-6">{{ total_value|floatformat:0|intcomma }} KRW</p>#}
+                    {#                            </div>#}
+                    {#                        </div>#}
+                    {#                    </div>#}
+                    {#                    <div class="col-md-4">#}
+                    {#                        <div {% if PnL > 0 %} class="card text-white bg-success mb-3" {% else %}#}
+                    {#                                              class="card text-white bg-danger mb-3" {% endif %}>#}
+                    {#                            <div class="card-body">#}
+                    {#                                <h5 class="card-title">PnL</h5>#}
+                    {#                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma }}#}
+                    {#                                    원{% else %} -{{ PnL|floatformat:0 |intcomma }} 원{% endif %}</p>#}
+                    {#                            </div>#}
+                    {#                        </div>#}
+                    {#                    </div>#}
+                </div>
 
+                <!-- Stocks Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Your Stocks</h5>
+                    </div>
+                    <div class="card-body">
+                    <h5 class="card-title">Pnl</h5>
+{#                    <h5 class="card-text display-6">{{ total_value|floatformat:0|intcomma }} KRW</h5>#}
+
+                    <h3 class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma }}
+                    KRW{% else %} -{{ PnL|floatformat:0 |intcomma }} KRW{% endif %}</h3>
+
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped table-sm">
+                                <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>Name</th>
+                                    <th>Country</th>
+                                    <th>Exchange Code</th>
+                                    <th>Market Name</th>
+                                    <th>Profit Loss Rate</th>
+                                    <th>Exchange Rate</th>
+                                    <th>Purchase Amount Foreign</th>
+                                    <th>Last Updated</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for stock in stocks %}
+                                    <tr>
+                                        <td>{{ stock.symbol }}</td>
+                                        <td><a href="#" class="stock-link text-light"
+                                               data-symbol="{{ stock.symbol }}">{{ stock.name }}</a></td>
+                                        <td>{{ stock.country }}</td>
+                                        <td>{{ stock.exchange_code }}</td>
+                                        <td>{{ stock.market_name }}</td>
+                                        <td style="color: {% if stock.profit_loss_rate > 0 %} #20b16c {% else %} #ef454a {% endif %};">
+                                            {{ stock.profit_loss_rate|floatformat:2 }}%
+                                        </td>
+                                        <td>{{ stock.exchange_rate }}</td>
+                                        <td>{{ stock.purchase_amount_foreign }}</td>
+                                        <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 토스트 -->
                 <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="background-color: #2B3139">
+                    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true"
+                         style="background-color: #2B3139">
                         <div class="d-flex">
                             <div class="toast-body text-white" id="toast-message">
-                                Order notional cannot be less than 134.6 USDT. This does not apply to reduce only orders.
+                                Order notional cannot be less than 134.6 USDT. This does not apply to reduce only
+                                orders.
                             </div>
-                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                                    aria-label="Close"></button>
                         </div>
                     </div>
                 </div>
@@ -485,19 +646,22 @@
                         if (data.message === 'complete') {
                             // 주문 성공 시 사운드 재생
                             buySound.play();
-                            showToast('success','매수 주문이 성공적으로 체결되었습니다');
+                            showToast('success', '매수 주문이 성공적으로 체결되었습니다');
 
                             //widget.setSymbol(enteredSymbol, "D");
                         } else if (data.message === 'market_not_open') {
                             buyFailedSound.play();
-                            showToast('failed','매수 가능 시간이 아닙니다 <br> 모의투자 가능 시간 ( 23:30 ~ 06:00 )<br> 서머타임 적용 시 ( 22:30 ~ 05:00 )');
+                            showToast('failed', '매수 가능 시간이 아닙니다 <br> 모의투자 가능 시간 ( 23:30 ~ 06:00 )<br> 서머타임 적용 시 ( 22:30 ~ 05:00 )');
+                        } else if (data.message === 'market_closed') {
+                            buyFailedSound.play();
+                            showToast('failed', '매수 가능 시간이 아닙니다 <br> 모의투자 가능 시간 ( 23:30 ~ 06:00 )<br> 서머타임 적용 시 ( 22:30 ~ 05:00 )');
                         } else if (data.message === 'stockcode_not_exist') {
                             buyFailedSound.play();
-                            showToast('failed','해당 종목이 없습니다 <br> 종목 코드를 다시 한번 확인하세요')
+                            showToast('failed', '해당 종목이 없습니다 <br> 종목 코드를 다시 한번 확인하세요')
                         } else {
                             // 주문 실패 시 실패 사운드 재생
                             buyFailedSound.play();
-                            showToast('failed','매수 주문이 체결되지 않았습니다 <br> 잔고를 확인해 주세요');
+                            showToast('failed', '매수 주문이 체결되지 않았습니다 <br> 잔고를 확인해 주세요');
                         }
                     })
                     .catch(error => {
@@ -557,15 +721,18 @@
                         if (data.message === 'complete') {
                             // 주문 성공 시 사운드 재생
                             sellSound.play();
-                            showToast('success','매도 주문이 성공적으로 체결되었습니다');
+                            showToast('success', '매도 주문이 성공적으로 체결되었습니다');
 
                             //widget.setSymbol(enteredSymbol, "D");
-                        } else if (data.message === 'market_not_open') {
+                        } else if (data.message === 'market_not_open' && 'market_closed') {
                             sellFailedSound.play();
-                            showToast('failed','매도 가능 시간이 아닙니다 <br> 모의투자 가능 시간 ( 23:30 ~ 06:00 )<br> 서머타임 적용 시 ( 22:30 ~ 05:00 )');
+                            showToast('failed', '매도 가능 시간이 아닙니다 <br> 모의투자 가능 시간 ( 23:30 ~ 06:00 )<br> 서머타임 적용 시 ( 22:30 ~ 05:00 )');
+                        } else if (data.message === 'market_closed') {
+                            sellFailedSound.play();
+                            showToast('failed', '매수 가능 시간이 아닙니다 <br> 모의투자 가능 시간 ( 23:30 ~ 06:00 )<br> 서머타임 적용 시 ( 22:30 ~ 05:00 )');
                         } else if (data.message === 'stockcode_not_exist') {
                             sellFailedSound.play();
-                            showToast('failed','해당 종목이 없습니다 <br> 종목 코드를 다시 한번 확인하세요')
+                            showToast('failed', '해당 종목이 없습니다 <br> 종목 코드를 다시 한번 확인하세요')
                         } else {
                             // 주문 실패 시 실패 사운드 재생
                             sellFailedSound.play();
@@ -576,7 +743,7 @@
                         console.error('Error:', error);
                         // 에러 발생 시 실패 사운드 재생
                         sellFailedSound.play();
-                        showToast('failed','매도 주문이 체결되지 않았습니다. <br> 잔고를 확인해 주세요.');
+                        showToast('failed', '매도 주문이 체결되지 않았습니다. <br> 잔고를 확인해 주세요.');
                     });
             });
 
@@ -587,9 +754,7 @@
                 toastMessage.innerHTML = `<img src="${imagePath}" alt="${status}" style="width: 20px; height: 20px; margin-right: 10px;"> ${message}`;
 
                 const toastElement = document.getElementById('toast');
-                const toast = new bootstrap.Toast(toastElement, {
-                    autohide: false
-                });
+                const toast = new bootstrap.Toast(toastElement);
                 toast.show();
             }
         });
