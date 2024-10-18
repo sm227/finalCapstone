@@ -82,7 +82,6 @@ def place_order(request):
         exchange='나스닥',  # 애플 주식을 구매할 때 사용 (NASDAQ)
         mock=True  # 모의 투자 모드
     )
-
     if request.method == "POST":
         try:
             # JSON 요청 데이터를 파싱
@@ -128,7 +127,7 @@ def place_order(request):
 
 @csrf_exempt
 def place_order_sell(request):
-    # print("호출")
+    #print("호출")
     # 현재 로그인한 사용자의 UserProfile 가져오기
     try:
         user_profile = UserProfile.objects.get(user=request.user)
@@ -149,7 +148,7 @@ def place_order_sell(request):
         try:
             print("매도")
             data = json.loads(request.body)
-            # print(data)
+            #print(data)
 
             stock_code = data.get('stock_code')
             price = float(data.get('price'))

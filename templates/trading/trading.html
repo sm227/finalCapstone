@@ -309,78 +309,12 @@
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Trading</h1>
                 </div>
-                <!-- Summary Cards -->
-                <div class="row mb-4">
-                    {#                    <div class="col-md-4">#}
-                    {#                        <div class="card text-white bg-primary">#}
-                    {#                            <div class="card-body">#}
-                    {#                                <h5 class="card-title">Total Amount</h5>#}
-                    {#                                <p class="card-text display-6">{{ total_value|floatformat:0|intcomma }} KRW</p>#}
-                    {#                            </div>#}
-                    {#                        </div>#}
-                    {#                    </div>#}
-                    {#                    <div class="col-md-4">#}
-                    {#                        <div {% if PnL > 0 %} class="card text-white bg-success mb-3" {% else %}#}
-                    {#                                              class="card text-white bg-danger mb-3" {% endif %}>#}
-                    {#                            <div class="card-body">#}
-                    {#                                <h5 class="card-title">PnL</h5>#}
-                    {#                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma }}#}
-                    {#                                    원{% else %} -{{ PnL|floatformat:0 |intcomma }} 원{% endif %}</p>#}
-                    {#                            </div>#}
-                    {#                        </div>#}
-                    {#                    </div>#}
-                </div>
-
-                <!-- Stocks Table -->
-{#                <div class="card">#}
-{#                    <div class="card-header">#}
-{#                        <h5>Your Stocks</h5>#}
-{#                    </div>#}
-{#                    <div class="card-body">#}
-{#                        <div class="table-responsive">#}
-{#                            <table class="table table-dark table-striped table-sm">#}
-{#                                <thead>#}
-{#                                <tr>#}
-{#                                    <th>Symbol</th>#}
-{#                                    <th>Name</th>#}
-{#                                    <th>Country</th>#}
-{#                                    <th>Exchange Code</th>#}
-{#                                    <th>Market Name</th>#}
-{#                                    <th>Profit Loss Rate</th>#}
-{#                                    <th>Exchange Rate</th>#}
-{#                                    <th>Purchase Amount Foreign</th>#}
-{#                                    <th>Last Updated</th>#}
-{#                                </tr>#}
-{#                                </thead>#}
-{#                                <tbody>#}
-{#                                {% for stock in stocks %}#}
-{#                                    <tr>#}
-{#                                        <td>{{ stock.symbol }}</td>#}
-{#                                        <td><a href="#" class="stock-link text-light"#}
-{#                                               data-symbol="{{ stock.symbol }}">{{ stock.name }}</a></td>#}
-{#                                        <td>{{ stock.country }}</td>#}
-{#                                        <td>{{ stock.exchange_code }}</td>#}
-{#                                        <td>{{ stock.market_name }}</td>#}
-{#                                        <td style="color: {% if stock.profit_loss_rate > 0 %} #20b16c {% else %} #ef454a {% endif %};">#}
-{#                                            {{ stock.profit_loss_rate|floatformat:2 }}%#}
-{#                                        </td>#}
-{#                                        <td>{{ stock.exchange_rate }}</td>#}
-{#                                        <td>{{ stock.purchase_amount_foreign }}</td>#}
-{#                                        <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>#}
-{#                                    </tr>#}
-{#                                {% endfor %}#}
-{#                                </tbody>#}
-{#                            </table>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </div>#}
 
                 <div class="trading-container">
                     <div class="chart-container">
                         <div id="tradingview-widget"></div>
 
                     </div>
-
                     <!-- 매수 주문 -->
                     <div class="custom-form-container">
                         <!-- 페이지네이션 버튼 -->
@@ -476,12 +410,13 @@
                         <h5>Your Stocks</h5>
                     </div>
                     <div class="card-body">
-                    <h5 class="card-title">Pnl</h5>
-{#                    <h5 class="card-text display-6">{{ total_value|floatformat:0|intcomma }} KRW</h5>#}
+                        <h5 class="card-title">Pnl</h5>
+                        {#<h5 class="card-text display-6">{{ total_value|floatformat:0|intcomma }} KRW</h5>#}
 
-                    <h3 class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma }}
-                    KRW{% else %} -{{ PnL|floatformat:0 |intcomma }} KRW{% endif %}</h3>
-
+                        <h3 class="card-text display-6" style="color: {% if PnL > 0 %}green{% else %}red{% endif %};">
+                            {% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma }} KRW
+                            {% else %} -{{ PnL|floatformat:0 |intcomma }} KRW
+                            {% endif %}</h3>
                         <div class="table-responsive">
                             <table class="table table-dark table-striped table-sm">
                                 <thead>
@@ -502,7 +437,8 @@
                                     <tr>
                                         <td>{{ stock.symbol }}</td>
                                         <td><a href="#" class="stock-link text-light"
-                                               data-symbol="{{ stock.symbol }}">{{ stock.name }}</a></td>
+                                               data-symbol="{{ stock.symbol }}"
+                                               onclick="setStockCode('{{ stock.symbol }}')">{{ stock.name }}</a></td>
                                         <td>{{ stock.country }}</td>
                                         <td>{{ stock.exchange_code }}</td>
                                         <td>{{ stock.market_name }}</td>
@@ -537,6 +473,13 @@
             </main>
         </div>
     </div>
+
+    <script>
+        function setStockCode(symbol) {
+            document.getElementById('sell_stock_code').value = symbol;
+            document.getElementById('buy_stock_code').value = symbol;
+        }
+    </script>
 
     <!-- stock code 입력 부분 대문자 변환 -->
     <script>
