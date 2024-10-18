@@ -33,20 +33,32 @@ def trading(request):
     )
 
     balance = broker.fetch_present_balance()
+    test = broker.fetch_balance_oversea()
     print(balance)
+    print("test: ", test)
     stock_holdings = []
     total_value = 0
 
-    for comp in balance['output1']:
+    # for comp in balance['output1']:
+    #     stock_holdings.append({
+    #         'symbol': comp['pdno'],
+    #         'name': comp['prdt_name'],
+    #         'country': comp['natn_kor_name'],
+    #         'exchange_code': comp['ovrs_excg_cd'],
+    #         'market_name': comp['tr_mket_name'],
+    #         'profit_loss_rate': float(comp['evlu_pfls_rt1']),
+    #         'exchange_rate': float(comp['bass_exrt']),
+    #         'purchase_amount_foreign': float(comp['frcr_pchs_amt']),
+    #         'last_updated': timezone.now(),
+    #     })
+
+    for comp in test['output1']:
         stock_holdings.append({
-            'symbol': comp['pdno'],
-            'name': comp['prdt_name'],
-            'country': comp['natn_kor_name'],
+            'symbol': comp['ovrs_pdno'],
+            'name': comp['ovrs_item_name'],
+            'amount' : comp['ovrs_cblc_qty'],
             'exchange_code': comp['ovrs_excg_cd'],
-            'market_name': comp['tr_mket_name'],
-            'profit_loss_rate': float(comp['evlu_pfls_rt1']),
-            'exchange_rate': float(comp['bass_exrt']),
-            'purchase_amount_foreign': float(comp['frcr_pchs_amt']),
+            'profit_loss_rate': float(comp['evlu_pfls_rt']),
             'last_updated': timezone.now(),
         })
 
@@ -206,19 +218,17 @@ def get_stock_data(request):
     )
 
     balance = broker.fetch_present_balance()
+    test = broker.fetch_balance_oversea()
     #print(balance)
     stock_holdings = []
 
-    for comp in balance['output1']:
+    for comp in test['output1']:
         stock_holdings.append({
-            'symbol': comp['pdno'],
-            'name': comp['prdt_name'],
-            'country': comp['natn_kor_name'],
+            'symbol': comp['ovrs_pdno'],
+            'name': comp['ovrs_item_name'],
+            'amount': comp['ovrs_cblc_qty'],
             'exchange_code': comp['ovrs_excg_cd'],
-            'market_name': comp['tr_mket_name'],
-            'profit_loss_rate': float(comp['evlu_pfls_rt1']),
-            'exchange_rate': float(comp['bass_exrt']),
-            'purchase_amount_foreign': float(comp['frcr_pchs_amt']),
+            'profit_loss_rate': float(comp['evlu_pfls_rt']),
             'last_updated': timezone.now(),
         })
 

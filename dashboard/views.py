@@ -46,7 +46,7 @@ def dashboard(request):
             'profit_loss_rate': float(comp['evlu_pfls_rt1']),
 
             'exchange_rate': float(comp['bass_exrt']),
-            'purchase_amount_foreign': float(comp['frcr_pchs_amt']),
+            'unit_amt': float(comp['frcr_pchs_amt']),
             'last_updated': timezone.now(),
         })
 

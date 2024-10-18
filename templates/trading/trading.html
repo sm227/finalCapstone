@@ -451,12 +451,9 @@
                                 <tr>
                                     <th>Symbol</th>
                                     <th>Name</th>
-                                    <th>Country</th>
+                                    <th>Amount</th>
                                     <th>Exchange Code</th>
-                                    <th>Market Name</th>
                                     <th>Profit Loss Rate</th>
-                                    <th>Exchange Rate</th>
-                                    <th>Purchase Amount Foreign</th>
                                     <th>Last Updated</th>
                                 </tr>
                                 </thead>
@@ -467,14 +464,11 @@
                                         <td><a href="#" class="stock-link text-light"
                                                data-symbol="{{ stock.symbol }}"
                                                onclick="setStockCode('{{ stock.symbol }}')">{{ stock.name }}</a></td>
-                                        <td>{{ stock.country }}</td>
+                                        <td>{{ stock.amount }}</td>
                                         <td>{{ stock.exchange_code }}</td>
-                                        <td>{{ stock.market_name }}</td>
                                         <td style="color: {% if stock.profit_loss_rate > 0 %} #20b16c {% else %} #ef454a {% endif %};">
                                             {{ stock.profit_loss_rate|floatformat:2 }}%
                                         </td>
-                                        <td>{{ stock.exchange_rate }}</td>
-                                        <td>{{ stock.purchase_amount_foreign }}</td>
                                         <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>
                                     </tr>
                                 {% endfor %}
@@ -592,14 +586,11 @@
                     <tr>
                         <td>${stock.symbol}</td>
                         <td><a href="#" class="stock-link text-light" data-symbol="${stock.symbol}" onclick="setStockCode('${stock.symbol}')">${stock.name}</a></td>
-                        <td>${stock.country}</td>
+                        <td>${stock.amount}</td>
                         <td>${stock.exchange_code}</td>
-                        <td>${stock.market_name}</td>
                         <td style="color: ${stock.profit_loss_rate > 0 ? '#20b16c' : '#ef454a'};">
                             ${stock.profit_loss_rate.toFixed(2)}%
                         </td>
-                        <td>${stock.exchange_rate}</td>
-                        <td>${stock.purchase_amount_foreign}</td>
                         <td>${formattedDate}</td>
                     </tr>
                 `;
