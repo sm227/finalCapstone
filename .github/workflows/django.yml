@@ -30,6 +30,21 @@ jobs:
         key: ${{ secrets.ORACLE_SSH_PRIVATE_KEY }}
         script: |
           cd /home/ubuntu/AiStock/finalCapstone
+
+           # 이전 서버 프로세스 종료
+          if [ -f django_server.pid ]; then
+            pid=$(cat django_server.pid)
+            if ps -p $pid > /dev/null; then
+              kill $pid
+              echo "Previous Django server (PID: $pid) stopped."
+            else
+              echo "No running Django server found with PID: $pid"
+            fi
+            rm django_server.pid
+          else
+            echo "No PID file found. Server might not be running."
+          fi
+          
           sudo git pull origin master
           source venv/bin/activate
           pip install -r requirements.txt
