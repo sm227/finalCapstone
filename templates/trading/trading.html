@@ -552,15 +552,15 @@
                 .then(response => response.json())
                 .then(data => {
                     const pnlElement = document.querySelector('.card-text.display-6');
-                    const pnlValue = data.PnL.toFixed(0);
-                    const formattedPnL = Math.abs(data.PnL).toFixed(0).toLocaleString();
+                    const formattedPnL = Math.abs(data.PnL).toFixed(0);
+                    const formattedPnLCom = Number(formattedPnL).toLocaleString();
 
                     if (data.PnL > 0) {
-                        pnlElement.textContent = `+${formattedPnL} KRW`;
+                        pnlElement.textContent = `+${formattedPnLCom} KRW`;
                         pnlElement.style.color = 'green';
                     } else if (data.PnL < 0) {
                     } else if (data.PnL < 0) {
-                        pnlElement.textContent = `-${formattedPnL} KRW`;
+                        pnlElement.textContent = `-${formattedPnLCom} KRW`;
                         pnlElement.style.color = 'red';
                     } else {
                         pnlElement.textContent = `0 KRW`;
