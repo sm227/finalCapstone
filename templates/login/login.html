@@ -13,7 +13,14 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            margin-top: 200px;
+        }
+
+        .error {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
         }
 
         .card {
@@ -131,7 +138,7 @@
     </div>
 
     {% if messages %}
-    <div class="container mt-3">
+    <div class="error">
         <ul class="messages">
             {% for message in messages %}
                 <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
