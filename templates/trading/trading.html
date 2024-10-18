@@ -729,7 +729,7 @@
                             showToast('failed', '매도 가능 시간이 아닙니다 <br> 모의투자 가능 시간 ( 23:30 ~ 06:00 )<br> 서머타임 적용 시 ( 22:30 ~ 05:00 )');
                         } else if (data.message === 'market_closed') {
                             sellFailedSound.play();
-                            showToast('failed', '매수 가능 시간이 아닙니다 <br> 모의투자 가능 시간 ( 23:30 ~ 06:00 )<br> 서머타임 적용 시 ( 22:30 ~ 05:00 )');
+                            showToast('failed', '매도 가능 시간이 아닙니다 <br> 모의투자 가능 시간 ( 23:30 ~ 06:00 )<br> 서머타임 적용 시 ( 22:30 ~ 05:00 )');
                         } else if (data.message === 'stockcode_not_exist') {
                             sellFailedSound.play();
                             showToast('failed', '해당 종목이 없습니다 <br> 종목 코드를 다시 한번 확인하세요')
