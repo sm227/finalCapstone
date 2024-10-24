@@ -1,0 +1,111 @@
+<!-- templates/stock_prediction.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주가 예측 서비스</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center mb-8">주가 예측 서비스</h1>
+
+        <!-- 예측 폼 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">회사</label>
+                        <select name="company" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <option value="GOOG" {% if company == 'GOOG' %}selected{% endif %}>Google (GOOG)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">시간 단위</label>
+                        <select name="time_diff" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <option value="days" {% if selected_time_diff == 'days' %}selected{% endif %}>일별</option>
+                            <option value="weeks" {% if selected_time_diff == 'weeks' %}selected{% endif %}>주별</option>
+                            <option value="months" {% if selected_time_diff == 'months' %}selected{% endif %}>월별</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">모델 종류</label>
+                        <select name="model_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <option value="RandomForestRegressor" {% if selected_model == 'RandomForestRegressor' %}selected{% endif %}>Random Forest</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                        예측하기
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 결과 차트 -->
+        {% if prediction_data %}
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">예측 결과</h2>
+            <canvas id="predictionChart"></canvas>
+        </div>
+
+        <script>
+            const ctx = document.getElementById('predictionChart').getContext('2d');
+
+            // 데이터 준비
+            const dates = Object.keys({{ prediction_data.validation_table.Close|safe }});
+            const actualValues = Object.values({{ prediction_data.validation_table.Close|safe }});
+            const predictedValues = Object.values({{ prediction_data.validation_table.Predictions|safe }});
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: '실제 주가',
+                        data: actualValues,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }, {
+                        label: '예측 주가',
+                        data: predictedValues,
+                        borderColor: 'rgb(255, 99, 132)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '{{ company }} 주가 예측 결과'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: '날짜'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: '주가 ($)'
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
+        {% endif %}
+    </div>
+</body>
+</html>
