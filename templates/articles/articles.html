@@ -222,6 +222,10 @@
                     progressMessage.textContent = "모든 기사를 불러왔습니다!";
                     progressMessage.style.color = '#28a745';  // 녹색으로 변경
                     progressBar.classList.remove('progress-bar-animated');  // 애니메이션 중지
+
+                    // 프로그레스 바와 배경 숨기기
+                    progressBar.style.display = 'none';
+                    document.querySelector('.progress').style.display = 'none'; // 부모 요소 숨기기
                 }
             };
 
