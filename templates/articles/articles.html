@@ -4,6 +4,20 @@
 
 {% block content %}
     <style>
+        {# 사이드바 고정#}
+        #sidebar {
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        #main-content {
+            margin-left: 250px;
+        }
+        
         body {
             background-color: #121212;
             color: #e0e0e0;
@@ -117,7 +131,7 @@
                 </div>
             </nav>
 
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <main id="main-content" class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">News</h1>
                 </div>
@@ -134,25 +148,25 @@
                 <!-- 기사 컨테이너 -->
                 <div id="articlesContainer" class="row">
                     <!-- 기사 -->
-                    <div class="row">
-                        {% for article in news %}
-                            <div class="col-md-4 article-card">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">
-                                            <a href="{{ article.link }}" class="text-light"
-                                               style="text-decoration: none;">{{ article.title }}</a>
-                                        </h5>
-                                        <p class="card-text">{{ article.content|truncatewords:30 }}</p>
-                                        <button class="btn btn-primary" data-content="{{ article.content }}"
-                                                data-title="{{ article.title }}" data-bs-toggle="modal"
-                                                data-bs-target="#articleModal">Read More
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
+                    {#                    <div class="row">#}
+                    {#                        {% for article in news %}#}
+                    {#                            <div class="col-md-4 article-card">#}
+                    {#                                <div class="card">#}
+                    {#                                    <div class="card-body">#}
+                    {#                                        <h5 class="card-title">#}
+                    {#                                            <a href="{{ article.link }}" class="text-light"#}
+                    {#                                               style="text-decoration: none;">{{ article.title }}</a>#}
+                    {#                                        </h5>#}
+                    {#                                        <p class="card-text">{{ article.content|truncatewords:30 }}</p>#}
+                    {#                                        <button class="btn btn-primary" data-content="{{ article.content }}"#}
+                    {#                                                data-title="{{ article.title }}" data-bs-toggle="modal"#}
+                    {#                                                data-bs-target="#articleModal">Read More#}
+                    {#                                        </button>#}
+                    {#                                    </div>#}
+                    {#                                </div>#}
+                    {#                            </div>#}
+                    {#                        {% endfor %}#}
+                    {#                    </div>#}
                 </div>
 
                 <!-- Read More 모달 -->
@@ -205,7 +219,7 @@
                 // 프로그레스 메시지 업데이트 (새로운 메시지일 때만)
                 if (data.message !== lastMessage) {
                     progressMessage.classList.remove('fade-in');
-                    void progressMessage.offsetWidth; // 리플로우 트리거
+                    void progressMessage.offsetWidth;
                     progressMessage.classList.add('fade-in');
                     progressMessage.textContent = data.message;
                     lastMessage = data.message;
@@ -219,13 +233,16 @@
                 // 모든 기사가 로드되면 연결 종료
                 if (progress >= 100) {
                     eventSource.close();
+                    
                     progressMessage.textContent = "모든 기사를 불러왔습니다!";
-                    progressMessage.style.color = '#28a745';  // 녹색으로 변경
-                    progressBar.classList.remove('progress-bar-animated');  // 애니메이션 중지
+                    progressMessage.style.color = '#28a745';
+                    progressBar.classList.remove('progress-bar-animated');
 
-                    // 프로그레스 바와 배경 숨기기
-                    progressBar.style.display = 'none';
-                    document.querySelector('.progress').style.display = 'none'; // 부모 요소 숨기기
+                    setTimeout(() => {
+                        progressMessage.style.display = 'none';
+                        progressBar.style.display = 'none';
+                        document.querySelector('.progress').style.display = 'none';
+                    }, 1000);
                 }
             };
 
@@ -233,23 +250,23 @@
                 console.error("EventSource failed:", error);
                 eventSource.close();
                 progressMessage.textContent = "기사를 불러오는 중 오류가 발생했습니다.";
-                progressMessage.style.color = '#dc3545';  // 빨간색으로 변경
+                progressMessage.style.color = '#dc3545';
             };
 
             function createArticleCard(article) {
                 const cardDiv = document.createElement('div');
                 cardDiv.className = 'col-md-4 article-card';
                 cardDiv.innerHTML = `
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <a href="${article.link}" class="text-light" style="text-decoration: none;">${article.title}</a>
-                    </h5>
-                    <p class="card-text">${article.content.substring(0, 100)}...</p>
-                    <button class="btn btn-primary read-more" data-content="${encodeURIComponent(article.content)}" data-title="${encodeURIComponent(article.title)}">Read More</button>
-                </div>
-            </div>
-        `;
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="${article.link}" class="text-light" style="text-decoration: none;">${article.title}</a>
+                            </h5>
+                            <p class="card-text">${article.content.substring(0, 100)}...</p>
+                            <button class="btn btn-primary read-more" data-content="${encodeURIComponent(article.content)}" data-title="${encodeURIComponent(article.title)}">Read More</button>
+                        </div>
+                    </div>
+                `;
                 return cardDiv;
             }
 
