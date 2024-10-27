@@ -441,7 +441,7 @@
                         <h3 class="card-text display-6"
                             style="color: {% if PnL > 0 %}green{% elif PnL < 0 %}red{% else %}white{% endif %};">
                             {% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma }} KRW
-                            {% elif PnL < 0 %} -{{ PnL|floatformat:0 |intcomma }} KRW
+                            {% elif PnL < 0 %} {{ PnL|floatformat:0 |intcomma }} KRW
                             {% else %}
                                 0 KRW
                             {% endif %}</h3>
