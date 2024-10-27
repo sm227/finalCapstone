@@ -180,10 +180,10 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div {% if PnL > 0 %} class="card text-white bg-success mb-3" {% else %} class="card text-white bg-danger mb-3" {% endif %}>
+                        <div {% if PnL > 0 %} class="card text-white bg-success mb-3" {% elif PnL == 0 %} class="card text-bg-secondary mb-3" {% else %} class="card text-white bg-danger mb-3" {% endif %}>
                             <div class="card-body">
                                 <h5 class="card-title">PnL</h5>
-                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma}} 원{% else %} -{{ PnL|floatformat:0 |intcomma}} 원  {% endif %}    </p>
+                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma}} 원{% else %} {{ PnL|floatformat:0 |intcomma}} 원  {% endif %}   </p>
                             </div>
                         </div>
                     </div>
