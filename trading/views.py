@@ -123,6 +123,8 @@ def place_order(request):
                 return JsonResponse({'message': 'stockcode_not_exist'}, status=400)
             elif '모의투자 장종료 입니다.' in response.get('msg1', ''):
                 return JsonResponse({'message': 'market_closed'}, status=400)
+            elif '모의투자 영업일이 아닙니다.' in response.get('msg1', ''):
+                return JsonResponse({'message': 'its_not_a_business_day'}, status=400)
             else:
                 err_message = response.get('msg1', 'Unknown error')
                 return JsonResponse({'message': f'failed: {err_message}'}, status=400)
@@ -186,6 +188,8 @@ def place_order_sell(request):
                 return JsonResponse({'message': 'market_closed'}, status=400)
             elif '모의투자 잔고내역이 없습니다' in response.get('msg1', ''):
                 return JsonResponse({'message': 'does_not_have'}, status=400)
+            elif '모의투자 영업일이 아닙니다.' in response.get('msg1', ''):
+                return JsonResponse({'message': 'its_not_a_business_day'}, status=400)
             else:
                 err_message = response.get('msg1', 'Unknown error')
                 return JsonResponse({'message': f'failed: {err_message}'}, status=400)

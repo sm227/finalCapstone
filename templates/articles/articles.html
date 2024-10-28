@@ -4,11 +4,10 @@
 
 {% block content %}
     <style>
-        {# 사이드바 고정#}
         #sidebar {
             height: 100vh;
             /*position: fixed;*/
-            overflow-y: auto;
+            /*overflow-y: auto;*/
             top: 0;
             left: 0;
             z-index: 100;
@@ -118,7 +117,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" href="#">
+                            <a class="nav-link text-light" href="{% url 'portfolio' %}">
                                 <i class="bi bi-wallet2"></i> Portfolio
                             </a>
                         </li>
