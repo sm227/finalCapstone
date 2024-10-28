@@ -104,12 +104,32 @@
         color: #333;
     }
 
+    .stock-column {
+        display: flex;
+        flex-direction: column;
+        margin-right: 20px;
+    }
+
+    .stock-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+        width: 150px;
+    }
+
+    .stock-item span.stock-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     .color-box {
         width: 14px;
         height: 14px;
         border-radius: 4px;
         display: inline-block;
         margin-right: 8px;
+        flex-shrink: 0;
     }
 </style>
 
@@ -166,7 +186,6 @@
                         {% else %} 0 KRW {% endif %}
                     </h3>
 
-                    <!-- 주식 테이블 표시 -->
                     <div class="table-responsive">
                         <table class="table table-dark table-striped table-sm">
                             <thead>
@@ -201,7 +220,6 @@
                     <h2 style="color: lightgrey;">Investment Portfolio Composition</h2>
                     <div id="stock-info" class="stock-info-display"></div>
 
-                    <!-- 포트폴리오 구성 바 컨테이너 -->
                     <div class="bar-container" style="justify-content: start;">
                         {% for stock in stocks %}
                         <div class="bar"
@@ -212,16 +230,23 @@
                         {% endfor %}
                     </div>
 
-                    <!-- 왼쪽 정렬된 주식 legend -->
                     <div class="stock-legend" style="justify-content: start;">
-                        <ul>
-                            {% for stock in stocks %}
-                            <li>
+                        {% for stock in stocks %}
+                        {% if forloop.counter0|divisibleby:5 %}
+                        <div class="stock-column">
+                            {% endif %}
+
+                            <div class="stock-item">
                                 <span class="color-box" style="background-color: {{ stock.color }};"></span>
-                                <span style="color: lightgrey; cursor: pointer;" onclick="loadNews('{{ stock.name }}')">{{ stock.name }}</span>
-                            </li>
-                            {% endfor %}
-                        </ul>
+                                <span class="stock-name" title="{{ stock.name }}" style="color: lightgrey; cursor: pointer;" onclick="loadNews('{{ stock.name }}')">
+                                    {{ stock.name }}
+                                </span>
+                            </div>
+
+                            {% if forloop.counter|divisibleby:5 or forloop.last %}
+                        </div>
+                        {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
 

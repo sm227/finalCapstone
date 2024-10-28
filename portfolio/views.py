@@ -56,19 +56,16 @@ def portfolio(request):
     for stock in stock_holdings:
         stock['amount_percentage'] = (stock['amount'] / total_amount * 100) if total_amount > 0 else 0
 
+    stock_holdings = sorted(stock_holdings, key=lambda x: x['amount_percentage'], reverse=True)
+
     total_value = balance['output3'].get('tot_asst_amt', 0)
     PnL = balance['output3'].get('tot_evlu_pfls_amt')
 
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22',
-              '#17becf',
-              '#393b79', '#637939', '#8c6d31', '#843c39', '#7b4173', '#5254a3', '#9c9ede', '#8ca252', '#bd9e39',
-              '#ad494a',
-              '#a55194', '#6b6ecf', '#b5cf6b', '#e7ba52', '#d6616b', '#ce6dbd', '#de9ed6', '#e7969c', '#9edae5',
-              '#98df8a',
-              '#ffbb78', '#ff9896', '#c5b0d5', '#c49c94', '#f7b6d2', '#dbdb8d', '#c7c7c7', '#aec7e8', '#ffbb78',
-              '#98df8a',
-              '#c59434', '#007f7f', '#ff3377', '#ff9f00', '#bfb300', '#0073bf', '#9933ff', '#00bf6f', '#e6194B',
-              '#42d4f4']
+    colors = ['#5fc6e0', '#ffcf73', '#6fd667', '#ff6f6f', '#b57fd6', '#ff99b2', '#d1e866',
+              '#73e8e6', '#b3ff73', '#ffa773', '#ff8c73', '#d67f9f', '#7373ff', '#c4ffe1',
+              '#ff8e8a', '#6fcfe6', '#a9e8a1', '#ffffaa', '#cfa5b5', '#e8a5ff', '#d1e8cc',
+              '#ffcb99', '#a5e8a5', '#ffdb88', '#8fe8e8', '#ff6677', '#73cde8']
+
     for i, stock in enumerate(stock_holdings):
         stock['color'] = colors[i % len(colors)]
 
