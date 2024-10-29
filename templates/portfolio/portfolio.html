@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<style>
+    body {
+        background-color: #121212;
+        color: #e0e0e0;
+    }
+
+    .card {
+        background-color: #1e1e1e;
+        border-color: #333;
+    }
+
+    .table {
+        color: #e0e0e0;
+    }
+
+    .modal-content {
+        background-color: #1e1e1e;
+        color: #e0e0e0;
+    }
+
+    .bg-light {
+        background-color: #333 !important;
+    }
+
+    .text-dark {
+        color: #e0e0e0 !important;
+    }
+
+    .container {
+        width: 100%;
+        padding: 20px;
+        background-color: #1e1e1e;
+        color: #333;
+        border-radius: 5px;
+    }
+
+    .bar-container {
+        display: flex;
+        width: 100%;
+        height: 30px;
+        margin-top: 20px;
+        background-color: #1e1e1e;
+    }
+
+    .bar {
+        height: 100%;
+        cursor: pointer;
+        border-radius: 3px;
+        margin-right: 0.8px;
+    }
+
+
+    .stock-info-display {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #1e1e1e;
+        color: white;
+        border-radius: 8px;
+        text-align: left;
+        font-size: 1.2em;
+        font-weight: bold;
+        height: 40px;
+        line-height: 40px;
+        display: flex;
+        align-items: center;
+        padding-left: 15px;
+    }
+
+    .color-box-inline {
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-right: 8px;
+    }
+
+    .stock-legend {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 20px;
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    .stock-legend ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .stock-legend li {
+        display: flex;
+        align-items: center;
+        margin-right: 20px;
+        font-size: 0.9em;
+        color: #333;
+    }
+
+    .stock-column {
+        display: flex;
+        flex-direction: column;
+        margin-right: 20px;
+    }
+
+    .stock-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+        width: 150px;
+    }
+
+    .stock-item span.stock-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .color-box {
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
+            <div class="position-sticky">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="{% url 'dashboard' %}">
+                            <i class="bi bi-house-door"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="{% url 'trading' %}">
+                            <i class="bi bi-currency-exchange"></i> Trading
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="#">
+                            <i class="bi bi-graph-up"></i> Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="#">
+                            <i class="bi bi-wallet2"></i> Portfolio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active text-light" href="{% url 'articles_page' %}"
+                           id="crawl-articles-btn">
+                            <i class="bi bi-newspaper"></i> Articles
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Portfolio</h1>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5>Your Stocks</h5>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Pnl</h5>
+                    <h3 class="card-text display-6"
+                        style="color: {% if PnL > 0 %}green{% elif PnL < 0 %}red{% else %}white{% endif %};">
+                        {% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma }} KRW
+                        {% elif PnL < 0 %} {{ PnL|floatformat:0 |intcomma }} KRW
+                        {% else %} 0 KRW {% endif %}
+                    </h3>
+
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-sm">
+                            <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Name</th>
+                                <th>Amount</th>
+                                <th>Exchange Code</th>
+                                <th>Profit Loss Rate</th>
+                                <th>Last Updated</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for stock in stocks %}
+                            <tr>
+                                <td>{{ stock.symbol }}</td>
+                                <td><span class="stock-link text-light"
+                                          data-symbol="{{ stock.symbol }}">{{ stock.name }}</span></td>
+                                <td>{{ stock.amount }}</td>
+                                <td>{{ stock.exchange_code }}</td>
+                                <td style="color: {% if stock.profit_loss_rate > 0 %} #20b16c {% else %} #ef454a {% endif %};">
+                                    {{ stock.profit_loss_rate|floatformat:2 }}%
+                                </td>
+                                <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="container" style="text-align: left; margin-top: 20px; margin-left: 0;">
+                    <h2 style="color: lightgrey;">Investment Portfolio Composition</h2>
+                    <div id="stock-info" class="stock-info-display"></div>
+
+                    <div class="bar-container" style="justify-content: start;">
+                        {% for stock in stocks %}
+                        <div class="bar"
+                             style="width: {{ stock.amount_percentage }}%; background-color: {{ stock.color }};"
+                             onmouseover="showStockInfo('{{ stock.amount_percentage|floatformat:2 }}', '{{ stock.name }}', '{{ stock.color }}')"
+                             onmouseout="clearStockInfo()">
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="stock-legend" style="justify-content: start;">
+                        {% for stock in stocks %}
+                        {% if forloop.counter0|divisibleby:5 %}
+                        <div class="stock-column">
+                            {% endif %}
+
+                            <div class="stock-item">
+                                <span class="color-box" style="background-color: {{ stock.color }};"></span>
+                                <span class="stock-name" title="{{ stock.name }}" style="color: lightgrey; cursor: pointer;" onclick="loadNews('{{ stock.name }}')">
+                                    {{ stock.name }}
+                                </span>
+                            </div>
+
+                            {% if forloop.counter|divisibleby:5 or forloop.last %}
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; background-color: #1e1e1e; border-radius: 8px; overflow: hidden;">
+                    <iframe id="search-frame" src="" width="100%" height="500px"
+                            style="border: none; filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.85);"></iframe>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    function showStockInfo(percentage, name, color) {
+        document.getElementById("stock-info").innerHTML = `<span class="color-box-inline" style="background-color: ${color};"></span> ${name} (${percentage}%)`;
+    }
+
+    function clearStockInfo() {
+        document.getElementById("stock-info").innerText = "";
+    }
+
+    function loadNews(stockName) {
+        const query = encodeURIComponent(`${stockName} stock news`);
+        document.getElementById("search-frame").src = `https://www.bing.com/news/search?q=${query}`;
+    }
+</script>
+{% endblock %}

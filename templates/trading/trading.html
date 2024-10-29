@@ -317,7 +317,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" href="#">
+                            <a class="nav-link text-light" href="{% url 'portfolio' %}">
                                 <i class="bi bi-wallet2"></i> Portfolio
                             </a>
                         </li>
@@ -424,7 +424,7 @@
                     {#                            <div class="card-body">#}
                     {#                                <h5 class="card-title">PnL</h5>#}
                     {#                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma }}#}
-                    {#                                    원{% else %} -{{ PnL|floatformat:0 |intcomma }} 원{% endif %}</p>#}
+                    {#                                    KRW{% else %} {{ PnL|floatformat:0 |intcomma }} KRW{% endif %}</p>#}
                     {#                            </div>#}
                     {#                        </div>#}
                     {#                    </div>#}
@@ -441,7 +441,7 @@
                         <h3 class="card-text display-6"
                             style="color: {% if PnL > 0 %}green{% elif PnL < 0 %}red{% else %}white{% endif %};">
                             {% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma }} KRW
-                            {% elif PnL < 0 %} -{{ PnL|floatformat:0 |intcomma }} KRW
+                            {% elif PnL < 0 %} {{ PnL|floatformat:0 |intcomma }} KRW
                             {% else %}
                                 0 KRW
                             {% endif %}</h3>
@@ -690,6 +690,9 @@
                         } else if (data.message === 'stockcode_not_exist') {
                             buyFailedSound.play();
                             showToast('failed', '해당 종목이 없습니다 <br> 종목 코드를 다시 한번 확인하세요')
+                        } else if (data.message === 'its_not_a_business_day'){
+                            buyFailedSound.play();
+                            showToast('failed', '영업일이 아닙니다 <br> 영업일을 확인해 주세요 ( 월 ~ 금 )')
                         } else {
                             // 주문 실패 시 실패 사운드 재생
                             buyFailedSound.play();
@@ -768,7 +771,11 @@
                         } else if (data.message === 'does_not_have') {
                             sellFailedSound.play();
                             showToast('failed', '보유 수량이 부족합니다 <br> 매도 가능한 수량을 확인한 후 다시 시도해 주세요')
-                        } else {
+                        } else if (data.message === 'its_not_a_business_day'){
+                            sellFailedSound.play();
+                            showToast('failed', '영업일이 아닙니다 <br> 영업일을 확인해 주세요 ( 월 ~ 금 )')
+                        }
+                        else {
                             // 주문 실패 시 실패 사운드 재생
                             sellFailedSound.play();
                             showToast('매도 주문이 정상적으로 이루어지지 않았습니다');

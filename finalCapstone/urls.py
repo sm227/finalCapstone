@@ -27,4 +27,6 @@ urlpatterns = [
     path('articles/', include('articles.urls')),
     path('trading/', include('trading.urls')),
     path('accounts/', include('login.urls')),
+    path('analytics/', include('analytics.urls')),
+    path('portfolio/', include('portfolio.urls')),
 ]

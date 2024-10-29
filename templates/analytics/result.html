@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Price Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 2rem;
+            background-color: #f8f9fa;
+        }
+
+        .card {
+            margin-bottom: 1rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .plot-container {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'stock_prediction:index' %}">Stock Prediction</a>
+        </div>
+    </nav>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Prediction Results for {{ company }}</h3>
+                    <p class="mb-0">Model: {{ model_type }}</p>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Latest Predictions</h5>
+                                    <p>Last Actual Price: ${{ last_actual|floatformat:2 }}</p>
+                                    <p>Last Predicted Price: ${{ last_predicted|floatformat:2 }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Price Prediction Graph</h4>
+        </div>
+        <div class="card-body">
+            <div class="plot-container">
+                <img src="{{ plot_url }}" class="img-fluid" alt="Prediction Plot">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>Recent Data</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Actual Price</th>
+                        <th>Predicted Price</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for date, row in validation_data.iterrows %}
+                        <tr>
+                            <td>{{ date }}</td>
+                            <td>${{ row.Close|floatformat:2 }}</td>
+                            <td>${{ row.Predictions|floatformat:2 }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- result.html에 추가 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Performance Metrics</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <p><strong>RMSE:</strong> ${{ metrics.RMSE|floatformat:2 }}</p>
+                </div>
+                <div class="col-md-3">
+                    <p><strong>MAE:</strong> ${{ metrics.MAE|floatformat:2 }}</p>
+                </div>
+                <div class="col-md-3">
+                    <p><strong>MAPE:</strong> {{ metrics.MAPE|floatformat:2 }}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'stock_prediction:index' %}" class="btn btn-primary">Make Another Prediction</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
