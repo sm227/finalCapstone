@@ -8,17 +8,30 @@
 
     <style>
         body {
-            background-color: #121212;
-            color: #e0e0e0;
+            background-color: #191919;
+            color: #ffffff;
         }
 
         .card {
-            background-color: #1e1e1e;
-            border-color: #333;
+            background-color: #242424;
+            border: none;
+            border-radius: 16px;
+            margin-bottom: 20px;
         }
 
         .table {
-            color: #e0e0e0;
+            color: #ffffff;
+        }
+
+        .table thead th {
+            border-bottom: 1px solid #333333;
+            color: #999999;
+            font-weight: 500;
+        }
+
+        .table td {
+            border-bottom: 1px solid #333333;
+            padding: 16px 12px;
         }
 
         .modal-content {
@@ -66,11 +79,13 @@
         }
 
         .toast {
-            background-color: #ffffff;
-            color: black;
+            background-color: #242424;
             border: none;
-            box-shadow: none;
-            border-radius: 0.5rem;
+            border-radius: 12px;
+        }
+
+        .toast-body {
+            color: #ffffff;
         }
 
         .toast-header {
@@ -134,63 +149,138 @@
 
         /* 폼 컨테이너 스타일 */
         .custom-form-container {
-            background-color: #121212;
-            padding: 20px;
-            border-radius: 10px;
-        {#box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);#} max-width: 300px;
+            background-color: #242424;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 380px;
+            min-width: 340px;
         }
 
-        /* 입력 필드 스타일 */
+        /* 입력 필드 그룹 스타일 */
         .custom-form-group {
-            margin-bottom: 15px;
+            margin-bottom: 24px;
+            position: relative;
         }
 
         .custom-form-group label {
-            font-weight: bold;
-            color: white;
-            margin-bottom: 5px;
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 8px;
             display: block;
+            font-weight: 500;
         }
 
+        /* 입력 필드 스타일 개선 */
         .custom-input {
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px;
             width: 100%;
+            background-color: #2B2B2B;
+            border: 1px solid #404040;
+            color: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
             font-size: 16px;
-            box-shadow: none;
-            transition: border-color 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .custom-input:focus {
-            border-color: #007bff;
-            outline: none;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            border-color: #3182f6;
+            background-color: #333;
+            box-shadow: 0 0 0 2px rgba(49, 130, 246, 0.2);
         }
 
-        /* 매수, 매도 버튼 스타일 */
-        .custom-btn {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
+        /* 통화 단위 표시 스타일 */
+        .currency-indicator {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
             font-size: 14px;
+            pointer-events: none;
+        }
+
+        /* 매수/매도 탭 스타일 개선 */
+        .order-tabs {
+            display: flex;
+            margin-bottom: 28px;
+            border-bottom: 1px solid #333;
+        }
+
+        .order-tab {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            color: #999;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-right: 10px;
+            font-weight: 600;
+            position: relative;
+            transition: color 0.2s ease;
+        }
+
+        .order-tab.active {
+            color: #fff;
+        }
+
+        .order-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #3182f6;
+        }
+
+        /* 주문 버튼 스타일 개선 */
+        .custom-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .custom-btn.buy {
+            background-color: #3182f6;
+            color: white;
         }
 
         .custom-btn.sell {
             background-color: #dc3545;
+            color: white;
         }
 
         .custom-btn:hover {
-            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
-        .custom-btn.sell:hover {
-            background-color: #c82333;
+        /* 수량 조절 버튼 그룹 */
+        .quantity-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .quantity-btn {
+            flex: 1;
+            padding: 8px;
+            background-color: #333;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .quantity-btn:hover {
+            background-color: #404040;
         }
 
         /* 버튼 컨테이너 */
@@ -285,6 +375,37 @@
                 margin-top: 20px;
             }
         }
+
+        /* 매수/매도 탭 스타일 */
+        .pagination {
+            margin-bottom: 24px;
+        }
+
+        .pagination .page-link {
+            background-color: transparent;
+            border: none;
+            color: #999999;
+            font-weight: 600;
+            padding: 12px 24px;
+        }
+
+        .pagination .active .page-link {
+            background-color: transparent;
+            color: #ffffff;
+            position: relative;
+        }
+
+        .pagination .active .page-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background-color: #3182f6;
+            border-radius: 1px;
+        }
     </style>
 
     <!-- 로딩창 -->
@@ -343,38 +464,41 @@
                     </div>
                     <!-- 매수 주문 -->
                     <div class="custom-form-container">
-                        <!-- 페이지네이션 버튼 -->
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item active" id="page1-btn"><a class="page-link" href="#">Buy</a></li>
-                            <li class="page-item" id="page2-btn"><a class="page-link" href="#">Sell</a></li>
-                        </ul>
+                        <div class="order-tabs">
+                            <div class="order-tab active" id="buy-tab">매수</div>
+                            <div class="order-tab" id="sell-tab">매도</div>
+                        </div>
 
-                        <!-- 매수 -->
+                        <!-- 매수 폼 -->
                         <div id="buyFormContainer">
                             <form method="POST" action="{% url 'place_order' %}" id="buyForm">
                                 {% csrf_token %}
                                 <div class="custom-form-group">
-                                    <label for="stock_code">Stock Code:</label>
-                                    <input type="text" id="buy_stock_code" name="stock_code" class="custom-input"
-                                           placeholder="Enter stock code" required>
-                                </div>
-
-                                <div class="custom-form-group" style="position: relative">
-                                    <label for="price">Price:</label>
-                                    <input type="number" id="buy_price" name="price" class="custom-input"
-                                           placeholder="Enter price"
-                                           step="0.01" required style="padding-right: 50px;">
-                                    <span style="position: absolute; right: 20px; top: 69%; transform: translateY(-50%); color: black;">US$</span>
+                                    <label>종목 코드</label>
+                                    <input type="text" id="buy_stock_code" name="stock_code" 
+                                           class="custom-input" placeholder="예: AAPL" required>
                                 </div>
 
                                 <div class="custom-form-group">
-                                    <label for="quantity">Quantity:</label>
-                                    <input type="number" id="buy_quantity" name="quantity" class="custom-input"
-                                           value="1" min="1"
-                                           required>
+                                    <label>주문 가격</label>
+                                    <input type="number" id="buy_price" name="price" 
+                                           class="custom-input" placeholder="0.00" step="0.01" required>
+                                    <span class="currency-indicator">USD</span>
                                 </div>
 
-                                <button type="submit" class="custom-btn">Buy</button>
+                                <div class="custom-form-group">
+                                    <label>주문 수량</label>
+                                    <input type="number" id="buy_quantity" name="quantity" 
+                                           class="custom-input" value="1" min="1" required>
+                                    <div class="quantity-controls">
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('buy', -1)">-1</button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('buy', 1)">+1</button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('buy', 5)">+5</button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('buy', 10)">+10</button>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="custom-btn buy">매수하기</button>
                             </form>
                         </div>
 
@@ -383,27 +507,31 @@
                             <form method="POST" action="{% url 'place_order_sell' %}" id="sellForm">
                                 {% csrf_token %}
                                 <div class="custom-form-group">
-                                    <label for="sell_stock_code">Stock Code:</label>
-                                    <input type="text" id="sell_stock_code" name="stock_code" class="custom-input"
-                                           placeholder="Enter stock code" required>
-                                </div>
-
-                                <div class="custom-form-group" style="position: relative">
-                                    <label for="sell_price">Price:</label>
-                                    <input type="number" id="sell_price" name="price" class="custom-input"
-                                           placeholder="Enter price"
-                                           step="0.01" required>
-                                    <span style="position: absolute; right: 20px; top: 69%; transform: translateY(-50%); color: black;">US$</span>
+                                    <label>종목 코드</label>
+                                    <input type="text" id="sell_stock_code" name="stock_code" 
+                                           class="custom-input" placeholder="예: AAPL" required>
                                 </div>
 
                                 <div class="custom-form-group">
-                                    <label for="sell_quantity">Quantity:</label>
-                                    <input type="number" id="sell_quantity" name="quantity" class="custom-input"
-                                           value="1" min="1"
-                                           required>
+                                    <label>주문 가격</label>
+                                    <input type="number" id="sell_price" name="price" 
+                                           class="custom-input" placeholder="0.00" step="0.01" required>
+                                    <span class="currency-indicator">USD</span>
                                 </div>
 
-                                <button type="submit" class="custom-btn sell">Sell</button>
+                                <div class="custom-form-group">
+                                    <label>주문 수량</label>
+                                    <input type="number" id="sell_quantity" name="quantity" 
+                                           class="custom-input" value="1" min="1" required>
+                                    <div class="quantity-controls">
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('sell', -1)">-1</button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('sell', 1)">+1</button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('sell', 5)">+5</button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('sell', 10)">+10</button>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="custom-btn sell">매도하기</button>
                             </form>
                         </div>
                     </div>
@@ -770,7 +898,7 @@
                             showToast('failed', '해당 종목이 없습니다 <br> 종목 코드를 다시 한번 확인하세요')
                         } else if (data.message === 'does_not_have') {
                             sellFailedSound.play();
-                            showToast('failed', '보유 수량이 부족합니다 <br> 매도 가능한 수량을 확인한 후 다시 시도해 주세요')
+                            showToast('failed', '보유 수량이 부족합니다 <br> 매도 가능��� 수량을 확인한 후 다시 시도해 주세요')
                         } else if (data.message === 'its_not_a_business_day'){
                             sellFailedSound.play();
                             showToast('failed', '영업일이 아닙니다 <br> 영업일을 확인해 주세요 ( 월 ~ 금 )')
@@ -803,5 +931,38 @@
                 toast.show();
             }
         });
+    </script>
+
+    <!-- 수량 조절 스크립트 -->
+    <script>
+    function adjustQuantity(type, amount) {
+        const inputId = type === 'buy' ? 'buy_quantity' : 'sell_quantity';
+        const input = document.getElementById(inputId);
+        const currentValue = parseInt(input.value) || 0;
+        const newValue = Math.max(1, currentValue + amount);
+        input.value = newValue;
+    }
+
+    // 탭 전환 스크립트 수정
+    document.addEventListener('DOMContentLoaded', function() {
+        const buyTab = document.getElementById('buy-tab');
+        const sellTab = document.getElementById('sell-tab');
+        const buyForm = document.getElementById('buyFormContainer');
+        const sellForm = document.getElementById('sellFormContainer');
+
+        buyTab.addEventListener('click', function() {
+            buyTab.classList.add('active');
+            sellTab.classList.remove('active');
+            buyForm.style.display = 'block';
+            sellForm.style.display = 'none';
+        });
+
+        sellTab.addEventListener('click', function() {
+            sellTab.classList.add('active');
+            buyTab.classList.remove('active');
+            sellForm.style.display = 'block';
+            buyForm.style.display = 'none';
+        });
+    });
     </script>
 {% endblock %}
