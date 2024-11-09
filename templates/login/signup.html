@@ -4,69 +4,146 @@
 {% block content %}
     <style>
         body {
-            background-color: #121212;
-            color: #e0e0e0;
+            background-color: #191919;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
         }
 
         .card {
-            background-color: #1e1e1e;
-            border-color: #333;
+            background-color: #242424;
+            border: none;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 460px;
+            padding: 40px;
+        }
+
+        .card-header {
+            background: none;
+            border: none;
+            padding: 0 0 32px 0;
+            text-align: center;
+        }
+
+        .card-header h3 {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .form-label {
+            color: #cccccc;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
         }
 
         .form-control {
-            background-color: #333;
-            border-color: #444;
-            color: #e0e0e0;
+            background-color: #2B2B2B;
+            border: 1px solid #404040;
+            border-radius: 14px;
+            color: #ffffff;
+            font-size: 16px;
+            padding: 16px;
+            height: auto;
+            margin-bottom: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            background-color: #333333;
+            border-color: #3182f6;
+            box-shadow: 0 0 0 2px rgba(49, 130, 246, 0.2);
         }
 
         .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #3182f6;
+            border: none;
+            border-radius: 14px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 16px;
+            width: 100%;
+            margin-top: 24px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #2b74e7;
+            transform: translateY(-1px);
+        }
+
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0;
+        }
+
+        .messages li {
+            background-color: rgba(49, 130, 246, 0.1);
+            border-radius: 12px;
+            color: #3182f6;
+            font-size: 14px;
+            margin-bottom: 8px;
+            padding: 12px 16px;
+            text-align: center;
         }
     </style>
 
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="text-center">회원가입</h3>
-                    </div>
-                    <div class="card-body">
-                        <form method="post">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                <label for="username" class="form-label">아이디</label>
-                                <input type="text" class="form-control" id="username" name="username" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">비밀번호</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="api_key" class="form-label">API Key</label>
-                                <input type="text" class="form-control" id="api_key" name="api_key" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="api_secret" class="form-label">API Secret Key</label>
-                                <input type="text" class="form-control" id="api_secret" name="api_secret" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="acc_num" class="form-label">계좌번호</label>
-                                <input type="text" class="form-control" id="acc_num" name="acc_num" required>
-                            </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">회원가입</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h3>회원가입</h3>
             </div>
-            <ul class="messages">
-                {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                {% endfor %}
-            </ul>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="username" class="form-label">아이디</label>
+                        <input type="text" class="form-control" id="username" name="username" 
+                               placeholder="아이디를 입력해 주세요" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">비밀번호</label>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               placeholder="비밀번호를 입력해 주세요" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="api_key" class="form-label">API Key</label>
+                        <input type="text" class="form-control" id="api_key" name="api_key" 
+                               placeholder="API Key를 입력해 주세요" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="api_secret" class="form-label">API Secret Key</label>
+                        <input type="text" class="form-control" id="api_secret" name="api_secret" 
+                               placeholder="API Secret Key를 입력해 주세요" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="acc_num" class="form-label">계좌번호</label>
+                        <input type="text" class="form-control" id="acc_num" name="acc_num" 
+                               placeholder="계좌번호를 입력해 주세요" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">회원가입</button>
+                </form>
+            </div>
         </div>
     </div>
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
 {% endblock %}
