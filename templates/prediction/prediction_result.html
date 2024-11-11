@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주가 예측 결과</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 18px;
+            color: #e0e0e0;
+            margin: 10px 0;
+        }
+
+        .result {
+            background-color: #333333;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .error {
+            color: #ff5252;
+            font-weight: bold;
+            background-color: #3c3c3c;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>주가 예측 결과</h1>
+        
+        <div class="result">
+            <p><strong>예측 종목:</strong> {{ symbol }}</p>
+            <p><strong>예측 시간:</strong> {{ prediction_time }}</p>
+            <p><strong>예측된 주가:</strong> {{ predicted_price|floatformat:2 }} USD</p>
+        </div>
+
+        {% if accuracy %}
+            <div class="result">
+                <p><strong>실제 주가:</strong> {{ actual_price|floatformat:2 }} USD</p>
+                <p><strong>예측 정확도:</strong> {{ accuracy|floatformat:2 }}%</p>
+            </div>
+
+            {% if predicted_price > actual_price %}
+                <div class="result">
+                    <p><strong><span style="color: #4CAF50;">주가 상승이 예상됩니다. AI버핏이 매수를 추천합니다.</span></strong></p>
+                </div>
+            {% elif predicted_price < actual_price %}
+                <div class="result">
+                    <p><strong><span style="color: #FF5252;">주가 하락이 예상됩니다. AI버핏이 주의하라고 말합니다.</span></strong></p>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="error">
+                <p>실제 주가를 가져오는 데 오류가 발생했습니다.</p>
+            </div>
+        {% endif %}
+        
+        <div class="button-container">
+            <a href="{% url 'prediction' %}">다시 예측하기</a>
+        </div>
+    </div>
+
+</body>
+</html>
