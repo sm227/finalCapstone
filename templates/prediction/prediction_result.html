@@ -41,6 +41,23 @@
             margin-bottom: 15px;
         }
 
+        .recommendation {
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .recommendation.buy {
+            color: #4CAF50;
+            background-color: #2e7d32;
+        }
+
+        .recommendation.caution {
+            color: #FF5252;
+            background-color: #b71c1c;
+        }
+
         .error {
             color: #ff5252;
             font-weight: bold;
@@ -73,31 +90,21 @@
 
     <div class="container">
         <h1>주가 예측 결과</h1>
-        
+
         <div class="result">
             <p><strong>예측 종목:</strong> {{ symbol }}</p>
             <p><strong>예측 시간:</strong> {{ prediction_time }}</p>
-            <p><strong>예측된 주가:</strong> {{ predicted_price|floatformat:2 }} USD</p>
+            <p><strong>현재 주가:</strong> {{ actual_price|floatformat:2 }} USD</p>
+            <p><strong>예측 주가:</strong> {{ predicted_price|floatformat:2 }} USD</p>
         </div>
 
-        {% if accuracy %}
-            <div class="result">
-                <p><strong>실제 주가:</strong> {{ actual_price|floatformat:2 }} USD</p>
-                <p><strong>예측 정확도:</strong> {{ accuracy|floatformat:2 }}%</p>
+        {% if predicted_price > actual_price %}
+            <div class="recommendation buy">
+                <p>주가 상승이 예상됩니다. '트레이더AI'가 매수를 추천합니다.</p>
             </div>
-
-            {% if predicted_price > actual_price %}
-                <div class="result">
-                    <p><strong><span style="color: #4CAF50;">주가 상승이 예상됩니다. AI버핏이 매수를 추천합니다.</span></strong></p>
-                </div>
-            {% elif predicted_price < actual_price %}
-                <div class="result">
-                    <p><strong><span style="color: #FF5252;">주가 하락이 예상됩니다. AI버핏이 주의하라고 말합니다.</span></strong></p>
-                </div>
-            {% endif %}
-        {% else %}
-            <div class="error">
-                <p>실제 주가를 가져오는 데 오류가 발생했습니다.</p>
+        {% elif predicted_price < actual_price %}
+            <div class="recommendation caution">
+                <p>주가 하락이 예상됩니다. 주의하세요.</p>
             </div>
         {% endif %}
         
