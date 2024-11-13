@@ -219,18 +219,18 @@
         }
     </script>
     <!-- TradingView Widget END -->
-     {% if user.is_authenticated %}
-            <div class="user-profile-section">
-                <div class="user-info">
-                    <div class="user-avatar">
-                        {{ user.username|make_list|first|upper }}
-                    </div>
-                    <span class="user-name">{{ user.username }}님</span>
+    {% if user.is_authenticated %}
+        <div class="user-profile-section">
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ user.username|make_list|first|upper }}
                 </div>
-                <a href="{% url 'logout' %}" class="logout-btn">
-                    <i class="bi bi-box-arrow-right"></i> 로그아웃
-                </a>
+                <span class="user-name">{{ user.username }}님</span>
             </div>
+            <a href="{% url 'logout' %}" class="logout-btn">
+                <i class="bi bi-box-arrow-right"></i> 로그아웃
+            </a>
+        </div>
     {% endif %}
 
     <div class="container-fluid">
@@ -250,7 +250,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-{#                            <a class="nav-link text-light" href="{% url 'analytics' %}">#}
+                            {#                            <a class="nav-link text-light" href="{% url 'analytics' %}">#}
                             <a class="nav-link text-light" href="#">
                                 <i class="bi bi-graph-up"></i> Analytics
                             </a>
@@ -263,6 +263,11 @@
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{% url 'articles_page' %}">
                                 <i class="bi bi-newspaper"></i> Articles
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="{% url 'prediction' %}">
+                                <i class="bi bi-bar-chart"></i> Prediction
                             </a>
                         </li>
                     </ul>
@@ -287,10 +292,13 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div {% if PnL > 0 %} class="card text-white bg-success mb-3" {% elif PnL == 0 %} class="card text-bg-secondary mb-3" {% else %} class="card text-white bg-danger mb-3" {% endif %}>
+                        <div {% if PnL > 0 %} class="card text-white bg-success mb-3" {% elif PnL == 0 %}
+                                              class="card text-bg-secondary mb-3" {% else %}
+                                              class="card text-white bg-danger mb-3" {% endif %}>
                             <div class="card-body">
                                 <h5 class="card-title">PnL</h5>
-                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma}} KRW{% else %} {{ PnL|floatformat:0 |intcomma}} KRW  {% endif %}   </p>
+                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma }}
+                                    KRW{% else %} {{ PnL|floatformat:0 |intcomma }} KRW  {% endif %}   </p>
                             </div>
                         </div>
                     </div>
