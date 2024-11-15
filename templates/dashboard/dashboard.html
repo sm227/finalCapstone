@@ -5,127 +5,30 @@
 {% block content %}
     <style>
         body {
-            background-color: #17171c;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
         }
 
         .card {
-            background-color: #1c1c1e;
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .card-header {
-            border-bottom: 1px solid #2c2c2e;
-            background-color: transparent;
-            padding: 20px;
-        }
-
-        #sidebar {
-            background-color: #17171c !important;
-            border-right: 1px solid #2c2c2e;
-        }
-
-        .nav-link {
-            padding: 12px 20px;
-            margin: 4px 0;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: #1e1e1e;
+            border-color: #333;
         }
 
         .table {
-            color: #ffffff;
-        }
-
-        .table thead th {
-            border-bottom: 1px solid #2c2c2e;
-            font-weight: 500;
-            color: #8e8e93;
-        }
-
-        .card.text-white {
-            background: linear-gradient(45deg, #2c2c2e, #1c1c1e);
-        }
-
-        .card.bg-primary {
-            background: linear-gradient(45deg, #007AFF, #5856D6) !important;
-        }
-
-        .card.bg-success {
-            background: linear-gradient(45deg, #34C759, #30B94D) !important;
-        }
-
-        .card.bg-danger {
-            background: linear-gradient(45deg, #FF3B30, #FF2D55) !important;
+            color: #e0e0e0;
         }
 
         .modal-content {
-            background-color: #1c1c1e;
-            border-radius: 16px;
-            border: none;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
         }
 
-        .modal-header {
-            border-bottom: 1px solid #2c2c2e;
+        .bg-light {
+            background-color: #333 !important;
         }
 
-        .btn-close {
-            filter: invert(1);
-        }
-
-        .user-profile-section {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 24px;
-            background: linear-gradient(45deg, #2c2c2e, #1c1c1e);
-            border-radius: 12px;
-            margin: 20px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            background-color: #007AFF;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .user-name {
-            font-size: 16px;
-            font-weight: 500;
-            color: #ffffff;
-        }
-
-        .logout-btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            text-decoration: none;
-            font-size: 14px;
-            transition: background-color 0.2s ease;
-        }
-
-        .logout-btn:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
+        .text-dark {
+            color: #e0e0e0 !important;
         }
     </style>
 
@@ -219,18 +122,9 @@
         }
     </script>
     <!-- TradingView Widget END -->
-     {% if user.is_authenticated %}
-            <div class="user-profile-section">
-                <div class="user-info">
-                    <div class="user-avatar">
-                        {{ user.username|make_list|first|upper }}
-                    </div>
-                    <span class="user-name">{{ user.username }}님</span>
-                </div>
-                <a href="{% url 'logout' %}" class="logout-btn">
-                    <i class="bi bi-box-arrow-right"></i> 로그아웃
-                </a>
-            </div>
+    {% if user.is_authenticated %}
+        <p>{{ user.username }}님 환영합니다!</p>
+        <a href="{% url 'logout' %}">로그아웃</a>
     {% endif %}
 
     <div class="container-fluid">
@@ -250,9 +144,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-{#                            <a class="nav-link text-light" href="{% url 'analytics' %}">#}
-                            <a class="nav-link text-light" href="#">
-                                <i class="bi bi-graph-up"></i> Analytics
+                            {#                            <a class="nav-link text-light" href="{% url 'analytics' %}">#}
+                            <i class="bi bi-graph-up"></i> Analytics
                             </a>
                         </li>
                         <li class="nav-item">
@@ -287,10 +180,13 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div {% if PnL > 0 %} class="card text-white bg-success mb-3" {% elif PnL == 0 %} class="card text-bg-secondary mb-3" {% else %} class="card text-white bg-danger mb-3" {% endif %}>
+                        <div {% if PnL > 0 %} class="card text-white bg-success mb-3" {% elif PnL == 0 %}
+                                              class="card text-bg-secondary mb-3" {% else %}
+                                              class="card text-white bg-danger mb-3" {% endif %}>
                             <div class="card-body">
                                 <h5 class="card-title">PnL</h5>
-                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma}} KRW{% else %} {{ PnL|floatformat:0 |intcomma}} KRW  {% endif %}   </p>
+                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma}}
+                                    KRW{% else %} {{ PnL|floatformat:0 |intcomma}} KRW  {% endif %}   </p>
                             </div>
                         </div>
                     </div>
@@ -340,6 +236,71 @@
                                         <td>{{ stock.exchange_rate }}</td>
                                         <td>{{ stock.purchase_amount_foreign }}</td>
                                         <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- cpi Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5>cpi</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped table-sm">
+                                <thead>
+                                <tr>
+                                    <th>발표일</th>
+                                    <th>시간</th>
+                                    <th>실제</th>
+                                    <th>예측</th>
+                                    <th>이전</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for item in cpi_data %}
+                                    <tr>
+                                        <td>{{ item.publish_date }}</td>
+                                        <td>{{ item.time }}</td>
+                                        <td>{{ item.actual }}</td>
+                                        <td>{{ item.forecast }}</td>
+                                        <td>{{ item.previous }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- ppi Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5>ppi</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped table-sm">
+                                <thead>
+                                <tr>
+                                    <th>발표일</th>
+                                    <th>시간</th>
+                                    <th>실제</th>
+                                    <th>예측</th>
+                                    <th>이전</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for item in ppi_data %}
+                                    <tr>
+                                        <td>{{ item.publish_date }}</td>
+                                        <td>{{ item.time }}</td>
+                                        <td>{{ item.actual }}</td>
+                                        <td>{{ item.forecast }}</td>
+                                        <td>{{ item.previous }}</td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>
