@@ -379,67 +379,89 @@
                     </div>
                 </div>
 
-                <!-- cpi Table -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5>cpi</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-dark table-striped table-sm">
-                                <thead>
-                                <tr>
-                                    <th>발표일</th>
-                                    <th>시간</th>
-                                    <th>실제</th>
-                                    <th>예측</th>
-                                    <th>이전</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for item in cpi_data %}
-                                    <tr>
-                                        <td>{{ item.publish_date }}</td>
-                                        <td>{{ item.time }}</td>
-                                        <td>{{ item.actual }}</td>
-                                        <td>{{ item.forecast }}</td>
-                                        <td>{{ item.previous }}</td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                <!-- Economic Indicators Section -->
+                <div class="row mb-4">
+                    <!-- CPI Card -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-0">소비자물가지수 (CPI)</h5>
+                                    <small class="text-muted">Consumer Price Index - 물가상승률을 나타내는 경제지표</small>
+                                </div>
+                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                   title="CPI는 소비자들이 구매하는 제품과 서비스의 가격 변동을 측정하는 지표입니다. 인플레이션을 판단하는 중요한 경제지표입니다."></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-hover table-sm">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>발표일</th>
+                                                <th>시간</th>
+                                                <th>실제 <i class="bi bi-arrow-right-short"></i></th>
+                                                <th>예측</th>
+                                                <th>이전</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in cpi_data %}
+                                            <tr>
+                                                <td><strong>{{ item.publish_date }}</strong></td>
+                                                <td>{{ item.time }}</td>
+                                                <td class="fw-bold" style="color: {% if item.actual > item.forecast %}#34C759{% elif item.actual < item.forecast %}#FF3B30{% else %}#ffffff{% endif %}">
+                                                    {{ item.actual }}%
+                                                </td>
+                                                <td>{{ item.forecast }}%</td>
+                                                <td>{{ item.previous }}%</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <!-- ppi Table -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5>ppi</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-dark table-striped table-sm">
-                                <thead>
-                                <tr>
-                                    <th>발표일</th>
-                                    <th>시간</th>
-                                    <th>실제</th>
-                                    <th>예측</th>
-                                    <th>이전</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for item in ppi_data %}
-                                    <tr>
-                                        <td>{{ item.publish_date }}</td>
-                                        <td>{{ item.time }}</td>
-                                        <td>{{ item.actual }}</td>
-                                        <td>{{ item.forecast }}</td>
-                                        <td>{{ item.previous }}</td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
+
+                    <!-- PPI Card -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-0">생산자물가지수 (PPI)</h5>
+                                    <small class="text-muted">Producer Price Index - 생산단계의 물가동향을 나타내는 지표</small>
+                                </div>
+                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                   title="PPI는 생산자가 생산하는 제품의 가격 변동을 측정하는 지표입니다. 향후 소비자물가 변동을 예측하는데 도움이 됩니다."></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-hover table-sm">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>발표일</th>
+                                                <th>시간</th>
+                                                <th>실제 <i class="bi bi-arrow-right-short"></i></th>
+                                                <th>예측</th>
+                                                <th>이전</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in ppi_data %}
+                                            <tr>
+                                                <td><strong>{{ item.publish_date }}</strong></td>
+                                                <td>{{ item.time }}</td>
+                                                <td class="fw-bold" style="color: {% if item.actual > item.forecast %}#34C759{% elif item.actual < item.forecast %}#FF3B30{% else %}#ffffff{% endif %}">
+                                                    {{ item.actual }}%
+                                                </td>
+                                                <td>{{ item.forecast }}%</td>
+                                                <td>{{ item.previous }}%</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -496,6 +518,16 @@
                             });
                         });
                     });
+                </script>
+
+                <!-- Add this script at the end of the file -->
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl)
+                    })
+                });
                 </script>
             </main>
         </div>
