@@ -127,6 +127,34 @@
             background-color: rgba(255, 255, 255, 0.2);
             color: #ffffff;
         }
+
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        .card {
+            background-color: #1e1e1e;
+            border-color: #333;
+        }
+
+        .table {
+            color: #e0e0e0;
+        }
+
+        .modal-content {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+
+        .bg-light {
+            background-color: #333 !important;
+        }
+
+        .text-dark {
+            color: #e0e0e0 !important;
+        }
+
     </style>
 
     <!-- TradingView Widget BEGIN -->
@@ -219,18 +247,18 @@
         }
     </script>
     <!-- TradingView Widget END -->
-     {% if user.is_authenticated %}
-            <div class="user-profile-section">
-                <div class="user-info">
-                    <div class="user-avatar">
-                        {{ user.username|make_list|first|upper }}
-                    </div>
-                    <span class="user-name">{{ user.username }}님</span>
+    {% if user.is_authenticated %}
+        <div class="user-profile-section">
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ user.username|make_list|first|upper }}
                 </div>
-                <a href="{% url 'logout' %}" class="logout-btn">
-                    <i class="bi bi-box-arrow-right"></i> 로그아웃
-                </a>
+                <span class="user-name">{{ user.username }}님</span>
             </div>
+            <a href="{% url 'logout' %}" class="logout-btn">
+                <i class="bi bi-box-arrow-right"></i> 로그아웃
+            </a>
+        </div>
     {% endif %}
 
     <div class="container-fluid">
@@ -250,7 +278,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-{#                            <a class="nav-link text-light" href="{% url 'analytics' %}">#}
+                            {#                            <a class="nav-link text-light" href="{% url 'analytics' %}">#}
                             <a class="nav-link text-light" href="#">
                                 <i class="bi bi-graph-up"></i> Analytics
                             </a>
@@ -287,10 +315,13 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div {% if PnL > 0 %} class="card text-white bg-success mb-3" {% elif PnL == 0 %} class="card text-bg-secondary mb-3" {% else %} class="card text-white bg-danger mb-3" {% endif %}>
+                        <div {% if PnL > 0 %} class="card text-white bg-success mb-3" {% elif PnL == 0 %}
+                                              class="card text-bg-secondary mb-3" {% else %}
+                                              class="card text-white bg-danger mb-3" {% endif %}>
                             <div class="card-body">
                                 <h5 class="card-title">PnL</h5>
-                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma}} KRW{% else %} {{ PnL|floatformat:0 |intcomma}} KRW  {% endif %}   </p>
+                                <p class="card-text display-6">{% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma}}
+                                    KRW{% else %} {{ PnL|floatformat:0 |intcomma}} KRW  {% endif %}   </p>
                             </div>
                         </div>
                     </div>
@@ -348,6 +379,93 @@
                     </div>
                 </div>
 
+                <!-- Economic Indicators Section -->
+                <div class="row mb-4">
+                    <!-- CPI Card -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-0">소비자물가지수 (CPI)</h5>
+                                    <small class="text-muted">Consumer Price Index - 물가상승률을 나타내는 경제지표</small>
+                                </div>
+                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                   title="CPI는 소비자들이 구매하는 제품과 서비스의 가격 변동을 측정하는 지표입니다. 인플레이션을 판단하는 중요한 경제지표입니다."></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-hover table-sm">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>발표일</th>
+                                                <th>시간</th>
+                                                <th>실제 <i class="bi bi-arrow-right-short"></i></th>
+                                                <th>예측</th>
+                                                <th>이전</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in cpi_data %}
+                                            <tr>
+                                                <td><strong>{{ item.publish_date }}</strong></td>
+                                                <td>{{ item.time }}</td>
+                                                <td class="fw-bold" style="color: {% if item.actual > item.forecast %}#34C759{% elif item.actual < item.forecast %}#FF3B30{% else %}#ffffff{% endif %}">
+                                                    {{ item.actual }}%
+                                                </td>
+                                                <td>{{ item.forecast }}%</td>
+                                                <td>{{ item.previous }}%</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PPI Card -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-0">생산자물가지수 (PPI)</h5>
+                                    <small class="text-muted">Producer Price Index - 생산단계의 물가동향을 나타내는 지표</small>
+                                </div>
+                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                   title="PPI는 생산자가 생산하는 제품의 가격 변동을 측정하는 지표입니다. 향후 소비자물가 변동을 예측하는데 도움이 됩니다."></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-hover table-sm">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>발표일</th>
+                                                <th>시간</th>
+                                                <th>실제 <i class="bi bi-arrow-right-short"></i></th>
+                                                <th>예측</th>
+                                                <th>이전</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in ppi_data %}
+                                            <tr>
+                                                <td><strong>{{ item.publish_date }}</strong></td>
+                                                <td>{{ item.time }}</td>
+                                                <td class="fw-bold" style="color: {% if item.actual > item.forecast %}#34C759{% elif item.actual < item.forecast %}#FF3B30{% else %}#ffffff{% endif %}">
+                                                    {{ item.actual }}%
+                                                </td>
+                                                <td>{{ item.forecast }}%</td>
+                                                <td>{{ item.previous }}%</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- TradingView Modal -->
                 <div class="modal fade" id="tradingViewModal" tabindex="-1" aria-labelledby="tradingViewModalLabel"
                      aria-hidden="true">
@@ -400,6 +518,16 @@
                             });
                         });
                     });
+                </script>
+
+                <!-- Add this script at the end of the file -->
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl)
+                    })
+                });
                 </script>
             </main>
         </div>
