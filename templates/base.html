@@ -11,14 +11,257 @@
     type="text/javascript"
     src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"
 ></script>
+
+<style>
+    /* 네비게이션 공통 스타일 */
+    .navbar {
+        height: 50px;
+        background: linear-gradient(90deg, #1a1a1f 0%, #24242b 100%) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .navbar-brand {
+        font-size: 1.1rem;
+        color: #ffffff !important;
+    }
+
+    .nav-link {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem !important;
+        color: rgba(255, 255, 255, 0.7) !important;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .nav-link:hover {
+        color: rgba(255, 255, 255, 1) !important;
+        transform: translateY(-1px);
+    }
+
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(45deg, #2962ff, #3d6eff);
+        transition: all 0.2s ease;
+        transform: translateX(-50%);
+    }
+
+    .nav-link:hover::after {
+        width: 100%;
+    }
+
+    .nav-link.active {
+        color: #ffffff !important;
+    }
+
+    .nav-link.active::after {
+        width: 100%;
+    }
+
+    /* 사용자 프로필 섹션 */
+    .user-profile-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(45deg, #2962ff, #3d6eff);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+    }
+
+    .user-name {
+        color: #ffffff;
+        font-size: 0.9rem;
+    }
+
+    .logout-btn {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .logout-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+    }
+
+    /* 모바일 대응 */
+    @media (max-width: 768px) {
+        .navbar-brand {
+            font-size: 1rem;
+        }
+        
+        .nav-link {
+            font-size: 0.85rem;
+            padding: 0.3rem 0.6rem !important;
+        }
+        
+        .user-profile-section {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
 </head>
 <body>
-    <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">AI Stock Investor</a>
-        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    <header class="navbar navbar-dark sticky-top p-0 shadow-lg" style="background: linear-gradient(90deg, #1a1a1f 0%, #24242b 100%);">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center me-0 px-3" href="{% url 'dashboard' %}">
+                <i class="bi bi-graph-up-arrow me-2 text-primary"></i>
+                <span class="fw-bold" style="background: linear-gradient(45deg, #2962ff, #3d6eff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI Stock Investor</span>
+            </a>
+            
+            <div class="d-none d-md-flex align-items-center gap-4">
+                <!-- 시장 상태 표시 -->
+                <div class="market-statuss d-flex align-items-center" id="marketStatus">
+                    <span class="badge me-2">
+                        <i class="bi bi-clock"></i> <span id="marketStateText">확인 중...</span>
+                    </span>
+                    <span class="text-muted small" id="marketTime">--:--:-- EST</span>
+                </div>
+                
+                <!-- 네비게이션 메뉴 -->
+                <nav class="nav">
+                    <a class="nav-link px-3 {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                        <i class="bi bi-house-door"></i>
+                        <span class="ms-1 d-none d-lg-inline">대시보드</span>
+                    </a>
+                    <a class="nav-link px-3 {% if request.resolver_match.url_name == 'trading' %}active{% endif %}" href="{% url 'trading' %}">
+                        <i class="bi bi-currency-exchange"></i>
+                        <span class="ms-1 d-none d-lg-inline">트레이딩</span>
+                    </a>
+                    <a class="nav-link px-3 {% if request.resolver_match.url_name == 'analysis' %}active{% endif %}" href="#">
+                        <i class="bi bi-graph-up"></i>
+                        <span class="ms-1 d-none d-lg-inline">분석</span>
+                    </a>
+                    <a class="nav-link px-3 {% if request.resolver_match.url_name == 'portfolio' %}active{% endif %}" href="{% url 'portfolio' %}">
+                        <i class="bi bi-wallet2"></i>
+                        <span class="ms-1 d-none d-lg-inline">포트폴리오</span>
+                    </a>
+                    <a class="nav-link px-3 {% if request.resolver_match.url_name == 'articles_page' %}active{% endif %}" href="{% url 'articles_page' %}">
+                        <i class="bi bi-newspaper"></i>
+                        <span class="ms-1 d-none d-lg-inline">뉴스</span>
+                    </a>
+                </nav>
+                
+                <!-- 사용자 프로필 -->
+                {% if user.is_authenticated %}
+                <div class="dropdown">
+                    <a class="btn btn-dark btn-sm dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
+                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                            <span class="small">{{ user.username|make_list|first|upper }}</span>
+                        </div>
+                        <span class="d-none d-lg-inline">{{ user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>프로필</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>설정</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right me-2"></i>로그아웃</a></li>
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- 모바일 토글 버튼 -->
+            <button class="navbar-toggler border-0 d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
     </header>
+
+    <!-- 모바일 메뉴 -->
+    <div class="offcanvas offcanvas-end d-md-none" tabindex="-1" id="mobileMenu">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">메뉴</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="nav flex-column">
+                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                    <i class="bi bi-house-door me-2"></i>대시보드
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'trading' %}active{% endif %}" href="{% url 'trading' %}">
+                    <i class="bi bi-currency-exchange me-2"></i>트레이딩
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'analysis' %}active{% endif %}" href="#">
+                    <i class="bi bi-graph-up me-2"></i>분석
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'portfolio' %}active{% endif %}" href="{% url 'portfolio' %}">
+                    <i class="bi bi-wallet2 me-2"></i>포트폴리오
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'articles_page' %}active{% endif %}" href="{% url 'articles_page' %}">
+                    <i class="bi bi-newspaper me-2"></i>뉴스
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 시장 상태 체크 스크립트 -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function checkMarketStatus() {
+            const now = new Date();
+            const estTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+            const hours = estTime.getHours();
+            const minutes = estTime.getMinutes();
+            const day = estTime.getDay();
+            
+            // 시장 상태 요소들
+            const statusBadge = document.querySelector('#marketStatus .badge');
+            const statusText = document.querySelector('#marketStateText');
+            const timeText = document.querySelector('#marketTime');
+            
+            // EST 시간 표시
+            timeText.textContent = estTime.toLocaleTimeString('en-US', { 
+                timeZone: 'America/New_York',
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            }) + ' EST';
+            
+            // 주말 체크
+            if (day === 0 || day === 6) {
+                statusBadge.className = 'badge bg-danger me-2';
+                statusText.textContent = 'Market Closed';
+                return;
+            }
+            
+            // 시장 시간 체크 (9:30 AM - 4:00 PM EST)
+            const isMarketHours = (hours > 9 || (hours === 9 && minutes >= 30)) && hours < 16;
+            
+            if (isMarketHours) {
+                statusBadge.className = 'badge bg-success me-2';
+                statusText.textContent = 'Market Open';
+            } else {
+                statusBadge.className = 'badge bg-danger me-2';
+                statusText.textContent = 'Market Closed';
+            }
+        }
+        
+        // 초기 체크 및 1초마다 업데이트
+        checkMarketStatus();
+        setInterval(checkMarketStatus, 1000);
+    });
+    </script>
 
     {% block content %}{% endblock %}
 
