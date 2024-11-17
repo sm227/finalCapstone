@@ -49,46 +49,46 @@
             margin-bottom: 1.2rem;
         }
 
-        #sidebar {
-            background: linear-gradient(180deg, #1a1a1f 0%, #24242b 100%);
-            position: fixed;
-            left: -280px;
-            width: 280px;
-            height: calc(100vh - 340px);
-            bottom: 20px;
-            z-index: 1000;
-            transition: all 0.3s ease;
-            border-radius: 0 16px 16px 0;
-            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
-            display: block !important;
-        }
+        {##sidebar {#}
+        {#    background: linear-gradient(180deg, #1a1a1f 0%, #24242b 100%);#}
+        {#    position: fixed;#}
+        {#    left: -280px;#}
+        {#    width: 280px;#}
+        {#    height: calc(100vh - 340px);#}
+        {#    bottom: 20px;#}
+        {#    z-index: 1000;#}
+        {#    transition: all 0.3s ease;#}
+        {#    border-radius: 0 16px 16px 0;#}
+        {#    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);#}
+        {#    display: block !important;#}
+        {#}#}
+        {##}
+        {##sidebar.show {#}
+        {#    left: 0;#}
+        {#}#}
 
-        #sidebar.show {
-            left: 0;
-        }
-
-        .sidebar-content {
-            height: 100%;
-            overflow-y: auto;
-            padding: 20px 0;
-        }
-
-        .sidebar-content::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        .sidebar-content::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .sidebar-content::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-        }
-
-        .nav-item {
-            margin: 3px 15px;
-        }
+        {#.sidebar-content {#}
+        {#    height: 100%;#}
+        {#    overflow-y: auto;#}
+        {#    padding: 20px 0;#}
+        {#}#}
+        {##}
+        {#.sidebar-content::-webkit-scrollbar {#}
+        {#    width: 5px;#}
+        {#}#}
+        {##}
+        {#.sidebar-content::-webkit-scrollbar-track {#}
+        {#    background: transparent;#}
+        {#}#}
+        {##}
+        {#.sidebar-content::-webkit-scrollbar-thumb {#}
+        {#    background: rgba(255, 255, 255, 0.2);#}
+        {#    border-radius: 3px;#}
+        {#}#}
+        {##}
+        {#.nav-item {#}
+        {#    margin: 3px 15px;#}
+        {#}#}
 
         {#.nav-link {#}
         {#    margin: 5px 15px;#}
@@ -167,38 +167,38 @@
             color: #ffffff;
         }
 
-        .sidebar-toggle {
-            position: fixed;
-            bottom: 20px;
-            left: 0;
-            z-index: 1001;
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(45deg, #2962ff, #3d6eff);
-            border: none;
-            border-radius: 0 10px 10px 0;
-            color: white;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 4px 0 15px rgba(41, 98, 255, 0.3);
-            cursor: pointer;
-        }
-
-        .sidebar-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: none;
-        }
-
-        .sidebar-overlay.show {
-            display: block;
-        }
+        {#.sidebar-toggle {#}
+        {#    position: fixed;#}
+        {#    bottom: 20px;#}
+        {#    left: 0;#}
+        {#    z-index: 1001;#}
+        {#    width: 45px;#}
+        {#    height: 45px;#}
+        {#    background: linear-gradient(45deg, #2962ff, #3d6eff);#}
+        {#    border: none;#}
+        {#    border-radius: 0 10px 10px 0;#}
+        {#    color: white;#}
+        {#    display: flex !important;#}
+        {#    align-items: center;#}
+        {#    justify-content: center;#}
+        {#    box-shadow: 4px 0 15px rgba(41, 98, 255, 0.3);#}
+        {#    cursor: pointer;#}
+        {#}#}
+        {##}
+        {#.sidebar-overlay {#}
+        {#    position: fixed;#}
+        {#    top: 0;#}
+        {#    left: 0;#}
+        {#    right: 0;#}
+        {#    bottom: 0;#}
+        {#    background: rgba(0, 0, 0, 0.5);#}
+        {#    z-index: 999;#}
+        {#    display: none;#}
+        {#}#}
+        {##}
+        {#.sidebar-overlay.show {#}
+        {#    display: block;#}
+        {#}#}
 
         /* 프로그레스 바 스타일 업데이트 */
         .progress {
@@ -267,12 +267,28 @@
         }
 
         /* 컨테이너 여백 설정 */
+        {#.container-fluid {#}
+        {#    padding-left: 100px !important;#}
+        {#    padding-right: 100px !important;#}
+        {#    width: calc(100% - 200px) !important;#}
+        {#    margin: 0 auto !important;#}
+        {#    max-width: 1800px !important;#}
+        {#}#}
+        
+        /* 컨테이너 여백 제거 */
         .container-fluid {
             padding-left: 100px !important;
             padding-right: 100px !important;
             width: calc(100% - 200px) !important;
             margin: 0 auto !important;
-            max-width: 1800px !important;
+        }
+        
+        /* 컨테이너 여백 설정 - 데스크톱 */
+        .container-fluid {
+            padding-left: 100px !important;
+            padding-right: 100px !important;
+            width: calc(100% - 200px) !important;
+            margin: 0 auto !important;
         }
 
         /* 메인 콘텐츠 여백 조정 */
@@ -301,6 +317,14 @@
                 padding-right: 50px !important;
                 width: calc(100% - 100px) !important;
             }
+        }
+        
+        /* 메인 컨테이너 기본 스타일 */
+        .container-fluid {
+            max-width: 1800px !important; /* 1400px에서 1800px로 증가 */
+            margin: 0 auto !important;
+            padding-left: 40px !important; /* 100px에서 40px로 감소 */
+            padding-right: 40px !important;
         }
 
         /* 카드 그리드 조정 */
@@ -369,6 +393,7 @@
     <!-- 메인 콘텐츠 구조 수정 -->
     <div class="container-fluid">
         <div class="row">
+            
             <!-- Sidebar -->
 {#            <nav id="sidebar">#}
 {#                <div class="sidebar-content">#}
