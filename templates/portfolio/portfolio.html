@@ -2,344 +2,388 @@
 {% load static %}
 {% load humanize %}
 {% block content %}
-<head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
+    {#<head>#}
+    {#    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">#}
+    {#    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>#}
+    {#</head>#}
 
-<style>
-    body {
-        background-color: #17171c;
-        color: #ffffff;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    }
-
-    .card {
-        background-color: #1c1c1e;
-        border-radius: 16px;
-        border: none;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-    }
-
-    .card-header {
-        border-bottom: 1px solid #2c2c2e;
-        background-color: transparent;
-        padding: 20px;
-    }
-
-    /* 사이드바 스타일 */
-    #sidebar {
-        background: linear-gradient(180deg, #1a1a1f 0%, #24242b 100%);
-        position: fixed;
-        left: -280px;
-        width: 280px;
-        height: calc(100vh - 340px);
-        bottom: 20px;
-        z-index: 1000;
-        transition: all 0.3s ease;
-        border-radius: 0 16px 16px 0;
-        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
-        display: block !important;
-    }
-
-    #sidebar.show {
-        left: 0;
-    }
-
-    #sidebar:hover {
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    }
-
-    .sidebar-content {
-        height: 100%;
-        overflow-y: auto;
-        padding: 20px 0;
-    }
-
-    .sidebar-content::-webkit-scrollbar {
-        width: 5px;
-    }
-
-    .sidebar-content::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .sidebar-content::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 3px;
-    }
-
-    /* 네비게이션 아이템 스타일 */
-    .nav-item {
-        margin: 3px 15px;
-    }
-
-    {#.nav-link {#}
-    {#    padding: 12px 20px;#}
-    {#    color: #a0a0a0 !important;#}
-    {#    display: flex;#}
-    {#    align-items: center;#}
-    {#    gap: 12px;#}
-    {#    transition: all 0.2s ease;#}
-    {#    border-radius: 10px;#}
-    {#}#}
-    {##}
-    {#.nav-link:hover {#}
-    {#    background: rgba(255, 255, 255, 0.08);#}
-    {#    color: #ffffff !important;#}
-    {#    transform: translateX(5px);#}
-    {#}#}
-    {##}
-    {#.nav-link.active {#}
-    {#    background: linear-gradient(45deg, #2962ff, #3d6eff);#}
-    {#    color: #ffffff !important;#}
-    {#}#}
-
-    /* 사용자 프로필 섹션 */
-    .user-profile-section {
-        margin: 0 15px 20px;
-        padding: 15px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .user-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .user-avatar {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(45deg, #2962ff, #3d6eff);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-    }
-
-    .user-name {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #ffffff;
-    }
-
-    .logout-btn {
-        margin-top: 10px;
-        padding: 8px 12px;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 8px;
-        color: #a0a0a0;
-        font-size: 0.85rem;
-        transition: all 0.2s ease;
-    }
-
-    .logout-btn:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #ffffff;
-    }
-
-    /* 사이드바 토글 버튼 */
-    .sidebar-toggle {
-        position: fixed;
-        bottom: 20px;
-        left: 0;
-        z-index: 1001;
-        width: 45px;
-        height: 45px;
-        background: linear-gradient(45deg, #2962ff, #3d6eff);
-        border: none;
-        border-radius: 0 10px 10px 0;
-        color: white;
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 4px 0 15px rgba(41, 98, 255, 0.3);
-        cursor: pointer;
-    }
-
-    .sidebar-toggle:hover {
-        width: 50px;
-    }
-
-    .sidebar-toggle:active {
-        transform: scale(0.95);
-    }
-
-    .sidebar-toggle i {
-        font-size: 1.5rem;
-        transition: transform 0.3s ease;
-    }
-
-    .sidebar-toggle.active i {
-        transform: rotate(180deg);
-    }
-
-    /* 오버레이 */
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-        display: none;
-    }
-
-    .sidebar-overlay.show {
-        display: block;
-    }
-
-    /* 컨테이너 레이아웃 */
-    .container-fluid {
-        padding-left: 100px !important;
-        padding-right: 100px !important;
-        width: calc(100% - 200px) !important;
-        margin: 0 auto !important;
-        max-width: 1800px !important;
-    }
-
-    /* 반응형 스타일 */
-    @media (max-width: 768px) {
-        .container-fluid {
-            padding-left: 15px !important;
-            padding-right: 15px !important;
-            width: 100% !important;
+    <style>
+        body {
+            background-color: #17171c;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
 
-        #sidebar {
-            width: 250px;
-            height: 100vh;
-            top: 0;
-            bottom: auto;
-            border-radius: 0;
+        .card {
+            background-color: #1c1c1e;
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
 
-        .sidebar-toggle {
-            bottom: 20px;
-            left: 20px;
+        .card-header {
+            border-bottom: 1px solid #2c2c2e;
+            background-color: transparent;
+            padding: 20px;
+        }
+
+        /* 사이드바 스타일 */
+        {##sidebar {#}
+        {#    background: linear-gradient(180deg, #1a1a1f 0%, #24242b 100%);#}
+        {#    position: fixed;#}
+        {#    left: -280px;#}
+        {#    width: 280px;#}
+        {#    height: calc(100vh - 340px);#}
+        {#    bottom: 20px;#}
+        {#    z-index: 1000;#}
+        {#    transition: all 0.3s ease;#}
+        {#    border-radius: 0 16px 16px 0;#}
+        {#    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);#}
+        {#    display: block !important;#}
+        {
+        #}#}
+        {##}
+        {##sidebar.show {#}
+        {#    left: 0;#}
+        {
+        #}#}
+        {##}
+        {##sidebar:hover {#}
+        {#    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);#}
+        {
+        #}#}
+        {##}
+        {#.sidebar-content {#}
+        {#    height: 100%;#}
+        {#    overflow-y: auto;#}
+        {#    padding: 20px 0;#}
+        {
+        #}#}
+        {##}
+        {#.sidebar-content::-webkit-scrollbar {#}
+        {#    width: 5px;#}
+        {
+        #}#}
+        {##}
+        {#.sidebar-content::-webkit-scrollbar-track {#}
+        {#    background: transparent;#}
+        {
+        #}#}
+        {##}
+        {#.sidebar-content::-webkit-scrollbar-thumb {#}
+        {#    background: rgba(255, 255, 255, 0.2);#}
+        {#    border-radius: 3px;#}
+        {
+        #}#}
+        {##}
+        {#/* 네비게이션 아이템 스타일 */#}
+        {#.nav-item {#}
+        {#    margin: 3px 15px;#}
+        {
+        #}#}
+
+        {#.nav-link {#}
+        {#    padding: 12px 20px;#}
+        {#    color: #a0a0a0 !important;#}
+        {#    display: flex;#}
+        {#    align-items: center;#}
+        {#    gap: 12px;#}
+        {#    transition: all 0.2s ease;#}
+        {#    border-radius: 10px;#}
+        {
+        #}#}
+        {##}
+        {#.nav-link:hover {#}
+        {#    background: rgba(255, 255, 255, 0.08);#}
+        {#    color: #ffffff !important;#}
+        {#    transform: translateX(5px);#}
+        {
+        #}#}
+        {##}
+        {#.nav-link.active {#}
+        {#    background: linear-gradient(45deg, #2962ff, #3d6eff);#}
+        {#    color: #ffffff !important;#}
+        {
+        #}#}
+
+        /* 사용자 프로필 섹션 */
+        .user-profile-section {
+            margin: 0 15px 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #2962ff, #3d6eff);
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
         }
-    }
 
-    @media (min-width: 769px) and (max-width: 1024px) {
+        .user-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .logout-btn {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: #a0a0a0;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+        /* 사이드바 토글 버튼 */
+        {#.sidebar-toggle {#}
+        {#    position: fixed;#}
+        {#    bottom: 20px;#}
+        {#    left: 0;#}
+        {#    z-index: 1001;#}
+        {#    width: 45px;#}
+        {#    height: 45px;#}
+        {#    background: linear-gradient(45deg, #2962ff, #3d6eff);#}
+        {#    border: none;#}
+        {#    border-radius: 0 10px 10px 0;#}
+        {#    color: white;#}
+        {#    display: flex !important;#}
+        {#    align-items: center;#}
+        {#    justify-content: center;#}
+        {#    box-shadow: 4px 0 15px rgba(41, 98, 255, 0.3);#}
+        {#    cursor: pointer;#}
+        {
+        #}#}
+        {##}
+        {#.sidebar-toggle:hover {#}
+        {#    width: 50px;#}
+        {
+        #}#}
+        {##}
+        {#.sidebar-toggle:active {#}
+        {#    transform: scale(0.95);#}
+        {
+        #}#}
+        {##}
+        {#.sidebar-toggle i {#}
+        {#    font-size: 1.5rem;#}
+        {#    transition: transform 0.3s ease;#}
+        {
+        #}#}
+        {##}
+        {#.sidebar-toggle.active i {#}
+        {#    transform: rotate(180deg);#}
+        {
+        #}#}
+        {##}
+        {#/* 오버레이 */#}
+        {#.sidebar-overlay {#}
+        {#    position: fixed;#}
+        {#    top: 0;#}
+        {#    left: 0;#}
+        {#    right: 0;#}
+        {#    bottom: 0;#}
+        {#    background: rgba(0, 0, 0, 0.5);#}
+        {#    z-index: 999;#}
+        {#    display: none;#}
+        {
+        #}#}
+        {##}
+        {#.sidebar-overlay.show {#}
+        {#    display: block;#}
+        {
+        #}#}
+
+        /* 컨테이너 여백 제거 */
         .container-fluid {
-            padding-left: 25px !important;
-            padding-right: 25px !important;
+            padding-left: 100px !important;
+            padding-right: 100px !important;
+            width: calc(100% - 200px) !important;
+            margin: 0 auto !important;
         }
-    }
 
-    @media (min-width: 1025px) and (max-width: 1440px) {
+        {#/* 컨테이너 레이아웃 */#}
+        {#.container-fluid {#}
+        {#    padding-left: 100px !important;#}
+        {#    padding-right: 100px !important;#}
+        {#    width: calc(100% - 200px) !important;#}
+        {#    margin: 0 auto !important;#}
+        {#    max-width: 1800px !important;#}
+        {
+        #}#}
+
+        /* 컨테이너 여백 설정 - 데스크톱 */
         .container-fluid {
-            padding-left: 30px !important;
-            padding-right: 30px !important;
+            padding-left: 100px !important;
+            padding-right: 100px !important;
+            width: calc(100% - 200px) !important;
+            margin: 0 auto !important;
         }
-    }
 
-    /* 기존 포트폴리오 관련 스타일 유지 */
-    .stock-info-display {
-        margin-top: 20px;
-        padding: 10px;
-        background-color: #1e1e1e;
-        color: white;
-        border-radius: 8px;
-        text-align: left;
-        font-size: 1.2em;
-        font-weight: bold;
-        height: 40px;
-        line-height: 40px;
-        display: flex;
-        align-items: center;
-        padding-left: 15px;
-    }
+        /* 반응형 스타일 */
+        @media (max-width: 768px) {
+            .container-fluid {
+                padding-left: 15px !important;
+                padding-right: 15px !important;
+                width: 100% !important;
+            }
 
-    .bar-container {
-        display: flex;
-        width: 100%;
-        height: 30px;
-        margin-top: 20px;
-        background-color: #1e1e1e;
-    }
 
-    .bar {
-        height: 100%;
-        cursor: pointer;
-        border-radius: 3px;
-        margin-right: 0.8px;
-    }
+        {##sidebar {#}
+        {#    width: 250px;#}
+        {#    height: 100vh;#}
+        {#    top: 0;#}
+        {#    bottom: auto;#}
+        {#    border-radius: 0;#} {
+        #}#}
+        {##}
+        {#.sidebar-toggle {#}
+        {#    bottom: 20px;#}
+        {#    left: 20px;#}
+        {#    border-radius: 50%;#}
+        {#    width: 50px;#}
+        {#    height: 50px;#} {
+        #}#}
+        }
 
-    /* 나머지 기존 스타일 유지 */
-    .color-box-inline {
-        width: 14px;
-        height: 14px;
-        border-radius: 4px;
-        display: inline-block;
-        margin-right: 8px;
-    }
+            @media (min-width: 769px) and (max-width: 1024px) {
+                .container-fluid {
+                    padding-left: 25px !important;
+                    padding-right: 25px !important;
+                }
+            }
 
-    .stock-legend {
-        display: flex;
-        flex-wrap: wrap;
-        margin-top: 20px;
-        padding: 10px;
-        border-radius: 8px;
-    }
+            @media (min-width: 1025px) and (max-width: 1440px) {
+                .container-fluid {
+                    padding-left: 30px !important;
+                    padding-right: 30px !important;
+                }
+            }
 
-    .stock-legend ul {
-        list-style-type: none;
-        padding: 0;
-    }
+            /* 메인 컨테이너 기본 스타일 */
+            .container-fluid {
+                max-width: 1800px !important; /* 1400px에서 1800px로 증가 */
+                margin: 0 auto !important;
+                padding-left: 40px !important; /* 100px에서 40px로 감소 */
+                padding-right: 40px !important;
+            }
 
-    .stock-legend li {
-        display: flex;
-        align-items: center;
-        margin-right: 20px;
-        font-size: 0.9em;
-        color: #333;
-    }
+            /* 기존 포트폴리오 관련 스타일 유지 */
+            .stock-info-display {
+                margin-top: 20px;
+                padding: 10px;
+                background-color: #1e1e1e;
+                color: white;
+                border-radius: 8px;
+                text-align: left;
+                font-size: 1.2em;
+                font-weight: bold;
+                height: 40px;
+                line-height: 40px;
+                display: flex;
+                align-items: center;
+                padding-left: 15px;
+            }
 
-    .stock-column {
-        display: flex;
-        flex-direction: column;
-        margin-right: 20px;
-    }
+            .bar-container {
+                display: flex;
+                width: 100%;
+                height: 30px;
+                margin-top: 20px;
+                background-color: #1e1e1e;
+            }
 
-    .stock-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 5px;
-        width: 150px;
-    }
+            .bar {
+                height: 100%;
+                cursor: pointer;
+                border-radius: 3px;
+                margin-right: 0.8px;
+            }
 
-    .stock-item span.stock-name {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+            /* 나머지 기존 스타일 유지 */
+            .color-box-inline {
+                width: 14px;
+                height: 14px;
+                border-radius: 4px;
+                display: inline-block;
+                margin-right: 8px;
+            }
 
-    .color-box {
-        width: 14px;
-        height: 14px;
-        border-radius: 4px;
-        display: inline-block;
-        margin-right: 8px;
-        flex-shrink: 0;
-    }
-</style>
+            .stock-legend {
+                display: flex;
+                flex-wrap: wrap;
+                margin-top: 20px;
+                padding: 10px;
+                border-radius: 8px;
+            }
 
-<div class="container-fluid">
-    <div class="row">
-        <nav id="sidebar">
-            <div class="sidebar-content">
-                {% if user.is_authenticated %}
+            .stock-legend ul {
+                list-style-type: none;
+                padding: 0;
+            }
+
+            .stock-legend li {
+                display: flex;
+                align-items: center;
+                margin-right: 20px;
+                font-size: 0.9em;
+                color: #333;
+            }
+
+            .stock-column {
+                display: flex;
+                flex-direction: column;
+                margin-right: 20px;
+            }
+
+            .stock-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 5px;
+                width: 150px;
+            }
+
+            .stock-item span.stock-name {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .color-box {
+                width: 14px;
+                height: 14px;
+                border-radius: 4px;
+                display: inline-block;
+                margin-right: 8px;
+                flex-shrink: 0;
+            }
+    </style>
+
+    <div class="container-fluid">
+        <div class="row">
+            {#        <nav id="sidebar">#}
+            {#            <div class="sidebar-content">#}
+            {% if user.is_authenticated %}
                 <div class="user-profile-section">
                     <div class="user-info">
                         <div class="user-avatar">
@@ -353,48 +397,48 @@
                         </div>
                     </div>
                 </div>
-                {% endif %}
-                
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'dashboard' %}">
-                            <i class="bi bi-house-door"></i>
-                            <span>대시보드</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'trading' %}">
-                            <i class="bi bi-currency-exchange"></i>
-                            <span>트레이딩</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="bi bi-graph-up"></i>
-                            <span>분석</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#" onclick="location.reload(); return false;">
-                            <i class="bi bi-wallet2"></i>
-                            <span>포트폴리오</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'articles_page' %}">
-                            <i class="bi bi-newspaper"></i>
-                            <span>뉴스</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
+            {% endif %}
+
+            {#                <ul class="nav flex-column">#}
+            {#                    <li class="nav-item">#}
+            {#                        <a class="nav-link" href="{% url 'dashboard' %}">#}
+            {#                            <i class="bi bi-house-door"></i>#}
+            {#                            <span>대시보드</span>#}
+            {#                        </a>#}
+            {#                    </li>#}
+            {#                    <li class="nav-item">#}
+            {#                        <a class="nav-link" href="{% url 'trading' %}">#}
+            {#                            <i class="bi bi-currency-exchange"></i>#}
+            {#                            <span>트레이딩</span>#}
+            {#                        </a>#}
+            {#                    </li>#}
+            {#                    <li class="nav-item">#}
+            {#                        <a class="nav-link" href="#">#}
+            {#                            <i class="bi bi-graph-up"></i>#}
+            {#                            <span>분석</span>#}
+            {#                        </a>#}
+            {#                    </li>#}
+            {#                    <li class="nav-item">#}
+            {#                        <a class="nav-link active" href="#" onclick="location.reload(); return false;">#}
+            {#                            <i class="bi bi-wallet2"></i>#}
+            {#                            <span>포트폴리오</span>#}
+            {#                        </a>#}
+            {#                    </li>#}
+            {#                    <li class="nav-item">#}
+            {#                        <a class="nav-link" href="{% url 'articles_page' %}">#}
+            {#                            <i class="bi bi-newspaper"></i>#}
+            {#                            <span>뉴스</span>#}
+            {#                        </a>#}
+            {#                    </li>#}
+            {#                </ul>#}
+        </div>
         </nav>
 
-        <div class="sidebar-overlay"></div>
-
-        <button class="sidebar-toggle">
-            <i class="bi bi-list"></i>
-        </button>
+        {#        <div class="sidebar-overlay"></div>#}
+        {##}
+        {#        <button class="sidebar-toggle">#}
+        {#            <i class="bi bi-list"></i>#}
+        {#        </button>#}
 
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -428,17 +472,17 @@
                             </thead>
                             <tbody>
                             {% for stock in stocks %}
-                            <tr>
-                                <td>{{ stock.symbol }}</td>
-                                <td><span class="stock-link text-light"
-                                          data-symbol="{{ stock.symbol }}">{{ stock.name }}</span></td>
-                                <td>{{ stock.amount }}</td>
-                                <td>{{ stock.exchange_code }}</td>
-                                <td style="color: {% if stock.profit_loss_rate > 0 %} #20b16c {% else %} #ef454a {% endif %};">
-                                    {{ stock.profit_loss_rate|floatformat:2 }}%
-                                </td>
-                                <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>
-                            </tr>
+                                <tr>
+                                    <td>{{ stock.symbol }}</td>
+                                    <td><span class="stock-link text-light"
+                                              data-symbol="{{ stock.symbol }}">{{ stock.name }}</span></td>
+                                    <td>{{ stock.amount }}</td>
+                                    <td>{{ stock.exchange_code }}</td>
+                                    <td style="color: {% if stock.profit_loss_rate > 0 %} #20b16c {% else %} #ef454a {% endif %};">
+                                        {{ stock.profit_loss_rate|floatformat:2 }}%
+                                    </td>
+                                    <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>
+                                </tr>
                             {% endfor %}
                             </tbody>
                         </table>
@@ -450,29 +494,30 @@
 
                     <div class="bar-container" style="justify-content: start;">
                         {% for stock in stocks %}
-                        <div class="bar"
-                             style="width: {{ stock.amount_percentage }}%; background-color: {{ stock.color }};"
-                             onmouseover="showStockInfo('{{ stock.amount_percentage|floatformat:2 }}', '{{ stock.name }}', '{{ stock.color }}')"
-                             onmouseout="clearStockInfo()">
-                        </div>
+                            <div class="bar"
+                                 style="width: {{ stock.amount_percentage }}%; background-color: {{ stock.color }};"
+                                 onmouseover="showStockInfo('{{ stock.amount_percentage|floatformat:2 }}', '{{ stock.name }}', '{{ stock.color }}')"
+                                 onmouseout="clearStockInfo()">
+                            </div>
                         {% endfor %}
                     </div>
 
                     <div class="stock-legend" style="justify-content: start;">
                         {% for stock in stocks %}
-                        {% if forloop.counter0|divisibleby:5 %}
-                        <div class="stock-column">
+                            {% if forloop.counter0|divisibleby:5 %}
+                                <div class="stock-column">
                             {% endif %}
 
-                            <div class="stock-item">
-                                <span class="color-box" style="background-color: {{ stock.color }};"></span>
-                                <span class="stock-name" title="{{ stock.name }}" style="color: lightgrey; cursor: pointer;" onclick="loadNews('{{ stock.name }}')">
+                        <div class="stock-item">
+                            <span class="color-box" style="background-color: {{ stock.color }};"></span>
+                            <span class="stock-name" title="{{ stock.name }}" style="color: lightgrey; cursor: pointer;"
+                                  onclick="loadNews('{{ stock.name }}')">
                                     {{ stock.name }}
                                 </span>
-                            </div>
-
-                            {% if forloop.counter|divisibleby:5 or forloop.last %}
                         </div>
+
+                        {% if forloop.counter|divisibleby:5 or forloop.last %}
+                            </div>
                         {% endif %}
                         {% endfor %}
                     </div>
@@ -485,65 +530,67 @@
             </div>
         </main>
     </div>
-</div>
+    </div>
 
-<script>
-    function showStockInfo(percentage, name, color) {
-        document.getElementById("stock-info").innerHTML = `<span class="color-box-inline" style="background-color: ${color};"></span> ${name} (${percentage}%)`;
-    }
-
-    function clearStockInfo() {
-        document.getElementById("stock-info").innerText = "";
-    }
-
-    function loadNews(stockName) {
-        const query = encodeURIComponent(`${stockName} stock news`);
-        document.getElementById("search-frame").src = `https://www.bing.com/news/search?q=${query}`;
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.getElementById('sidebar');
-        const toggle = document.querySelector('.sidebar-toggle');
-        const overlay = document.querySelector('.sidebar-overlay');
-        let autoHideTimer;
-
-        function showSidebar() {
-            sidebar.classList.add('show');
-            overlay.classList.add('show');
-            toggle.classList.add('active');
-            clearTimeout(autoHideTimer);
+    <script>
+        function showStockInfo(percentage, name, color) {
+            document.getElementById("stock-info").innerHTML = `<span class="color-box-inline" style="background-color: ${color};"></span> ${name} (${percentage}%)`;
         }
 
-        function hideSidebar() {
-            sidebar.classList.remove('show');
-            overlay.classList.remove('show');
-            toggle.classList.remove('active');
+        function clearStockInfo() {
+            document.getElementById("stock-info").innerText = "";
         }
 
-        toggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            if (sidebar.classList.contains('show')) {
-                hideSidebar();
-            } else {
-                showSidebar();
+        function loadNews(stockName) {
+            const query = encodeURIComponent(`${stockName} stock news`);
+            document.getElementById("search-frame").src = `https://www.bing.com/news/search?q=${query}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.sidebar-toggle');
+            const overlay = document.querySelector('.sidebar-overlay');
+            let autoHideTimer;
+
+            function showSidebar() {
+                sidebar.classList.add('show');
+                overlay.classList.add('show');
+                toggle.classList.add('active');
+                clearTimeout(autoHideTimer);
             }
-        });
 
-        overlay.addEventListener('click', hideSidebar);
-
-        sidebar.addEventListener('mouseleave', function() {
-            autoHideTimer = setTimeout(hideSidebar, 3000);
-        });
-
-        sidebar.addEventListener('mouseenter', function() {
-            clearTimeout(autoHideTimer);
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                hideSidebar();
+            function hideSidebar() {
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+                toggle.classList.remove('active');
             }
-        });
-    });
-</script>
+
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (sidebar.classList.contains('show')) {
+                    hideSidebar();
+                } else {
+                    showSidebar();
+                }
+            });
+
+            overlay.addEventListener('click', hideSidebar);
+
+            sidebar.addEventListener('mouseleave', function() {
+                autoHideTimer = setTimeout(hideSidebar, 3000);
+            });
+
+            sidebar.addEventListener('mouseenter', function() {
+                clearTimeout(autoHideTimer);
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    hideSidebar();
+                }
+            });
+        })
+            ;
+        }
+    </script>
 {% endblock %}

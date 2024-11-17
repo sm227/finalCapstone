@@ -2,9 +2,9 @@
 {% load static %}
 {% load humanize %}
 {% block content %}
-    <head>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    </head>
+    {#    <head>#}
+    {#        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">#}
+    {#    </head>#}
 
     <style>
         body {
@@ -408,9 +408,15 @@
         }
 
 
-       
-
-        /* 컨테이너 여백 설정 */
+        /* 컨테이너 여백 제거 */
+        .container-fluid {
+            padding-left: 100px !important;
+            padding-right: 100px !important;
+            width: calc(100% - 200px) !important;
+            margin: 0 auto !important;
+        }
+        
+        /* 컨테이너 여백 설정 - 데스크톱 */
         .container-fluid {
             padding-left: 100px !important;
             padding-right: 100px !important;
@@ -772,6 +778,15 @@
             }
         }
 
+
+        /* 메인 컨테이너 기본 스타일 */
+        .container-fluid {
+            max-width: 1800px !important; /* 1400px에서 1800px로 증가 */
+            margin: 0 auto !important;
+            padding-left: 40px !important; /* 100px에서 40px로 감소 */
+            padding-right: 40px !important;
+        }
+
         .portfolio-card {
             background: #242424;
             border-radius: 16px;
@@ -822,8 +837,13 @@
             margin: 0;
         }
 
-        .pnl-value.profit { color: #20b16c; }
-        .pnl-value.loss { color: #ef454a; }
+        .pnl-value.profit {
+            color: #20b16c;
+        }
+
+        .pnl-value.loss {
+            color: #ef454a;
+        }
 
         .portfolio-body {
             padding: 24px;
@@ -876,8 +896,13 @@
             font-weight: 600;
         }
 
-        .profit-loss-rate.profit { color: #20b16c; }
-        .profit-loss-rate.loss { color: #ef454a; }
+        .profit-loss-rate.profit {
+            color: #20b16c;
+        }
+
+        .profit-loss-rate.loss {
+            color: #ef454a;
+        }
 
         .update-time {
             color: #999;
@@ -891,38 +916,37 @@
                 gap: 16px;
                 padding: 20px;
             }
-            
+
             .pnl-summary {
                 text-align: left;
             }
-            
+
             .portfolio-table th:nth-child(3),
             .portfolio-table td:nth-child(3) {
                 display: none;
             }
-            
+
             .portfolio-table th:nth-child(5),
             .portfolio-table td:nth-child(5) {
                 display: none;
             }
-            
+
             .portfolio-table td {
                 padding: 12px;
             }
-            
+
             .stock-info {
                 flex-direction: row;
                 align-items: center;
                 gap: 8px;
             }
-            
+
             .stock-symbol {
                 font-size: 13px;
             }
         }
 
 
-        
     </style>
 
     <!-- 로딩창 -->
@@ -936,6 +960,7 @@
 
     <div class="container-fluid">
         <div class="row">
+        
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="trading-header">
                     <div class="header-content">
@@ -968,7 +993,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="header-right">
                             <div class="market-summary">
                                 <div class="index-item">
@@ -999,26 +1024,34 @@
                                 {% csrf_token %}
                                 <div class="custom-form-group">
                                     <label>종목 코드</label>
-                                    <input type="text" id="buy_stock_code" name="stock_code" 
+                                    <input type="text" id="buy_stock_code" name="stock_code"
                                            class="custom-input" placeholder="예: AAPL" required>
                                 </div>
 
                                 <div class="custom-form-group">
                                     <label>주문 가격</label>
-                                    <input type="number" id="buy_price" name="price" 
+                                    <input type="number" id="buy_price" name="price"
                                            class="custom-input" placeholder="0.00" step="0.01" required>
                                     <span class="currency-indicator">USD</span>
                                 </div>
 
                                 <div class="custom-form-group">
                                     <label>주문 수량</label>
-                                    <input type="number" id="buy_quantity" name="quantity" 
+                                    <input type="number" id="buy_quantity" name="quantity"
                                            class="custom-input" value="1" min="1" required>
                                     <div class="quantity-controls">
-                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('buy', -1)">-1</button>
-                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('buy', 1)">+1</button>
-                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('buy', 5)">+5</button>
-                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('buy', 10)">+10</button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('buy', -1)">
+                                            -1
+                                        </button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('buy', 1)">
+                                            +1
+                                        </button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('buy', 5)">
+                                            +5
+                                        </button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('buy', 10)">
+                                            +10
+                                        </button>
                                     </div>
                                 </div>
 
@@ -1032,26 +1065,34 @@
                                 {% csrf_token %}
                                 <div class="custom-form-group">
                                     <label>종목 코드</label>
-                                    <input type="text" id="sell_stock_code" name="stock_code" 
+                                    <input type="text" id="sell_stock_code" name="stock_code"
                                            class="custom-input" placeholder="예: AAPL" required>
                                 </div>
 
                                 <div class="custom-form-group">
                                     <label>주문 가격</label>
-                                    <input type="number" id="sell_price" name="price" 
+                                    <input type="number" id="sell_price" name="price"
                                            class="custom-input" placeholder="0.00" step="0.01" required>
                                     <span class="currency-indicator">USD</span>
                                 </div>
 
                                 <div class="custom-form-group">
                                     <label>주문 수량</label>
-                                    <input type="number" id="sell_quantity" name="quantity" 
+                                    <input type="number" id="sell_quantity" name="quantity"
                                            class="custom-input" value="1" min="1" required>
                                     <div class="quantity-controls">
-                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('sell', -1)">-1</button>
-                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('sell', 1)">+1</button>
-                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('sell', 5)">+5</button>
-                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('sell', 10)">+10</button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('sell', -1)">
+                                            -1
+                                        </button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('sell', 1)">
+                                            +1
+                                        </button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('sell', 5)">
+                                            +5
+                                        </button>
+                                        <button type="button" class="quantity-btn" onclick="adjustQuantity('sell', 10)">
+                                            +10
+                                        </button>
                                     </div>
                                 </div>
 
@@ -1096,26 +1137,26 @@
                             </h3>
                         </div>
                     </div>
-                    
+
                     <div class="portfolio-body">
                         <div class="table-responsive">
                             <table class="portfolio-table">
                                 <thead>
-                                    <tr>
-                                        <th>종목코드</th>
-                                        <th>종목명</th>
-                                        <th>보유수량</th>
-                                        <th>거래소</th>
-                                        <th>수익률</th>
-                                        <th>최근 업데이트</th>
-                                    </tr>
+                                <tr>
+                                    <th>종목코드</th>
+                                    <th>종목명</th>
+                                    <th>보유수량</th>
+                                    <th>거래소</th>
+                                    <th>수익률</th>
+                                    <th>최근 업데이트</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    {% for stock in stocks %}
+                                {% for stock in stocks %}
                                     <tr>
                                         <td class="stock-info">
                                             <div class="stock-symbol">{{ stock.symbol }}</div>
-                                            <a href="#" class="stock-name" data-symbol="{{ stock.symbol }}" 
+                                            <a href="#" class="stock-name" data-symbol="{{ stock.symbol }}"
                                                onclick="setStockCode('{{ stock.symbol }}')">
                                                 {{ stock.name }}
                                             </a>
@@ -1129,7 +1170,7 @@
                                             {{ stock.last_updated|date:"m/d H:i" }}
                                         </td>
                                     </tr>
-                                    {% endfor %}
+                                {% endfor %}
                                 </tbody>
                             </table>
                         </div>
@@ -1349,7 +1390,7 @@
                         } else if (data.message === 'stockcode_not_exist') {
                             buyFailedSound.play();
                             showToast('failed', '해당 종목이 없습니다 <br> 종목 코드를 다시 한번 확인하세요')
-                        } else if (data.message === 'its_not_a_business_day'){
+                        } else if (data.message === 'its_not_a_business_day') {
                             buyFailedSound.play();
                             showToast('failed', '영업일이 아닙니다 <br> 영업일을 확인해 주세요 ( 월 ~ 금 )')
                         } else {
@@ -1430,11 +1471,10 @@
                         } else if (data.message === 'does_not_have') {
                             sellFailedSound.play();
                             showToast('failed', '보유 수량이 부족합니다 <br> 매도 가능 수량을 확인한 후 다시 시도해 주세요')
-                        } else if (data.message === 'its_not_a_business_day'){
+                        } else if (data.message === 'its_not_a_business_day') {
                             sellFailedSound.play();
                             showToast('failed', '영업일이 아닙니다 <br> 영업일을 확인해 주세요 ( 월 ~ 금 )')
-                        }
-                        else {
+                        } else {
                             // 주문 실패 시 실패 사운드 재생
                             sellFailedSound.play();
                             showToast('매도 주문이 정상적으로 이루어지지 않았습니다');
@@ -1466,35 +1506,35 @@
 
     <!-- 수량 조절 스크립트 -->
     <script>
-    function adjustQuantity(type, amount) {
-        const inputId = type === 'buy' ? 'buy_quantity' : 'sell_quantity';
-        const input = document.getElementById(inputId);
-        const currentValue = parseInt(input.value) || 0;
-        const newValue = Math.max(1, currentValue + amount);
-        input.value = newValue;
-    }
+        function adjustQuantity(type, amount) {
+            const inputId = type === 'buy' ? 'buy_quantity' : 'sell_quantity';
+            const input = document.getElementById(inputId);
+            const currentValue = parseInt(input.value) || 0;
+            const newValue = Math.max(1, currentValue + amount);
+            input.value = newValue;
+        }
 
-    // 탭 전�� 스크립트 수정
-    document.addEventListener('DOMContentLoaded', function() {
-        const buyTab = document.getElementById('buy-tab');
-        const sellTab = document.getElementById('sell-tab');
-        const buyForm = document.getElementById('buyFormContainer');
-        const sellForm = document.getElementById('sellFormContainer');
+        // 탭 전�� 스크립트 수정
+        document.addEventListener('DOMContentLoaded', function () {
+            const buyTab = document.getElementById('buy-tab');
+            const sellTab = document.getElementById('sell-tab');
+            const buyForm = document.getElementById('buyFormContainer');
+            const sellForm = document.getElementById('sellFormContainer');
 
-        buyTab.addEventListener('click', function() {
-            buyTab.classList.add('active');
-            sellTab.classList.remove('active');
-            buyForm.style.display = 'block';
-            sellForm.style.display = 'none';
+            buyTab.addEventListener('click', function () {
+                buyTab.classList.add('active');
+                sellTab.classList.remove('active');
+                buyForm.style.display = 'block';
+                sellForm.style.display = 'none';
+            });
+
+            sellTab.addEventListener('click', function () {
+                sellTab.classList.add('active');
+                buyTab.classList.remove('active');
+                sellForm.style.display = 'block';
+                buyForm.style.display = 'none';
+            });
         });
-
-        sellTab.addEventListener('click', function() {
-            sellTab.classList.add('active');
-            buyTab.classList.remove('active');
-            sellForm.style.display = 'block';
-            buyForm.style.display = 'none';
-        });
-    });
     </script>
 
     <script>
@@ -1507,10 +1547,10 @@
                 second: '2-digit',
                 hour12: false
             };
-            document.getElementById('current-time').textContent = 
+            document.getElementById('current-time').textContent =
                 now.toLocaleTimeString('en-US', options);
         }
-        
+
         updateTime();
         setInterval(updateTime, 1000);
     </script>
