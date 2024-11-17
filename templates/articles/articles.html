@@ -90,35 +90,35 @@
             margin: 3px 15px;
         }
 
-        .nav-link {
-            margin: 5px 15px;
-            padding: 12px 20px;
-            border-radius: 14px;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            color: #a0a0a0 !important;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.2s ease;
-            border-radius: 10px;
-        }
-
-        .nav-link i {
-            font-size: 1.2rem;
-        }
-
-        .nav-link:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: #ffffff !important;
-            transform: translateX(5px);
-        }
-
-        .nav-link.active {
-            background: linear-gradient(45deg, #2962ff, #3d6eff);
-            color: #ffffff !important;
-            box-shadow: 0 4px 12px rgba(41, 98, 255, 0.2);
-        }
+        {#.nav-link {#}
+        {#    margin: 5px 15px;#}
+        {#    padding: 12px 20px;#}
+        {#    border-radius: 14px;#}
+        {#    font-weight: 500;#}
+        {#    letter-spacing: 0.3px;#}
+        {#    color: #a0a0a0 !important;#}
+        {#    display: flex;#}
+        {#    align-items: center;#}
+        {#    gap: 12px;#}
+        {#    transition: all 0.2s ease;#}
+        {#    border-radius: 10px;#}
+        {#}#}
+        {##}
+        {#.nav-link i {#}
+        {#    font-size: 1.2rem;#}
+        {#}#}
+        {##}
+        {#.nav-link:hover {#}
+        {#    background: rgba(255, 255, 255, 0.08);#}
+        {#    color: #ffffff !important;#}
+        {#    transform: translateX(5px);#}
+        {#}#}
+        {##}
+        {#.nav-link.active {#}
+        {#    background: linear-gradient(45deg, #2962ff, #3d6eff);#}
+        {#    color: #ffffff !important;#}
+        {#    box-shadow: 0 4px 12px rgba(41, 98, 255, 0.2);#}
+        {#}#}
 
         .user-profile-section {
             margin: 20px 15px;
@@ -370,64 +370,64 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <nav id="sidebar">
-                <div class="sidebar-content">
-                    {% if user.is_authenticated %}
-                    <div class="user-profile-section">
-                        <div class="user-info">
-                            <div class="user-avatar">
-                                {{ user.username|make_list|first|upper }}
-                            </div>
-                            <div>
-                                <span class="user-name">{{ user.username }}</span>
-                                <a href="{% url 'logout' %}" class="logout-btn d-block">
-                                    <i class="bi bi-box-arrow-right"></i> 로그아웃
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'dashboard' %}">
-                                <i class="bi bi-house-door"></i>
-                                <span>대시보드</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'trading' %}">
-                                <i class="bi bi-currency-exchange"></i>
-                                <span>트레이딩</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="bi bi-graph-up"></i>
-                                <span>분석</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'portfolio' %}">
-                                <i class="bi bi-wallet2"></i>
-                                <span>포트폴리오</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="{% url 'articles' %}">
-                                <i class="bi bi-newspaper"></i>
-                                <span>뉴스</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+{#            <nav id="sidebar">#}
+{#                <div class="sidebar-content">#}
+{#                    {% if user.is_authenticated %}#}
+{#                    <div class="user-profile-section">#}
+{#                        <div class="user-info">#}
+{#                            <div class="user-avatar">#}
+{#                                {{ user.username|make_list|first|upper }}#}
+{#                            </div>#}
+{#                            <div>#}
+{#                                <span class="user-name">{{ user.username }}</span>#}
+{#                                <a href="{% url 'logout' %}" class="logout-btn d-block">#}
+{#                                    <i class="bi bi-box-arrow-right"></i> 로그아웃#}
+{#                                </a>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    {% endif %}#}
+{#                    #}
+{#                    <ul class="nav flex-column">#}
+{#                        <li class="nav-item">#}
+{#                            <a class="nav-link" href="{% url 'dashboard' %}">#}
+{#                                <i class="bi bi-house-door"></i>#}
+{#                                <span>대시보드</span>#}
+{#                            </a>#}
+{#                        </li>#}
+{#                        <li class="nav-item">#}
+{#                            <a class="nav-link" href="{% url 'trading' %}">#}
+{#                                <i class="bi bi-currency-exchange"></i>#}
+{#                                <span>트레이딩</span>#}
+{#                            </a>#}
+{#                        </li>#}
+{#                        <li class="nav-item">#}
+{#                            <a class="nav-link" href="#">#}
+{#                                <i class="bi bi-graph-up"></i>#}
+{#                                <span>분석</span>#}
+{#                            </a>#}
+{#                        </li>#}
+{#                        <li class="nav-item">#}
+{#                            <a class="nav-link" href="{% url 'portfolio' %}">#}
+{#                                <i class="bi bi-wallet2"></i>#}
+{#                                <span>포트폴리오</span>#}
+{#                            </a>#}
+{#                        </li>#}
+{#                        <li class="nav-item">#}
+{#                            <a class="nav-link active" href="{% url 'articles' %}">#}
+{#                                <i class="bi bi-newspaper"></i>#}
+{#                                <span>뉴스</span>#}
+{#                            </a>#}
+{#                        </li>#}
+{#                    </ul>#}
+{#                </div>#}
+{#            </nav>#}
 
-            <div class="sidebar-overlay"></div>
-
-            <button class="sidebar-toggle">
-                <i class="bi bi-list"></i>
-            </button>
+{#            <div class="sidebar-overlay"></div>#}
+{##}
+{#            <button class="sidebar-toggle">#}
+{#                <i class="bi bi-list"></i>#}
+{#            </button>#}
 
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
