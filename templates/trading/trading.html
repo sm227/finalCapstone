@@ -57,8 +57,8 @@
 
         #tradingview-widget {
             width: 100%;
-            height: 500px;
-            margin-top: 20px;
+            height: 580px;
+            margin-top: 5px;
         }
 
         .trade-quantity {
@@ -406,6 +406,731 @@
             background-color: #3182f6;
             border-radius: 1px;
         }
+
+        /* 사이드바 기본 스타일 */
+        #sidebar {
+            background: linear-gradient(180deg, #1a1a1f 0%, #24242b 100%);
+            position: fixed;
+            left: -280px;
+            width: 280px;
+            height: calc(100vh - 340px);
+            bottom: 20px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            border-radius: 0 16px 16px 0;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+            display: block !important;
+        }
+
+        #sidebar.show {
+            left: 0;
+        }
+
+        #sidebar:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 사이드바 내부 컨텐츠 */
+        .sidebar-content {
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-content::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        /* 사용자 프로필 섹션 */
+        .user-profile-section {
+            margin: 0 15px 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #2962ff, #3d6eff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        /* 네비게이션 링크 */
+        .nav-item {
+            margin: 3px 15px;
+        }
+
+        .nav-link {
+            padding: 12px 20px;
+            color: #a0a0a0 !important;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            border-radius: 10px;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff !important;
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(45deg, #2962ff, #3d6eff);
+            color: #ffffff !important;
+        }
+
+        .nav-link i {
+            font-size: 1.2rem;
+        }
+
+        /* 로그아웃 버튼 */
+        .logout-btn {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: #a0a0a0;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+        /* 사이드바 토글 버튼 */
+        .sidebar-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            z-index: 1001;
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(45deg, #2962ff, #3d6eff);
+            border: none;
+            border-radius: 0 10px 10px 0;
+            color: white;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 4px 0 15px rgba(41, 98, 255, 0.3);
+            cursor: pointer;
+        }
+
+        .sidebar-toggle:hover {
+            width: 50px;
+        }
+
+        .sidebar-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .sidebar-toggle i {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-toggle.active i {
+            transform: rotate(180deg);
+        }
+
+        /* 오버레이 */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        /* 반응형 스타일 */
+        @media (max-width: 768px) {
+            #sidebar {
+                width: 250px;
+                height: 100vh;
+                top: 0;
+                bottom: auto;
+                border-radius: 0;
+            }
+
+            .sidebar-toggle {
+                bottom: 20px;
+                left: 20px;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+            }
+
+            .container-fluid {
+                padding-left: 15px !important;
+                padding-right: 15px !important;
+            }
+        }
+
+        /* 컨테이너 여백 설정 */
+        .container-fluid {
+            padding-left: 100px !important;
+            padding-right: 100px !important;
+            width: calc(100% - 200px) !important;
+            margin: 0 auto !important;
+        }
+
+        /* 메인 컨텐츠 영역 */
+        main.col-md-9,
+        main.col-lg-10 {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            max-width: 100% !important;
+            flex: 0 0 100% !important;
+        }
+
+        /* 본 색상 변수 정의 */
+        :root {
+            --primary-bg: #191919;
+            --secondary-bg: #242424;
+            --input-bg: #2B2B2B;
+            --border-color: #404040;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --accent-blue: #3182f6;
+        }
+
+        /* 입력 필드 스타일 개선 */
+        .custom-input {
+            width: 100%;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .custom-input:focus {
+            border-color: var(--accent-blue);
+            background-color: #333;
+            box-shadow: 0 0 0 2px rgba(49, 130, 246, 0.2);
+        }
+
+        /* 주문 버튼 스타일 개선 */
+        .custom-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .custom-btn.buy {
+            background-color: var(--accent-blue);
+            color: white;
+        }
+
+        .custom-btn.sell {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .custom-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 폼 컨테이너 스타일 */
+        .custom-form-container {
+            background-color: var(--secondary-bg);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 380px;
+            min-width: 340px;
+        }
+
+        /* 매수/매도 탭 스타일 개선 */
+        .order-tabs {
+            display: flex;
+            margin-bottom: 28px;
+            border-bottom: 1px solid #333;
+        }
+
+        .order-tab {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            position: relative;
+            transition: color 0.2s ease;
+        }
+
+        .order-tab.active {
+            color: var(--text-primary);
+        }
+
+        .order-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--accent-blue);
+        }
+
+        .trading-header {
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .trading-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 16px 0;
+        }
+
+        .market-status-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .market-status {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .status-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #dc3545;
+        }
+
+        .status-indicator.active {
+            background-color: #28a745;
+        }
+
+        .status-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .status-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .trading-hours {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .market-time {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .timezone {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .market-summary {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .index-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .index-name {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .index-value {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .index-change {
+            font-size: 13px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .up {
+            color: #20b16c;
+            background: rgba(32, 177, 108, 0.1);
+        }
+
+        .down {
+            color: #ef454a;
+            background: rgba(239, 69, 74, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .trading-header {
+                padding: 20px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .header-right {
+                width: 100%;
+            }
+        }
+
+        /* 모바일 환경을 위한 미디어 쿼리 수정 */
+        @media (max-width: 767px) {
+            /* 컨테이너 패딩 조정 */
+            .container-fluid {
+                padding-left: 15px !important;
+                padding-right: 15px !important;
+                width: 100% !important;
+            }
+
+            /* 트레이딩 컨테이너 레이아웃 */
+            .trading-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            /* 차트 컨테이너 */
+            .chart-container {
+                margin-right: 0;
+                width: 100%;
+                height: 400px; /* 모바일에서 차트 높이 조정 */
+            }
+
+            /* 트레이딩 폼 컨테이너 */
+            .custom-form-container {
+                width: 100%;
+                max-width: none;
+                min-width: 0;
+                margin: 20px 0;
+                padding: 20px;
+            }
+
+            /* 헤더 영역 조정 */
+            .trading-header {
+                padding: 15px;
+            }
+
+            .trading-title {
+                font-size: 24px;
+            }
+
+            /* 테이블 반응형 처리 */
+            .table-responsive {
+                margin: 0 -15px;
+            }
+
+            .table td, .table th {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            /* 사이드바 조정 */
+            #sidebar {
+                width: 100%;
+                left: -100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .sidebar-toggle {
+                bottom: 20px;
+                left: 20px;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+            }
+
+            /* 주문 입력 폼 조정 */
+            .custom-input {
+                font-size: 14px;
+                padding: 12px;
+            }
+
+            .quantity-controls {
+                flex-wrap: wrap;
+            }
+
+            .quantity-btn {
+                padding: 6px;
+                font-size: 12px;
+            }
+
+            /* 마켓 상태 그룹 */
+            .market-status-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            /* 헤더 콘텐츠 */
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .market-summary {
+                width: 100%;
+            }
+
+            /* 토스트 메시지 */
+            .toast-container {
+                padding: 10px;
+            }
+
+            .toast {
+                width: 100%;
+                max-width: none;
+            }
+        }
+
+        /* 태블릿 환경을 위한 중간 크기 대응 */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .container-fluid {
+                padding-left: 30px !important;
+                padding-right: 30px !important;
+            }
+
+            .custom-form-container {
+                min-width: 280px;
+            }
+
+            .chart-container {
+                margin-right: 20px;
+            }
+        }
+
+        .portfolio-card {
+            background: #242424;
+            border-radius: 16px;
+            margin: 24px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .portfolio-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .portfolio-title {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .portfolio-title h5 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+            color: #ffffff;
+        }
+
+        .portfolio-subtitle {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .pnl-summary {
+            text-align: right;
+        }
+
+        .pnl-label {
+            font-size: 14px;
+            color: #999;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .pnl-value {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .pnl-value.profit { color: #20b16c; }
+        .pnl-value.loss { color: #ef454a; }
+
+        .portfolio-body {
+            padding: 24px;
+        }
+
+        .portfolio-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .portfolio-table th {
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #999;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .portfolio-table td {
+            padding: 16px;
+            font-size: 14px;
+            color: #fff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stock-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stock-symbol {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .stock-name {
+            color: #999;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .stock-name:hover {
+            color: #3182f6;
+        }
+
+        .profit-loss-rate {
+            font-weight: 600;
+        }
+
+        .profit-loss-rate.profit { color: #20b16c; }
+        .profit-loss-rate.loss { color: #ef454a; }
+
+        .update-time {
+            color: #999;
+            font-size: 13px;
+        }
+
+        /* 모바일 반응형 */
+        @media (max-width: 768px) {
+            .portfolio-header {
+                flex-direction: column;
+                gap: 16px;
+                padding: 20px;
+            }
+            
+            .pnl-summary {
+                text-align: left;
+            }
+            
+            .portfolio-table th:nth-child(3),
+            .portfolio-table td:nth-child(3) {
+                display: none;
+            }
+            
+            .portfolio-table th:nth-child(5),
+            .portfolio-table td:nth-child(5) {
+                display: none;
+            }
+            
+            .portfolio-table td {
+                padding: 12px;
+            }
+            
+            .stock-info {
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .stock-symbol {
+                font-size: 13px;
+            }
+        }
     </style>
 
     <!-- 로딩창 -->
@@ -419,42 +1144,109 @@
 
     <div class="container-fluid">
         <div class="row">
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
-                <div class="position-sticky">
+            <!-- Sidebar -->
+            <nav id="sidebar">
+                <div class="sidebar-content">
+                    {% if user.is_authenticated %}
+                    <div class="user-profile-section">
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                {{ user.username|make_list|first|upper }}
+                            </div>
+                            <div>
+                                <span class="user-name">{{ user.username }}</span>
+                                <a href="{% url 'logout' %}" class="logout-btn d-block">
+                                    <i class="bi bi-box-arrow-right"></i> 로그아웃
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link text-light" href="{% url 'dashboard' %}">
-                                <i class="bi bi-house-door"></i> Dashboard
+                            <a class="nav-link" href="{% url 'dashboard' %}">
+                                <i class="bi bi-house-door"></i>
+                                <span>대시보드</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" href="{% url 'trading' %}">
-                                <i class="bi bi-currency-exchange"></i> Trading
+                            <a class="nav-link active" href="#" onclick="location.reload(); return false;">
+                                <i class="bi bi-currency-exchange"></i>
+                                <span>트레이딩</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" href="#">
-                                <i class="bi bi-graph-up"></i> Analytics
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-graph-up"></i>
+                                <span>분석</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" href="{% url 'portfolio' %}">
-                                <i class="bi bi-wallet2"></i> Portfolio
+                            <a class="nav-link" href="{% url 'portfolio' %}">
+                                <i class="bi bi-wallet2"></i>
+                                <span>포트폴리오</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active text-light" href="{% url 'articles_page' %}"
-                               id="crawl-articles-btn">
-                                <i class="bi bi-newspaper"></i> Articles
+                            <a class="nav-link" href="{% url 'articles_page' %}">
+                                <i class="bi bi-newspaper"></i>
+                                <span>뉴스</span>
                             </a>
                         </li>
                     </ul>
                 </div>
             </nav>
 
+            <div class="sidebar-overlay"></div>
+
+            <button class="sidebar-toggle">
+                <i class="bi bi-list"></i>
+            </button>
+
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Trading</h1>
+                <div class="trading-header">
+                    <div class="header-content">
+                        <div class="header-left">
+                            <div class="title-group">
+                                <h1 class="trading-title">실시간 트레이딩</h1>
+                            </div>
+                            <div class="market-status-group">
+                                <div class="market-status">
+                                    <div class="status-wrapper">
+                                        <span class="status-indicator {% if is_market_open %}active{% endif %}"></span>
+                                        <span class="status-label">마켓 상태:</span>
+                                        <span class="status-text">
+                                            {% if is_market_open %}
+                                                실시간 거래 가능
+                                            {% else %}
+                                                거래 불가능 시간
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <div class="trading-hours">
+                                        <i class="bi bi-info-circle"></i>
+                                        거래 가능 시간: 23:30 ~ 06:00 (한국 시간)
+                                    </div>
+                                </div>
+                                <div class="market-time">
+                                    <i class="bi bi-clock"></i>
+                                    <span id="current-time"></span>
+                                    <span class="timezone">EDT</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="header-right">
+                            <div class="market-summary">
+                                <div class="index-item">
+                                    <span class="index-name">S&P 500</span>
+                                    <span class="index-value up">4,783.45</span>
+                                    <span class="index-change up">+1.23%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="trading-container">
@@ -559,47 +1351,53 @@
                 </div>
 
                 <!-- Stocks Table -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Your Stocks</h5>
+                <div class="portfolio-card">
+                    <div class="portfolio-header">
+                        <div class="portfolio-title">
+                            <h5>보유 주식 현황</h5>
+                            <span class="portfolio-subtitle">실시간 포트폴리오 현황</span>
+                        </div>
+                        <div class="pnl-summary">
+                            <span class="pnl-label">총 손익</span>
+                            <h3 class="pnl-value {% if PnL > 0 %}profit{% elif PnL < 0 %}loss{% endif %}">
+                                {% if PnL > 0 %}+{% endif %}{{ PnL|floatformat:0|intcomma }} KRW
+                            </h3>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Pnl</h5>
-                        {#<h5 class="card-text display-6">{{ total_value|floatformat:0|intcomma }} KRW</h5>#}
-                        <h3 class="card-text display-6"
-                            style="color: {% if PnL > 0 %}green{% elif PnL < 0 %}red{% else %}white{% endif %};">
-                            {% if PnL > 0 %} +{{ PnL|floatformat:0 |intcomma }} KRW
-                            {% elif PnL < 0 %} {{ PnL|floatformat:0 |intcomma }} KRW
-                            {% else %}
-                                0 KRW
-                            {% endif %}</h3>
+                    
+                    <div class="portfolio-body">
                         <div class="table-responsive">
-                            <table class="table table-dark table-striped table-sm">
+                            <table class="portfolio-table">
                                 <thead>
-                                <tr>
-                                    <th>Symbol</th>
-                                    <th>Name</th>
-                                    <th>Amount</th>
-                                    <th>Exchange Code</th>
-                                    <th>Profit Loss Rate</th>
-                                    <th>Last Updated</th>
-                                </tr>
+                                    <tr>
+                                        <th>종목코드</th>
+                                        <th>종목명</th>
+                                        <th>보유수량</th>
+                                        <th>거래소</th>
+                                        <th>수익률</th>
+                                        <th>최근 업데이트</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                {% for stock in stocks %}
+                                    {% for stock in stocks %}
                                     <tr>
-                                        <td>{{ stock.symbol }}</td>
-                                        <td><a href="#" class="stock-link text-light"
-                                               data-symbol="{{ stock.symbol }}"
-                                               onclick="setStockCode('{{ stock.symbol }}')">{{ stock.name }}</a></td>
-                                        <td>{{ stock.amount }}</td>
-                                        <td>{{ stock.exchange_code }}</td>
-                                        <td style="color: {% if stock.profit_loss_rate > 0 %} #20b16c {% else %} #ef454a {% endif %};">
+                                        <td class="stock-info">
+                                            <div class="stock-symbol">{{ stock.symbol }}</div>
+                                            <a href="#" class="stock-name" data-symbol="{{ stock.symbol }}" 
+                                               onclick="setStockCode('{{ stock.symbol }}')">
+                                                {{ stock.name }}
+                                            </a>
+                                        </td>
+                                        <td class="amount">{{ stock.amount }}</td>
+                                        <td class="exchange">{{ stock.exchange_code }}</td>
+                                        <td class="profit-loss-rate {% if stock.profit_loss_rate > 0 %}profit{% else %}loss{% endif %}">
                                             {{ stock.profit_loss_rate|floatformat:2 }}%
                                         </td>
-                                        <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>
+                                        <td class="update-time">
+                                            {{ stock.last_updated|date:"m/d H:i" }}
+                                        </td>
                                     </tr>
-                                {% endfor %}
+                                    {% endfor %}
                                 </tbody>
                             </table>
                         </div>
@@ -758,7 +1556,7 @@
                 "symbol_change_on": true,
             });
 
-            // 매수 주문 제출 시 처리
+            // 매수 주문 제출 시 리
             document.getElementById('buyForm').addEventListener('submit', function (event) {
                 event.preventDefault();
 
@@ -898,7 +1696,7 @@
                             showToast('failed', '해당 종목이 없습니다 <br> 종목 코드를 다시 한번 확인하세요')
                         } else if (data.message === 'does_not_have') {
                             sellFailedSound.play();
-                            showToast('failed', '보유 수량이 부족합니다 <br> 매도 가능��� 수량을 확인한 후 다시 시도해 주세요')
+                            showToast('failed', '보유 수량이 부족합니다 <br> 매도 가능 수량을 확인한 후 다시 시도해 주세요')
                         } else if (data.message === 'its_not_a_business_day'){
                             sellFailedSound.play();
                             showToast('failed', '영업일이 아닙니다 <br> 영업일을 확인해 주세요 ( 월 ~ 금 )')
@@ -964,5 +1762,71 @@
             buyForm.style.display = 'none';
         });
     });
+    </script>
+
+    <!-- 사이드바 관련 스크립트 추가 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.sidebar-toggle');
+            const overlay = document.querySelector('.sidebar-overlay');
+            let autoHideTimer;
+
+            function showSidebar() {
+                sidebar.classList.add('show');
+                overlay.classList.add('show');
+                toggle.classList.add('active');
+                clearTimeout(autoHideTimer);
+            }
+
+            function hideSidebar() {
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+                toggle.classList.remove('active');
+            }
+
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (sidebar.classList.contains('show')) {
+                    hideSidebar();
+                } else {
+                    showSidebar();
+                }
+            });
+
+            overlay.addEventListener('click', hideSidebar);
+
+            sidebar.addEventListener('mouseleave', function() {
+                autoHideTimer = setTimeout(hideSidebar, 3000);
+            });
+
+            sidebar.addEventListener('mouseenter', function() {
+                clearTimeout(autoHideTimer);
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    hideSidebar();
+                }
+            });
+        });
+    </script>
+
+    <script>
+        // 현재 시간 표시 및 업데이트
+        function updateTime() {
+            const now = new Date();
+            const options = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            document.getElementById('current-time').textContent = 
+                now.toLocaleTimeString('en-US', options);
+        }
+        
+        updateTime();
+        setInterval(updateTime, 1000);
     </script>
 {% endblock %}
