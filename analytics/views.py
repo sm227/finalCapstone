@@ -1,9 +1,13 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+
+from login.models import UserProfile
 from .models import StockPrediction, PredictionMetrics
 from algo import EnhancedStockPredictor
 import json
+
+import module.koreainvestment as mojito
 
 predictor = EnhancedStockPredictor("AAPL", prediction_minutes=5)
 predictor.train()  # 초기 학습
@@ -37,7 +41,62 @@ def get_realtime_predictions(request):
             'confidence': 95.2,
             'signal': signal
         }
-        
+
+        if (response_data['predicted_price'] > response_data['current_price']):
+            # 현재 로그인한 사용자의 UserProfile 가져오기
+            try:
+                user_profile = UserProfile.objects.get(user=request.user)
+            except UserProfile.DoesNotExist:
+                # UserProfile이 없는 경우 에러 처리
+                return JsonResponse({'message': '사용자 프로필을 찾을 수 없습니다.'}, status=400)
+
+            buy(response_data['current_price'], user_profile)
+            sell(response_data['predicted_price'], user_profile)
+
+
+
+
         return JsonResponse(response_data)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+def buy(current_price, user_profile):
+
+    # 한국투자 API 연결
+    broker = mojito.KoreaInvestment(
+        api_key=user_profile.api_key,
+        api_secret=user_profile.api_secret,
+        acc_no=user_profile.acc_num,  # 계좌 번호
+        exchange='나스닥',  # 애플 주식을 구매할 때 사용 (NASDAQ)
+        mock=True  # 모의 투자 모드
+    )
+
+    # 주문 실행
+    broker.create_oversea_order(
+        side='buy',  # 매수
+        symbol='AAPL',  # 주식 코드
+        price=current_price,  # 지정가
+        quantity=5,  # 수량
+        order_type="00"  # 00은 지정가 주문
+    )
+
+
+def sell(predict_price, user_profile):
+    # 한국투자 API 연결
+    broker = mojito.KoreaInvestment(
+        api_key=user_profile.api_key,
+        api_secret=user_profile.api_secret,
+        acc_no=user_profile.acc_num,  # 계좌 번호
+        exchange='나스닥',  # 애플 주식을 구매할 때 사용 (NASDAQ)
+        mock=True  # 모의 투자 모드
+    )
+
+    # 주문 실행
+    broker.create_oversea_order(
+        side='sell',  # 매도
+        symbol='AAPL',  # 주식 코드
+        price=predict_price,  # 지정가
+        quantity=5,  # 수량
+        order_type="00"  # 00은 지정가 주문
+    )
