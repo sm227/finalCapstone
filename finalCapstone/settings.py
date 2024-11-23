@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-sck3$w3hl=lv=t&p*^95apyb4&b7is#vz2&b__8rm-m16_8&#-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["144.24.66.142",'localhost','127.0.0.1']
+ALLOWED_HOSTS = ["144.24.66.142",'localhost','127.0.0.1','dc54-1-236-13-63.ngrok-free.app']
 
 # Application definition
 
@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'trading',
     'login',
     'portfolio',
+    'analytics',
+    'analytics2',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

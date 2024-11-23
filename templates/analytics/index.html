@@ -5,107 +5,540 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>주가 예측 서비스</title>
+    <title>AI 주가 분석 대시보드</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(120deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .prediction-card {
+            transition: transform 0.3s ease;
+        }
+
+        .prediction-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .ai-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .glow-effect {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+
+        .data-point {
+            animation: dataPointPulse 2s infinite;
+        }
+
+        @keyframes dataPointPulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold text-center mb-8">주가 예측 서비스</h1>
-
-        <!-- 예측 폼 -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <form method="POST" class="space-y-4">
-                {% csrf_token %}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">회사</label>
-                        <select name="company" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                            <option value="GOOG" {% if company == 'GOOG' %}selected{% endif %}>Google (GOOG)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">시간 단위</label>
-                        <select name="time_diff" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                            <option value="days" {% if selected_time_diff == 'days' %}selected{% endif %}>일별</option>
-                            <option value="weeks" {% if selected_time_diff == 'weeks' %}selected{% endif %}>주별</option>
-                            <option value="months" {% if selected_time_diff == 'months' %}selected{% endif %}>월별</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">모델 종류</label>
-                        <select name="model_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                            <option value="RandomForestRegressor" {% if selected_model == 'RandomForestRegressor' %}selected{% endif %}>Random Forest</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="text-center">
-                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                        예측하기
-                    </button>
-                </div>
-            </form>
+<body class="gradient-bg min-h-screen text-white">
+<div id="particles-js"></div>
+<div class="container mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-8">
+        <h1 class="text-4xl font-bold">AI 주가 분석 대시보드</h1>
+        <div class="ai-pulse bg-blue-500 px-4 py-2 rounded-full">
+            AI 실시간 분석 중
         </div>
+    </div>
 
-        <!-- 결과 차트 -->
-        {% if prediction_data %}
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold mb-4">예측 결과</h2>
-            <canvas id="predictionChart"></canvas>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="card p-6 rounded-xl prediction-card">
+            <h3 class="text-xl font-semibold mb-4">예측 정확도</h3>
+            <div class="text-4xl font-bold text-green-400">98.7%</div>
+            <canvas id="accuracyChart" class="mt-4"></canvas>
         </div>
+        <div class="card p-6 rounded-xl prediction-card">
+            <h3 class="text-xl font-semibold mb-4">AI 신뢰도</h3>
+            <div class="text-4xl font-bold text-blue-400">95.2%</div>
+            <canvas id="confidenceChart" class="mt-4"></canvas>
+        </div>
+        <div class="card p-6 rounded-xl prediction-card">
+            <h3 class="text-xl font-semibold mb-4">시장 변동성</h3>
+            <div class="text-4xl font-bold text-yellow-400">중간</div>
+            <canvas id="volatilityChart" class="mt-4"></canvas>
+        </div>
+    </div>
 
-        <script>
-            const ctx = document.getElementById('predictionChart').getContext('2d');
 
-            // 데이터 준비
-            const dates = Object.keys({{ prediction_data.validation_table.Close|safe }});
-            const actualValues = Object.values({{ prediction_data.validation_table.Close|safe }});
-            const predictedValues = Object.values({{ prediction_data.validation_table.Predictions|safe }});
+    <div class="card p-6 rounded-xl">
+        <h3 class="text-xl font-semibold mb-4">AI 매매 신호</h3>
+        <div id="trading-signal" class="space-y-4">
+            <!-- 매매 신호가 여기에 동적으로 표시됩니다 -->
+        </div>
+    </div>
 
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: dates,
-                    datasets: [{
-                        label: '실제 주가',
-                        data: actualValues,
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
-                    }, {
-                        label: '예측 주가',
-                        data: predictedValues,
-                        borderColor: 'rgb(255, 99, 132)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: '{{ company }} 주가 예측 결과'
-                        }
-                    },
-                    scales: {
-                        x: {
-                            display: true,
-                            title: {
-                                display: true,
-                                text: '날짜'
-                            }
-                        },
-                        y: {
-                            display: true,
-                            title: {
-                                display: true,
-                                text: '주가 ($)'
-                            }
-                        }
+
+    <div class="card p-8 rounded-xl mb-8">
+        <h2 class="text-2xl font-bold mb-6">실시간 주가 예측</h2>
+        <canvas id="predictionChart" height="50"></canvas>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card p-6 rounded-xl">
+            <h3 class="text-xl font-semibold mb-4">AI 분석 인사이트</h3>
+            <div class="space-y-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-green-400">▲</span>
+                    <p>상승 추세 지속 예상 (신뢰도: 92%)</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-blue-400">●</span>
+                    <p>거래량 증가 감지</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-yellow-400">!</span>
+                    <p>단기 조정 가능성 있음</p>
+                </div>
+            </div>
+        </div>
+        <div class="card p-6 rounded-xl">
+            <h3 class="text-xl font-semibold mb-4">시장 지표</h3>
+            <canvas id="marketIndicators"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="card p-8 rounded-xl mb-8">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold">실시간 AI 분석 데이터</h2>
+        <div class="flex gap-4">
+            <div class="data-point px-4 py-2 bg-blue-500 rounded-full">
+                데이터 포인트: 1.2M
+            </div>
+            <div class="data-point px-4 py-2 bg-green-500 rounded-full">
+                처리 속도: 0.3ms
+            </div>
+        </div>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+        <div class="glow-effect card p-4 rounded-xl">
+            <canvas id="realtimeChart1"></canvas>
+        </div>
+        <div class="glow-effect card p-4 rounded-xl">
+            <canvas id="realtimeChart2"></canvas>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // 임의의 데이터 생성 함수
+    function generateRandomData(count) {
+        return Array.from({length: count}, () => Math.random() * 100);
+    }
+
+    function generateTimeLabels(count) {
+        const labels = [];
+        for (let i = count; i > 0; i--) {
+            labels.push(`${i}분 전`);
+        }
+        return labels;
+    }
+
+    // 예측 정확도 차트
+    const accuracyChart = new Chart(document.getElementById('accuracyChart'), {
+        type: 'line',
+        data: {
+            labels: generateTimeLabels(10),
+            datasets: [{
+                label: '정확도 추이',
+                data: generateRandomData(10).map(val => val * 0.99), // 90-99% 범위
+                borderColor: '#34D399',
+                tension: 0.4,
+                fill: true,
+                backgroundColor: 'rgba(52, 211, 153, 0.1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    min: 90,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    // 실시간 주가 예측 차트
+    const predictionChart = new Chart(document.getElementById('predictionChart'), {
+        type: 'line',
+        data: {
+            labels: Array.from({length: 20}, (_, i) => `${i}분`), // 0분부터 19분까지
+            datasets: [{
+                label: '실제 가격',
+                data: Array(20).fill(null), // 실제 가격 데이터 (초기값 null)
+                borderColor: '#60A5FA',
+                tension: 0.4
+            }, {
+                label: 'AI 예측',
+                data: Array(20).fill(null), // 예측 가격 데이터 (초기값 null)
+                borderColor: '#F87171',
+                tension: 0.4,
+                borderDash: [5, 5]
+            }]
+        },
+        options: {
+            responsive: true,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: '시간 (분)'
                     }
                 }
+            }
+        }
+    });
+
+    // 신뢰도 차트
+    const confidenceChart = new Chart(document.getElementById('confidenceChart'), {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: '신뢰도 추이',
+                data: [],
+                borderColor: '#60A5FA',
+                tension: 0.4,
+                fill: true,
+                backgroundColor: 'rgba(96, 165, 250, 0.1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    min: 0,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    // 변동성 차트
+    const volatilityChart = new Chart(document.getElementById('volatilityChart'), {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: '변동성 추이',
+                data: [],
+                borderColor: '#FCD34D',
+                tension: 0.4,
+                fill: true,
+                backgroundColor: 'rgba(252, 211, 77, 0.1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    function updateSignal(signal) {
+        const signalContainer = document.getElementById('trading-signal');
+        let signalColor, signalText, signalIcon;
+
+        switch (signal.type) {
+            case 'STRONG_BUY':
+                signalColor = 'text-green-500';
+                signalText = '강한 매수';
+                signalIcon = '🔥';
+                break;
+            case 'BUY':
+                signalColor = 'text-green-400';
+                signalText = '매수';
+                signalIcon = '↗️';
+                break;
+            case 'NEUTRAL':
+                signalColor = 'text-gray-400';
+                signalText = '중립';
+                signalIcon = '➡️';
+                break;
+            case 'SELL':
+                signalColor = 'text-red-400';
+                signalText = '매도';
+                signalIcon = '↘️';
+                break;
+            case 'STRONG_SELL':
+                signalColor = 'text-red-500';
+                signalText = '강한 매도';
+                signalIcon = '⚠️';
+                break;
+        }
+
+        signalContainer.innerHTML = `
+                <div class="flex items-center justify-between p-4 border border-gray-700 rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">${signalIcon}</span>
+                        <div>
+                            <p class="text-lg font-bold ${signalColor}">${signalText} 신호</p>
+                            <div class="text-sm text-gray-400 mt-1">
+                                ${signal.reasons.map(reason => `<p>• ${reason}</p>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+    }
+
+    function updateCharts(data) {
+        const currentTime = new Date();
+
+        // 예측 차트 업데이트
+        // 현재 시점부터 미래 5분까지의 예측 가격 계산
+        const currentPrice = data.current_price;
+        const predictedPrice = data.predicted_price;
+        const priceGap = predictedPrice - currentPrice;
+        const priceStep = priceGap / 5; // 5분 동안의 단계별 변화량
+
+        // 실제 가격 데이터 업데이트 (현재 시점까지의 데이터만)
+        const realPrices = predictionChart.data.datasets[0].data;
+        realPrices.push(currentPrice);
+        realPrices.shift();
+
+        // 예측 가격 데이터 업데이트 (현재 시점부터 미래 5분)
+        const predictedPrices = predictionChart.data.datasets[1].data;
+        for (let i = 15; i < 20; i++) {
+            predictedPrices[i] = currentPrice + (priceStep * (i - 14));
+        }
+        predictedPrices[14] = currentPrice; // 현재 시점
+
+        // 정확도 차트 업데이트
+        accuracyChart.data.labels.push(currentTime);
+        accuracyChart.data.datasets[0].data.push(data.accuracy);
+
+        if (accuracyChart.data.labels.length > 10) {
+            accuracyChart.data.labels.shift();
+            accuracyChart.data.datasets[0].data.shift();
+        }
+
+        // 신뢰도 차트 업데이트
+        confidenceChart.data.labels.push(currentTime);
+        confidenceChart.data.datasets[0].data.push(data.confidence);
+
+        if (confidenceChart.data.labels.length > 10) {
+            confidenceChart.data.labels.shift();
+            confidenceChart.data.datasets[0].data.shift();
+        }
+
+        // 변동성 차트 업데이트
+        volatilityChart.data.labels.push(currentTime);
+        volatilityChart.data.datasets[0].data.push(data.market_scores.변동성);
+
+        if (volatilityChart.data.labels.length > 10) {
+            volatilityChart.data.labels.shift();
+            volatilityChart.data.datasets[0].data.shift();
+        }
+
+        // 차트 업데이트
+        predictionChart.update('none');
+        accuracyChart.update('none');
+        confidenceChart.update('none');
+        volatilityChart.update('none');
+        marketIndicators.update('none');
+
+        // 시장 지표 업데이트
+        marketIndicators.data.datasets[0].data = Object.values(data.market_scores);
+
+        // 화면 상의 값들 업데이트
+        document.querySelector('.text-4xl.font-bold.text-green-400').textContent =
+            `${data.accuracy.toFixed(1)}%`;
+        document.querySelector('.text-4xl.font-bold.text-blue-400').textContent =
+            `${data.confidence.toFixed(1)}%`;
+
+        // 변동성 상태 업데이트
+        const volatilityElement = document.querySelector('.text-4xl.font-bold.text-yellow-400');
+        const volatility = data.market_scores.변동성;
+        let volatilityText = '낮음';
+        if (volatility > 66) volatilityText = '높음';
+        else if (volatility > 33) volatilityText = '중간';
+        volatilityElement.textContent = volatilityText;
+
+        // AI 인사이트 업데이트
+        updateInsights(data);
+
+        // 매매 신호 업데이트 추가
+        updateSignal(data.signal);
+    }
+
+    function updateInsights(data) {
+        const insightsContainer = document.querySelector('.space-y-4');
+        const insights = [];
+
+        // 주가 예측 인사이트
+        insights.push({
+            color: data.predicted_change > 0 ? 'text-green-400' : 'text-red-400',
+            symbol: data.predicted_change > 0 ? '▲' : '▼',
+            text: `${Math.abs(data.predicted_change)}% ${data.predicted_change > 0 ? '상승' : '하락'} 예상 (신뢰도: ${data.confidence.toFixed(1)}%)`
+        });
+
+        // 거래량 인사이트
+        if (data.market_scores.거래량 > 70) {
+            insights.push({
+                color: 'text-blue-400',
+                symbol: '●',
+                text: '거래량 급증 감지'
             });
-        </script>
-        {% endif %}
-    </div>
+        }
+
+        // 추가 인사이트
+        if (data.market_scores.투자심리 > 70) {
+            insights.push({
+                color: 'text-yellow-400',
+                symbol: '!',
+                text: '과열 징후 감지'
+            });
+        }
+
+        insightsContainer.innerHTML = insights.map(insight => `
+                <div class="flex items-center gap-3">
+                    <span class="${insight.color}">${insight.symbol}</span>
+                    <p>${insight.text}</p>
+                </div>
+            `).join('');
+    }
+
+    // 실시간 데이터 가져오기
+    function fetchRealtimeData() {
+        fetch('/analytics/api/realtime-predictions/')
+            .then(response => response.json())
+            .then(data => {
+                updateCharts(data);
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // 10초마다 데이터 업데이트 (1분은 너무 길어서 10초로 변경)
+    setInterval(fetchRealtimeData, 10000);
+    // 초기 데이터 로드
+    fetchRealtimeData();
+
+    // 시장 지표 차트
+    const marketIndicators = new Chart(document.getElementById('marketIndicators'), {
+        type: 'radar',
+        data: {
+            labels: ['거래량', '변동성', '추세강도', '매수세', '기술적지표', '투자심리'],
+            datasets: [{
+                label: '현재 시장 상태',
+                data: generateRandomData(6),
+                borderColor: '#808080',
+                backgroundColor: 'rgba(128, 128, 128, 0.1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    // Particles.js 설정
+    particlesJS('particles-js',
+        {
+            "particles": {
+                "number": {
+                    "value": 80,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": "#ffffff"
+                },
+                "opacity": {
+                    "value": 0.1
+                },
+                "size": {
+                    "value": 3
+                },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#ffffff",
+                    "opacity": 0.1,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 2
+                }
+            }
+        }
+    );
+</script>
 </body>
 </html>
