@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="loading-container text-center my-5">
+    {% if is_analyzing %}
+        <h2>실시간 주식 분석 진행 중...</h2>
+        <p>초기 분석이 진행 중입니다. 약 5-10분 정도 소요될 수 있습니다.</p>
+    {% else %}
+        <h2>분석 준비 중...</h2>
+        <p>곧 분석이 시작됩니다.</p>
+    {% endif %}
+    
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <script>
+        // 3초마다 페이지 새로고침
+        setTimeout(function() {
+            window.location.reload();
+        }, 3000);
+    </script>
+</div>
+{% endblock %}
