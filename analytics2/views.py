@@ -226,7 +226,7 @@ def sell(predict_price, user_profile):
 def read_aggressive_stocks():
     with open('공격형.txt', 'r') as file:
         stocks = file.readlines()
-    return [stock.strip() for stock in stocks][:5]  # 상위 5개만 반환
+    return [stock.strip() for stock in stocks][:2]  # 상위 5개만 반환
 
 def analyze_and_store_stocks():
     global ANALYSIS_IN_PROGRESS
