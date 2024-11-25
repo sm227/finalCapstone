@@ -48,6 +48,7 @@ jobs:
           sudo git pull origin master
           source venv/bin/activate
           pip install -r requirements.txt
+          python3 manage.py makemigrations
           python3 manage.py migrate
           nohup python3 manage.py runserver 0.0.0.0:8000 > django.log 2>&1 &
           sleep 2
