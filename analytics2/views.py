@@ -15,6 +15,8 @@ from login.models import UserProfile
 from django.core.management import BaseCommand
 from apscheduler.schedulers.background import BackgroundScheduler
 from .models import StockRecommendation
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 
 # 파일 상단에 전역 변수 추가
 ANALYSIS_IN_PROGRESS = False
@@ -136,7 +138,7 @@ def stock_analysis(request):
         genai.configure(api_key=os.getenv('gemini_api_key'))  # API 키는 환경변수로 관리하는 것을 추천
           # API 키는 환경변수로 관리하는 것을 추천
         prompt = generate_summary_prompt(json.dumps(json_data, indent=2, ensure_ascii=False))
-        model = genai.GenerativeModel("gemini-1.5-pro", safety_settings=safety_settings)
+        model = genai.GenerativeModel("gemini-1.5-flash", safety_settings=safety_settings)
         response = model.generate_content(prompt)
 
         # 최종 응답 데이터 구성
@@ -233,7 +235,7 @@ def analyze_and_store_stocks():
     try:
         # 이미 분석 중이면 실행하지 않음
         if ANALYSIS_IN_PROGRESS:
-            print("이미 분석이 진행 중입니다.")
+            print("이미 분석이 진행 중입니���.")
             return
             
         ANALYSIS_IN_PROGRESS = True
@@ -350,3 +352,19 @@ def start_scheduler():
     # 이후 하루마다 실행
     scheduler.add_job(analyze_and_store_stocks, 'interval', days=1)
     scheduler.start()
+
+@login_required
+@require_POST
+def update_investment_style(request):
+    try:
+        style = request.POST.get('style')
+        if style not in ['conservative', 'balanced', 'aggressive']:
+            return JsonResponse({'error': '잘못된 투자 성향입니다.'}, status=400)
+            
+        profile = request.user.userprofile
+        profile.investment_style = style
+        profile.save()
+        
+        return JsonResponse({'message': '투자 성향이 업데이트되었습니다.'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

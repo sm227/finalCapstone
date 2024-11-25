@@ -113,6 +113,7 @@
     </style>
 </head>
 <body class="gradient-bg min-h-screen text-white">
+    {% csrf_token %}
     <div id="particles-js"></div>
     <div class="content-wrapper container mx-auto px-4 py-8">
         <div class="flex items-center justify-between mb-8">
@@ -133,7 +134,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- 안정형 -->
                     <div class="investment-type-card cursor-pointer p-4 rounded-lg border-2 border-transparent hover:border-blue-500 transition-all"
-                         onclick="selectInvestmentType('conservative')">
+                         onclick="selectInvestmentType('conservative', event)">
                         <div class="flex items-center gap-3 mb-2">
                             <div class="bg-blue-500 bg-opacity-20 p-2 rounded-lg">
                                 <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,12 +143,12 @@
                             </div>
                             <h3 class="text-lg font-semibold">안정형</h3>
                         </div>
-                        <p class="text-gray-400 text-sm">원금 보존을 중시하며 안정적인 수익을 추구합니다. 변동성이 낮은 투자를 선호하는 초보 투자자에게 적합합니다.</p>
+                        <p class="text-gray-400 text-sm">원금 보존을 중시하며 안정적인 수익을 추구합니다.</p>
                     </div>
 
                     <!-- 중립형 -->
                     <div class="investment-type-card cursor-pointer p-4 rounded-lg border-2 border-transparent hover:border-blue-500 transition-all"
-                         onclick="selectInvestmentType('balanced')">
+                         onclick="selectInvestmentType('balanced', event)">
                         <div class="flex items-center gap-3 mb-2">
                             <div class="bg-blue-500 bg-opacity-20 p-2 rounded-lg">
                                 <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,12 +157,12 @@
                             </div>
                             <h3 class="text-lg font-semibold">중립형</h3>
                         </div>
-                        <p class="text-gray-400 text-sm">위험과 수익의 균형을 추구합니다. 적절한 수준의 위험을 감수하며 중장기적인 수익을 목표로 합니다.</p>
+                        <p class="text-gray-400 text-sm">위험과 수익의 균형을 추구합니다.</p>
                     </div>
 
                     <!-- 공격형 -->
                     <div class="investment-type-card cursor-pointer p-4 rounded-lg border-2 border-transparent hover:border-blue-500 transition-all"
-                         onclick="selectInvestmentType('aggressive')">
+                         onclick="selectInvestmentType('aggressive', event)">
                         <div class="flex items-center gap-3 mb-2">
                             <div class="bg-blue-500 bg-opacity-20 p-2 rounded-lg">
                                 <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,7 +171,7 @@
                             </div>
                             <h3 class="text-lg font-semibold">공격형</h3>
                         </div>
-                        <p class="text-gray-400 text-sm">높은 수익을 추구하며 그에 따른 위험을 감수합니다. 시장 변동성에 대한 이해도가 높은 경험자에게 적합합니다.</p>
+                        <p class="text-gray-400 text-sm">높은 수익을 추구하며 그에 따른 위험을 감수합니다.</p>
                     </div>
                 </div>
             </div>
@@ -288,7 +289,7 @@
 
             // 입력값 검증
             if (!symbolInput.value.trim()) {
-                alert('주식 심볼을 입력해주세요.');
+                alert('주식 심볼을 입력주세요.');
                 return;
             }
 
@@ -391,6 +392,50 @@
                 analyzeStock();
             }
         });
+
+        function selectInvestmentType(style, event) {
+            // 이벤트 버블링 방지
+            event.preventDefault();
+            
+            // CSRF 토큰 가져오기
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            // 클릭된 카드 요소 찾기
+            const clickedCard = event.currentTarget;
+            
+            fetch('/analytics2/update-investment-style/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrftoken
+                },
+                body: `style=${style}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('오류가 발생했습니다: ' + data.error);
+                } else {
+                    // 모든 카드의 선택 상태 제거
+                    document.querySelectorAll('.investment-type-card').forEach(card => {
+                        card.classList.remove('border-blue-500');
+                        card.classList.add('border-transparent');
+                    });
+                    
+                    // 선택된 카드 스타일 적용
+                    if (clickedCard) {
+                        clickedCard.classList.remove('border-transparent');
+                        clickedCard.classList.add('border-blue-500');
+                    }
+                    
+                    alert('투자 성향이 업데이트되었습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('오류가 발생했습니다: ' + error);
+            });
+        }
     </script>
 </body>
 </html>
