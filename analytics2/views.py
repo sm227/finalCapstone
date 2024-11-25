@@ -359,7 +359,7 @@ def analyze_and_store_stocks():
             # Gemini API 분석
             genai.configure(api_key=os.getenv('gemini_api_key'))  # API 키는 환경변수로 관리하는 것을 추천
             prompt = generate_summary_prompt(json.dumps(json_data, indent=2, ensure_ascii=False))
-            model = genai.GenerativeModel("gemini-1.5-pro", safety_settings=safety_settings)
+            model = genai.GenerativeModel("gemini-1.5-flash", safety_settings=safety_settings)
             response = model.generate_content(prompt)
             
             # JSON 응답 파싱
