@@ -17,6 +17,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from .models import StockRecommendation
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from dotenv import load_dotenv
 
 # 파일 상단에 전역 변수 추가
 ANALYSIS_IN_PROGRESS = False
@@ -61,9 +62,9 @@ def generate_summary_prompt(data):
     Answer whether to buy or sell and why in JSON format
     example : 
     "action": "",
-  "reason": "",
-  "price_target": ,
-  "stop_loss": 
+    "reason": "",
+    "price_target": ,
+    "stop_loss": 
     """
     return prompt
 
@@ -133,6 +134,7 @@ def stock_analysis(request):
                 "threshold": "BLOCK_NONE",
             },
         ]
+        load_dotenv()
 
         # Gemini API 처리
         genai.configure(api_key=os.getenv('gemini_api_key'))  # API 키는 환경변수로 관리하는 것을 추천
@@ -176,13 +178,54 @@ def stock_analysis(request):
 def index(request):
     recommendations = StockRecommendation.objects.all().order_by('-created_at')
     
+    # 현재 사용자의 투자 성향 가져오기
+    investment_style = None
+    if request.user.is_authenticated:
+        try:
+            investment_style = request.user.userprofile.investment_style
+        except:
+            pass
+    
+    # 각 추천 종목의 수익률 계산
+    for rec in recommendations:
+        try:
+            # yfinance로 주식 데이터 가져오기
+            ticker = yf.Ticker(rec.symbol)
+            
+            # 추천일의 종가 가져오기
+            rec_date = rec.created_at.strftime('%Y-%m-%d')
+            hist = ticker.history(start=rec_date, end=(rec.created_at + timedelta(days=1)).strftime('%Y-%m-%d'))
+            if not hist.empty:
+                rec_close = hist['Close'].iloc[0]
+                
+                # 현재가 가져오기
+                current_price = ticker.history(period='1d')['Close'].iloc[-1]
+                
+                # 수익률 계산
+                profit_rate = ((current_price - rec_close) / rec_close) * 100
+                rec.profit_rate = round(profit_rate, 2)
+                rec.current_price = round(current_price, 2)
+                rec.rec_close = round(rec_close, 2)
+            else:
+                rec.profit_rate = None
+                rec.current_price = None
+                rec.rec_close = None
+        except Exception as e:
+            print(f"Error calculating profit rate for {rec.symbol}: {str(e)}")
+            rec.profit_rate = None
+            rec.current_price = None
+            rec.rec_close = None
+    
     # 분석 중이거나 데이터가 없는 경우 로딩 페이지 표시
     if ANALYSIS_IN_PROGRESS or not recommendations.exists():
         return render(request, 'analytics2/loading.html', {
             'is_analyzing': ANALYSIS_IN_PROGRESS
         })
     
-    return render(request, 'analytics2/index.html', {'recommendations': recommendations})
+    return render(request, 'analytics2/index.html', {
+        'recommendations': recommendations,
+        'investment_style': investment_style
+    })
 
 
 def buy(ticker_symbol, user_profile):
@@ -228,14 +271,14 @@ def sell(predict_price, user_profile):
 def read_aggressive_stocks():
     with open('공격형.txt', 'r') as file:
         stocks = file.readlines()
-    return [stock.strip() for stock in stocks][:2]  # 상위 5개만 반환
+    return [stock.strip() for stock in stocks][:10]  # 상위 5개만 반환
 
 def analyze_and_store_stocks():
     global ANALYSIS_IN_PROGRESS
     try:
         # 이미 분석 중이면 실행하지 않음
         if ANALYSIS_IN_PROGRESS:
-            print("이미 분석이 진행 중입니���.")
+            print("이미 분석이 진행 중입니.")
             return
             
         ANALYSIS_IN_PROGRESS = True
@@ -311,6 +354,7 @@ def analyze_and_store_stocks():
                     "threshold": "BLOCK_NONE",
                 },
             ]
+            load_dotenv()
 
             # Gemini API 분석
             genai.configure(api_key=os.getenv('gemini_api_key'))  # API 키는 환경변수로 관리하는 것을 추천
