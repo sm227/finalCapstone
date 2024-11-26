@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'login',
     'portfolio',
     'analytics',
+    'community',
     'analytics2',
     'django.contrib.admin',
     'django.contrib.auth',
