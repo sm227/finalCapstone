@@ -29,6 +29,8 @@ urlpatterns = [
     path('accounts/', include('login.urls')),
     # path('analytics/', include('analytics.urls')),
     path('portfolio/', include('portfolio.urls')),
+    #path('analytics/', include('analytics.urls')),
+    path('community/', include('community.urls')),
     # path('analytics/', include('analytics.urls')),
     path('analytics2/', include('analytics2.urls')),
 ]

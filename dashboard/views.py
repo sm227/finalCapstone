@@ -104,9 +104,9 @@ def crawl_cpi_data():
     return cpi_data
 
 data = crawl_cpi_data()
-print("cpi")
-for item in data:
-    print(item)
+#print("cpi")
+# for item in data:
+#     print(item)
 
 
 def crawl_ppi_data():
@@ -142,6 +142,6 @@ def crawl_ppi_data():
     return ppi_data
 
 data = crawl_ppi_data()
-print("ppi")
-for item in data:
-    print(item)
+#print("ppi")
+# for item in data:
+#     print(item)

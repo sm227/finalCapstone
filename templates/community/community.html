@@ -1,0 +1,461 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<style>
+    body {
+        background-color: #121212;
+        color: #e0e0e0;
+    }
+
+    /* 사이드바 기본 스타일 */
+    #sidebar {
+        background: linear-gradient(180deg, #1a1a1f 0%, #24242b 100%);
+        position: fixed;
+        left: -280px;
+        width: 280px;
+        height: calc(100vh - 340px);
+        bottom: 20px;
+        z-index: 1000;
+        transition: all 0.3s ease;
+        border-radius: 0 16px 16px 0;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+        display: block !important;
+    }
+
+    #sidebar.show {
+        left: 0;
+    }
+
+    #sidebar:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    /* 사이드바 내부 컨텐츠 */
+    .sidebar-content {
+        height: 100%;
+        overflow-y: auto;
+        padding: 20px 0;
+    }
+
+    .sidebar-content::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .sidebar-content::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .sidebar-content::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+    }
+
+    /* 사용자 프로필 섹션 */
+    .user-profile-section {
+        margin: 0 15px 20px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(45deg, #2962ff, #3d6eff);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+    }
+
+    .user-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #ffffff;
+    }
+
+    /* 네비게이션 링크 */
+    .nav-item {
+        margin: 3px 15px;
+    }
+
+    .nav-link {
+        padding: 12px 20px;
+        color: #a0a0a0 !important;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.2s ease;
+        border-radius: 10px;
+    }
+
+    .nav-link:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #ffffff !important;
+        transform: translateX(5px);
+    }
+
+    .nav-link.active {
+        background: linear-gradient(45deg, #2962ff, #3d6eff);
+        color: #ffffff !important;
+    }
+
+    .nav-link i {
+        font-size: 1.2rem;
+    }
+
+    /* 로그아웃 버튼 */
+    .logout-btn {
+        margin-top: 10px;
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        color: #a0a0a0;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .logout-btn:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+    }
+
+    /* 사이드바 토글 버튼 */
+    .sidebar-toggle {
+        position: fixed;
+        bottom: 20px;
+        left: 0;
+        z-index: 1001;
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(45deg, #2962ff, #3d6eff);
+        border: none;
+        border-radius: 0 10px 10px 0;
+        color: white;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 4px 0 15px rgba(41, 98, 255, 0.3);
+        cursor: pointer;
+    }
+
+    .sidebar-toggle:hover {
+        width: 50px;
+    }
+
+    .sidebar-toggle:active {
+        transform: scale(0.95);
+    }
+
+    .sidebar-toggle i {
+        font-size: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar-toggle.active i {
+        transform: rotate(180deg);
+    }
+
+    /* 오버레이 */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    /* 반응형 스타일 */
+    @media (max-width: 768px) {
+        #sidebar {
+            width: 250px;
+            height: 100vh;
+            top: 0;
+            bottom: auto;
+            border-radius: 0;
+        }
+
+        .sidebar-toggle {
+            bottom: 20px;
+            left: 20px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+        }
+
+        .container-fluid {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+        }
+    }
+
+    /* 컨테이너 여백 설정 */
+    .container-fluid {
+        padding-left: 100px !important;
+        padding-right: 100px !important;
+        width: calc(100% - 200px) !important;
+        margin: 0 auto !important;
+    }
+
+    /* 메인 컨텐츠 영역 */
+    main.col-md-9,
+    main.col-lg-10 {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+
+    /* 본 색상 변수 정의 */
+    :root {
+        --primary-bg: #191919;
+        --secondary-bg: #242424;
+        --input-bg: #2B2B2B;
+        --border-color: #404040;
+        --text-primary: #ffffff;
+        --text-secondary: #999999;
+        --accent-blue: #3182f6;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-content">
+                {% if user.is_authenticated %}
+                <div class="user-profile-section">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            {{ user.username|make_list|first|upper }}
+                        </div>
+                        <div>
+                            <span class="user-name">{{ user.username }}</span>
+                            <a href="{% url 'logout' %}" class="logout-btn d-block">
+                                <i class="bi bi-box-arrow-right"></i> 로그아웃
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard' %}">
+                            <i class="bi bi-house-door"></i>
+                            <span>대시보드</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'trading' %}">
+                            <i class="bi bi-currency-exchange"></i>
+                            <span>트레이딩</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="location.reload(); return false;">
+                            <i class="bi bi-chat"></i>
+                            <span>커뮤니티</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-graph-up"></i>
+                            <span>분석</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'portfolio' %}">
+                            <i class="bi bi-wallet2"></i>
+                            <span>포트폴리오</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'articles_page' %}">
+                            <i class="bi bi-newspaper"></i>
+                            <span>뉴스</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="sidebar-overlay"></div>
+
+        <button class="sidebar-toggle">
+            <i class="bi bi-list"></i>
+        </button>
+
+
+        <div class="comment-section">
+            <div class="comment">
+                <div class="comment-header">
+                    <div class="user-avatar">주</div>
+                    <div class="user-details">
+                        <span class="username">짱구왕</span>
+                        <span class="comment-time">3시간 전</span>
+                    </div>
+                </div>
+                <div class="comment-body">
+                    배우는 입장에서 개인적인 소견입니다.
+                    <br>
+                    민주적 형식으로, 그래도 보면 나쁘지는 않아요...
+                </div>
+                <div class="comment-footer">
+                    <button class="like-btn"><i class="bi bi-hand-thumbs-up"></i> 34</button>
+                    <button class="reply-btn"><i class="bi bi-reply"></i>
+                        <div class="container my-4">
+                            <div class="card bg-dark text-light">
+                                <div class="card-header">
+                                    <h5 class="mb-0">알테오젠 커뮤니티</h5>
+                                </div>
+                                <div class="card-body">
+                                    <!-- 댓글 입력 필드 -->
+                                    <form class="mb-4">
+                                        <div class="mb-3">
+                                            <textarea class="form-control" rows="3"
+                                                      placeholder="의견을 남기려면 로그인하세요"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">댓글 작성</button>
+                                    </form>
+
+                                    <!-- 인기 글 섹션 -->
+                                    <h6 class="text-muted">인기 급상승 커뮤니티</h6>
+                                    <ul class="list-group list-group-flush mb-4">
+                                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
+                                            알테오젠 <span class="text-danger">-9.8%</span>
+                                        </li>
+                                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
+                                            위츠 <span class="text-success">+16.2%</span>
+                                        </li>
+                                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
+                                            쓰리빌리언 <span class="text-danger">-30.0%</span>
+                                        </li>
+                                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
+                                            와이제이링크 <span class="text-success">+5.2%</span>
+                                        </li>
+                                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
+                                            루미르 <span class="text-success">+9.1%</span>
+                                        </li>
+                                    </ul>
+
+                                    <!-- 댓글 목록 -->
+                                    <div class="comment mb-3">
+                                        <div class="d-flex align-items-start mb-2">
+                                            <div class="user-avatar bg-primary text-white rounded-circle d-flex justify-content-center align-items-center"
+                                                 style="width: 40px; height: 40px;">주
+                                            </div>
+                                            <div class="ms-3">
+                                                <h6 class="mb-0">짱구왕</h6>
+                                                <small class="text-muted">3시간 전</small>
+                                            </div>
+                                        </div>
+                                        <p>배우는 입장에서 개인적인 소견입니다. 민주적 형식으로, 그래도 보면 나쁘지는 않아요...</p>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-light me-2"><i
+                                                    class="bi bi-hand-thumbs-up"></i> 34
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-light"><i class="bi bi-reply"></i> 댓글
+                                                달기
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="comment mb-3">
+                                        <div class="d-flex align-items-start mb-2">
+                                            <div class="user-avatar bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center"
+                                                 style="width: 40px; height: 40px;">승
+                                            </div>
+                                            <div class="ms-3">
+                                                <h6 class="mb-0">승리와진리</h6>
+                                                <small class="text-muted">52분 전</small>
+                                            </div>
+                                        </div>
+                                        <p>형님, 누님들 무섭고 두렵나요? 알테오젠을 믿나요?</p>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-light me-2"><i
+                                                    class="bi bi-hand-thumbs-up"></i> 12
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-light"><i class="bi bi-reply"></i> 댓글
+                                                달기
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- 사이드바 관련 스크립트 추가 -->
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                const sidebar = document.getElementById('sidebar');
+                                const toggle = document.querySelector('.sidebar-toggle');
+                                const overlay = document.querySelector('.sidebar-overlay');
+                                let autoHideTimer;
+
+                                function showSidebar() {
+                                    sidebar.classList.add('show');
+                                    overlay.classList.add('show');
+                                    toggle.classList.add('active');
+                                    clearTimeout(autoHideTimer);
+                                }
+
+                                function hideSidebar() {
+                                    sidebar.classList.remove('show');
+                                    overlay.classList.remove('show');
+                                    toggle.classList.remove('active');
+                                }
+
+                                toggle.addEventListener('click', function (e) {
+                                    e.stopPropagation();
+                                    if (sidebar.classList.contains('show')) {
+                                        hideSidebar();
+                                    } else {
+                                        showSidebar();
+                                    }
+                                });
+
+                                overlay.addEventListener('click', hideSidebar);
+
+                                sidebar.addEventListener('mouseleave', function () {
+                                    autoHideTimer = setTimeout(hideSidebar, 3000);
+                                });
+
+                                sidebar.addEventListener('mouseenter', function () {
+                                    clearTimeout(autoHideTimer);
+                                });
+
+                                document.addEventListener('keydown', function (e) {
+                                    if (e.key === 'Escape') {
+                                        hideSidebar();
+                                    }
+                                });
+                            });
+                        </script>
+                        {% endblock %}
