@@ -2,578 +2,521 @@
 {% load static %}
 {% load humanize %}
 {% block content %}
-<head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
 
-<style>
-    #commentInput {
-        background-color: #2B2B2B; /* 회색 배경 */
-        color: #e0e0e0; /* 텍스트 색상 */
-        border: 1px solid #404040; /* 테두리 */
-        border-radius: 5px; /* 모서리 둥글게 */
-    }
+    <style>
 
-    #commentInput:focus {
-        background-color: #333333; /* 포커스 시 더 진한 회색 */
-        border-color: #3182f6; /* 포커스 시 파란 테두리 */
-        outline: none;
-        box-shadow: 0 0 5px rgba(49, 130, 246, 0.5); /* 살짝 강조 효과 */
-    }
-
-    .card {
-        background-color: #1e1e1e;
-        border: none;
-    }
-
-    .card-header {
-        background-color: #292929;
-        border-bottom: 1px solid #404040;
-    }
-
-    .user-avatar {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background-color: #3d6eff;
-        color: #fff;
-    }
-
-    body {
-        background-color: #121212;
-        color: #e0e0e0;
-    }
-
-    /* 사이드바 기본 스타일 */
-    #sidebar {
-        background: linear-gradient(180deg, #1a1a1f 0%, #24242b 100%);
-        position: fixed;
-        left: -280px;
-        width: 280px;
-        height: calc(100vh - 340px);
-        bottom: 20px;
-        z-index: 1000;
-        transition: all 0.3s ease;
-        border-radius: 0 16px 16px 0;
-        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
-        display: block !important;
-    }
-
-    #sidebar.show {
-        left: 0;
-    }
-
-    #sidebar:hover {
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    }
-
-    /* 사이드바 내부 컨텐츠 */
-    .sidebar-content {
-        height: 100%;
-        overflow-y: auto;
-        padding: 20px 0;
-    }
-
-    .sidebar-content::-webkit-scrollbar {
-        width: 5px;
-    }
-
-    .sidebar-content::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .sidebar-content::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 3px;
-    }
-
-    /* 사용자 프로필 섹션 */
-    .user-profile-section {
-        margin: 0 15px 20px;
-        padding: 15px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .user-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .user-avatar {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(45deg, #2962ff, #3d6eff);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-    }
-
-    .user-name {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #ffffff;
-    }
-
-    /* 네비게이션 링크 */
-    .nav-item {
-        margin: 3px 15px;
-    }
-
-    .nav-link {
-        padding: 12px 20px;
-        color: #a0a0a0 !important;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        transition: all 0.2s ease;
-        border-radius: 10px;
-    }
-
-    .nav-link:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #ffffff !important;
-        transform: translateX(5px);
-    }
-
-    .nav-link.active {
-        background: linear-gradient(45deg, #2962ff, #3d6eff);
-        color: #ffffff !important;
-    }
-
-    .nav-link i {
-        font-size: 1.2rem;
-    }
-
-    /* 로그아웃 버튼 */
-    .logout-btn {
-        margin-top: 10px;
-        padding: 8px 12px;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 8px;
-        color: #a0a0a0;
-        font-size: 0.85rem;
-        transition: all 0.2s ease;
-        text-decoration: none;
-    }
-
-    .logout-btn:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #ffffff;
-    }
-
-    /* 사이드바 토글 버튼 */
-    .sidebar-toggle {
-        position: fixed;
-        bottom: 20px;
-        left: 0;
-        z-index: 1001;
-        width: 45px;
-        height: 45px;
-        background: linear-gradient(45deg, #2962ff, #3d6eff);
-        border: none;
-        border-radius: 0 10px 10px 0;
-        color: white;
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 4px 0 15px rgba(41, 98, 255, 0.3);
-        cursor: pointer;
-    }
-
-    .sidebar-toggle:hover {
-        width: 50px;
-    }
-
-    .sidebar-toggle:active {
-        transform: scale(0.95);
-    }
-
-    .sidebar-toggle i {
-        font-size: 1.5rem;
-        transition: transform 0.3s ease;
-    }
-
-    .sidebar-toggle.active i {
-        transform: rotate(180deg);
-    }
-
-    /* 오버레이 */
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-        display: none;
-    }
-
-    .sidebar-overlay.show {
-        display: block;
-    }
-
-    /* 반응형 스타일 */
-    @media (max-width: 768px) {
+        /* 사이드바 기본 스타일 */
         #sidebar {
-            width: 250px;
-            height: 100vh;
-            top: 0;
-            bottom: auto;
-            border-radius: 0;
-        }
-
-        .sidebar-toggle {
+            background: linear-gradient(180deg, #1a1a1f 0%, #24242b 100%);
+            position: fixed;
+            left: -280px;
+            width: 280px;
+            height: calc(100vh - 340px);
             bottom: 20px;
-            left: 20px;
-            border-radius: 50%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            border-radius: 0 16px 16px 0;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+            display: block !important;
+        }
+
+        #sidebar.show {
+            left: 0;
+        }
+
+        #sidebar:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 사이드바 내부 컨텐츠 */
+        .sidebar-content {
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-content::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        /* 사용자 프로필 섹션 */
+        .user-profile-section {
+            margin: 0 15px 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+        {#background: linear-gradient(45deg, #2962ff, #3d6eff);#} border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        /* 네비게이션 링크 */
+        .nav-item {
+            margin: 3px 15px;
+        }
+
+        .nav-link {
+            padding: 12px 20px;
+            color: #a0a0a0 !important;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            border-radius: 10px;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff !important;
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(45deg, #2962ff, #3d6eff);
+            color: #ffffff !important;
+        }
+
+        .nav-link i {
+            font-size: 1.2rem;
+        }
+
+        /* 로그아웃 버튼 */
+        .logout-btn {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: #a0a0a0;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+        /* 사이드바 토글 버튼 */
+        .sidebar-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            z-index: 1001;
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(45deg, #2962ff, #3d6eff);
+            border: none;
+            border-radius: 0 10px 10px 0;
+            color: white;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 4px 0 15px rgba(41, 98, 255, 0.3);
+            cursor: pointer;
+        }
+
+        .sidebar-toggle:hover {
             width: 50px;
-            height: 50px;
         }
 
+        .sidebar-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .sidebar-toggle i {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-toggle.active i {
+            transform: rotate(180deg);
+        }
+
+        /* 오버레이 */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        /* 반응형 스타일 */
+        @media (max-width: 768px) {
+            #sidebar {
+                width: 250px;
+                height: 100vh;
+                top: 0;
+                bottom: auto;
+                border-radius: 0;
+            }
+
+            .sidebar-toggle {
+                bottom: 20px;
+                left: 20px;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+            }
+
+            .container-fluid {
+                padding-left: 15px !important;
+                padding-right: 15px !important;
+            }
+        }
+
+        /* 컨테이너 여백 설정 */
         .container-fluid {
-            padding-left: 15px !important;
-            padding-right: 15px !important;
+            padding-left: 100px !important;
+            padding-right: 100px !important;
+            width: calc(100% - 200px) !important;
+            margin: 0 auto !important;
         }
-    }
 
-    /* 컨테이너 여백 설정 */
-    .container-fluid {
-        padding-left: 100px !important;
-        padding-right: 100px !important;
-        width: calc(100% - 200px) !important;
-        margin: 0 auto !important;
-    }
+        /* 메인 컨텐츠 영역 */
+        main.col-md-9,
+        main.col-lg-10 {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            max-width: 100% !important;
+            flex: 0 0 100% !important;
+        }
 
-    /* 메인 컨텐츠 영역 */
-    main.col-md-9,
-    main.col-lg-10 {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        max-width: 100% !important;
-        flex: 0 0 100% !important;
-    }
+        /* 본 색상 변수 정의 */
+        :root {
+            --primary-bg: #191919;
+            --secondary-bg: #242424;
+            --input-bg: #2B2B2B;
+            --border-color: #404040;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --accent-blue: #3182f6;
+        }
 
-    /* 본 색상 변수 정의 */
-    :root {
-        --primary-bg: #191919;
-        --secondary-bg: #242424;
-        --input-bg: #2B2B2B;
-        --border-color: #404040;
-        --text-primary: #ffffff;
-        --text-secondary: #999999;
-        --accent-blue: #3182f6;
-    }
+        /* 공통 버튼 스타일 */
+        .btn-light-outline {
+            color: #ffffff; /* 텍스트 색상 */
+            background-color: transparent; /* 기본 투명 */
+            border: 1px solid #404040; /* 회색 테두리 */
+            transition: all 0.3s ease; /* 부드러운 전환 */
+        }
 
-    /* 공통 버튼 스타일 */
-    .btn-light-outline {
-        color: #ffffff; /* 텍스트 색상 */
-        background-color: transparent; /* 기본 투명 */
-        border: 1px solid #404040; /* 회색 테두리 */
-        transition: all 0.3s ease; /* 부드러운 전환 */
-    }
+        .text-muted {
+            color: #e0e0e0 !important; /* 날짜 색상 강제 적용 */
+            font-size: 0.9rem; /* 폰트 크기 조정 */
+            margin-left: auto; /* 날짜를 오른쪽으로 밀기 */
+        }
 
-    /* 좋아요 버튼 (Hover와 Focus 포함) */
-    .btn-light-outline.like-btn {
-        background-color: #3182f6; /* 기본 배경 */
-    }
+        /* 스타일 설정 */
+        #commentInput {
+            background-color: #2B2B2B;
+            color: #e0e0e0;
+            border: 1px solid #404040;
+            border-radius: 5px;
+        }
 
-    .btn-light-outline.like-btn:hover {
-        background-color: #3182f6; /* Hover 시 파란색 */
-        border-color: #3182f6;
-    }
+        #commentInput::placeholder {
+            color: #999999;
+        }
 
-    .btn-light-outline.like-btn:focus {
-        background-color: #4a90e2; /* Focus 시 더 진한 파란색 */
-        box-shadow: 0 0 5px #3182f6;
-    }
+        #commentInput:focus {
+            background-color: #333333;
+            border-color: #3182f6;
+            outline: none;
+            box-shadow: 0 0 5px rgba(49, 130, 246, 0.5);
+        }
 
-    /* 비추천 버튼 (Hover와 Focus 포함) */
-    .btn-light-outline.dislike-btn {
-        background-color: #d32f2f; /* 기본 배경 */
-    }
+        .card {
+            background-color: #1e1e1e;
+            border: none;
+        }
 
-    .btn-light-outline.dislike-btn:hover {
-        background-color: #d32f2f; /* Hover 시 빨간색 */
-        border-color: #d32f2f;
-    }
+        .card-header {
+            background-color: #292929;
+            border-bottom: 1px solid #404040;
+        }
 
-    .btn-light-outline.dislike-btn:focus {
-        background-color: #b71c1c; /* Focus 시 더 진한 빨간색 */
-        box-shadow: 0 0 5px #d32f2f;
-    }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #3d6eff;
+            color: #fff;
+            flex-shrink: 0;
+            aspect-ratio: 1/1;
+            overflow: hidden;
+        }
+
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        /* 댓글 및 대댓글 관련 스타일 */
+        .replies {
+            width: 100%;
+            display: flex;
+            flex-direction: column; /* 대댓글 수직 정렬 */
+            gap: 10px; /* 대댓글 간격 */
+            margin: 0;
+            padding: 0;
+        }
+
+        .reply-item {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            width: 100%; /* 부모 컨테이너 기준 너비 고정 */
+            max-width: 100%; /* 최대 너비 제한 */
+            margin-bottom: 10px;
+            padding: 10px;
+            box-sizing: border-box; /* 패딩과 보더를 포함하여 크기 계산 */
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            overflow: hidden;
+            word-break: break-word; /* 긴 텍스트 줄바꿈 */
+        }
+
+        .reply-item p {
+            margin: 0;
+            flex: 1; /* 남은 공간을 채워 정렬 */
+            word-wrap: break-word; /* 긴 텍스트 줄바꿈 */
+            white-space: normal; /* 줄바꿈 허용 */
+        }
 
 
-    /* 답글 버튼 (Hover와 Focus 포함) */
-    .btn-light-outline.reply-btn {
-        background-color: #3a3a3a; /* 기본 배경 */
-    }
+        .comment-meta .text-muted {
+            font-size: 0.85rem;
+            color: #e0e0e0; /* 텍스트 색상 유지 */
+        }
+    </style>
 
-    .btn-light-outline.reply-btn:hover {
-        background-color: #5a5a5a; /* Hover 시 녹색 */
-        border-color: #5a5a5a;
-    }
-
-    .btn-light-outline.reply-btn:focus {
-        background-color: #5a5a5a; /* Focus 시 더 진한 녹색 */
-        box-shadow: 0 0 5px #5a5a5a;
-    }
-
-    h6.mb-0 {
-        display: flex;
-        justify-content: space-between; /* 이름 왼쪽, 날짜 오른쪽 정렬 */
-        align-items: center;
-        color: #ffffff; /* 사용자 이름 색상 */
-    }
-
-    h6.mb-0 .text-muted {
-        color: #e0e0e0 !important; /* 날짜 색상 강제 적용 */
-        font-size: 0.9rem; /* 폰트 크기 조정 */
-        margin-left: auto; /* 날짜를 오른쪽으로 밀기 */
-    }
-</style>
-
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <nav id="sidebar">
-            <div class="sidebar-content">
-                {% if user.is_authenticated %}
-                <div class="user-profile-section">
-                    <div class="user-info">
-                        <div class="user-avatar">
-                            {{ user.username|make_list|first|upper }}
-                        </div>
-                        <div>
-                            <span class="user-name">{{ user.username }}</span>
-                            <a href="{% url 'logout' %}" class="logout-btn d-block">
-                                <i class="bi bi-box-arrow-right"></i> 로그아웃
-                            </a>
-                        </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-9">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">주주 톡방</h4>
                     </div>
                 </div>
-                {% endif %}
 
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'dashboard' %}">
-                            <i class="bi bi-house-door"></i>
-                            <span>대시보드</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'trading' %}">
-                            <i class="bi bi-currency-exchange"></i>
-                            <span>트레이딩</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#" onclick="location.reload(); return false;">
-                            <i class="bi bi-chat"></i>
-                            <span>커뮤니티</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="bi bi-graph-up"></i>
-                            <span>분석</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'portfolio' %}">
-                            <i class="bi bi-wallet2"></i>
-                            <span>포트폴리오</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'articles_page' %}">
-                            <i class="bi bi-newspaper"></i>
-                            <span>뉴스</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-
-        <div class="sidebar-overlay"></div>
-
-        <button class="sidebar-toggle">
-            <i class="bi bi-list"></i>
-        </button>
-
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-9">
-                    <!-- 종목 토론방 -->
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h4 class="mb-0">알테오젠 종목 토론방</h4>
-                        </div>
+                <!-- 댓글 작성 -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5>의견 남기기</h5>
                     </div>
-
-                    <!-- 댓글 작성 -->
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5>의견 남기기</h5>
-                        </div>
-                        <div class="card-body">
-                            <form id="commentForm">
-                                <textarea id="commentInput" class="form-control mb-3" rows="3"
-                                          placeholder="의견을 입력하세요..."></textarea>
-                                <button type="submit" class="btn btn-primary"><i class="bi bi-chat-dots"></i> 댓글 작성
-                                </button>
-                            </form>
-                        </div>
+                    <div class="card-body">
+                        <form id="commentForm">
+                            <textarea id="commentInput" class="form-control mb-3" rows="3"
+                                      placeholder="의견을 입력하세요..."></textarea>
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-chat-dots"></i> 댓글 작성</button>
+                        </form>
                     </div>
+                </div>
 
-                    <!-- 댓글 목록 -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>댓글 목록</h5>
-                        </div>
-                        <div class="card-body" id="commentList">
-                            <!-- 새 댓글이 여기 추가됩니다 -->
-                        </div>
+                <!-- 댓글 목록 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5>댓글 목록</h5>
+                    </div>
+                    <div class="card-body" id="commentList">
+                        <!-- 댓글이 여기 추가됩니다 -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- 사이드바 관련 스크립트 추가 -->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const sidebar = document.getElementById('sidebar');
-        const toggle = document.querySelector('.sidebar-toggle');
-        const overlay = document.querySelector('.sidebar-overlay');
-        let autoHideTimer;
-
-        function showSidebar() {
-            sidebar.classList.add('show');
-            overlay.classList.add('show');
-            toggle.classList.add('active');
-            clearTimeout(autoHideTimer);
+    <script>
+        function generateRandomColor() {
+            const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+            return randomColor;
         }
 
-        function hideSidebar() {
-            sidebar.classList.remove('show');
-            overlay.classList.remove('show');
-            toggle.classList.remove('active');
-        }
+        window.addEventListener('DOMContentLoaded', function () {
+            fetch("{% url 'get_comments' %}")
+                .then(response => response.json())
+                .then(data => {
+                    const commentList = document.getElementById('commentList');
+                    data.comments.forEach(comment => {
+                        const commentItem = document.createElement('div');
+                        commentItem.classList.add('d-flex', 'align-items-start', 'mb-3');
+                        commentItem.innerHTML = `
+                            <div class="user-avatar me-3" style="background-color: ${generateRandomColor()};">${comment.user[0]}</div>
+                            <div class="comment-content">
+                                <div class="comment-meta">
+                                    <span class="user-name">${comment.user}</span>
+                                    <small class="text-muted" data-timestamp="${comment.created_at}">${timeAgo(comment.created_at)}</small>
+                                    <button class="btn btn-danger btn-sm ms-2 .btn-light-outline delete-comment-btn" data-id="${comment.id}">삭제</button>
+                                </div>
+                                <p>${comment.text}</p>
+                            </div>
+                        `;
+                        commentList.appendChild(commentItem);
+                    });
+                });
+        });
 
-        toggle.addEventListener('click', function (e) {
-            e.stopPropagation();
-            if (sidebar.classList.contains('show')) {
-                hideSidebar();
-            } else {
-                showSidebar();
+        // 댓글 추가
+        const commentForm = document.getElementById('commentForm');
+        const commentInput = document.getElementById('commentInput');
+        const commentList = document.getElementById('commentList');
+
+        commentForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const commentText = commentInput.value.trim();
+            if (commentText === '') {
+                alert('댓글 내용을 입력하세요!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('comment_text', commentText);
+
+            fetch('{% url "post_comment" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const randomColor = generateRandomColor();
+                        const timestamp = Date.now();
+
+                        const commentItem = document.createElement('div');
+                        commentItem.classList.add('d-flex', 'align-items-start', 'mb-3');
+                        commentItem.innerHTML = `
+                            <div class="user-avatar me-3" style="background-color: ${randomColor};">${data.user[0]}</div>
+                            <div class="comment-content">
+                                <div class="comment-meta">
+                                    <span class="user-name">${data.user}</span>
+                                    <small class="text-muted" data-timestamp="${timestamp}">방금 전</small>
+                                    <button class="btn btn-danger btn-sm ms-2 delete-comment-btn" data-id="${data.comment_id}">삭제</button>
+                                </div>
+                                <p>${commentText}</p>
+                            </div>
+                        `;
+                        commentList.prepend(commentItem);
+                        commentInput.value = '';
+                    } else {
+                        alert('댓글 작성에 실패했습니다. 다시 시도해 주세요.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('댓글 작성에 실패했습니다. 다시 시도해 주세요.');
+                });
+        });
+
+        // 댓글 삭제
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('delete-comment-btn')) {
+                const commentId = e.target.getAttribute('data-id');
+
+                if (confirm('정말로 이 댓글을 삭제하시겠습니까?')) {
+                    fetch(`{% url 'delete_comment' %}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({id: commentId})
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                e.target.closest('.d-flex').remove();
+                            } else {
+                                alert('댓글 삭제에 실패했습니다.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('댓글 삭제에 실패했습니다.');
+                        });
+                }
             }
         });
+        
+        function timeAgo(timestamp) {
+            const now = Date.now();
+            const diffInSeconds = Math.floor((now - timestamp * 1000) / 1000);
 
-        overlay.addEventListener('click', hideSidebar);
-
-        sidebar.addEventListener('mouseleave', function () {
-            autoHideTimer = setTimeout(hideSidebar, 3000);
-        });
-
-        sidebar.addEventListener('mouseenter', function () {
-            clearTimeout(autoHideTimer);
-        });
-
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                hideSidebar();
-            }
-        });
-    });
-</script>
-
-<script>
-    // DOM 요소 가져오기
-    const commentForm = document.getElementById('commentForm');
-    const commentInput = document.getElementById('commentInput');
-    const commentList = document.getElementById('commentList');
-
-    // 댓글 추가 이벤트 핸들러
-    commentForm.addEventListener('submit', function (e) {
-        e.preventDefault(); // 기본 동작 방지
-
-        const commentText = commentInput.value.trim();
-        if (commentText === '') {
-            alert('댓글 내용을 입력하세요!');
-            return;
-        }
-        const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-        const currentDateTime = new Date();
-        const formattedDateTime = currentDateTime.toLocaleString('ko-KR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-        // 새 댓글 요소 생성
-        const commentItem = document.createElement('div');
-        commentItem.classList.add('d-flex', 'align-items-start', 'mb-3');
-        commentItem.innerHTML = `
-            <div class="user-avatar me-3" style="background-color: ${randomColor};">{{ user.username|slice:":1"}}</div>
-            <div>
-                <h6 class="mb-0">{{ user.username }}
-                    <small class="text-muted">${formattedDateTime}</small>
-                </h6>
-                <p>${commentText}</p>
-                <div>
-                    <button class="btn btn-sm btn-light-outline like-btn me-2">
-                        <i class="bi bi-hand-thumbs-up"></i> <span class="like-count">0</span>
-                    </button>
-
-                    <button class="btn btn-sm btn-danger dislike-btn me-2">
-                        <i class="bi bi-hand-thumbs-down"></i> <span class="dislike-count">0</span>
-                    </button>
-                    <button class="btn btn-sm btn-light-outline reply-btn">
-                        <i class="bi bi-reply"></i> 답글 달기</button>
-                </div>
-
-            </div>
-        `;
-
-        // 댓글 목록에 추가
-        commentList.prepend(commentItem); // 최신 댓글이 상단에 오도록 추가
-
-        // 입력 필드 초기화
-        commentInput.value = '';
-    });
-
-    // 좋아요와 비추천 버튼 클릭 이벤트
-    document.addEventListener('click', function (e) {
-        // 좋아요 버튼
-        if (e.target.closest('.like-btn')) {
-            const likeBtn = e.target.closest('.like-btn');
-            const likeCount = likeBtn.querySelector('.like-count'); // 'like-count' 참조
-            likeCount.textContent = parseInt(likeCount.textContent) + 1; // 숫자 증가
+            if (diffInSeconds < 60) return "방금 전";
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            if (diffInMinutes < 60) return `${diffInMinutes}분 전`;
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (diffInHours < 24) return `${diffInHours}시간 전`;
+            const diffInDays = Math.floor(diffInHours / 24);
+            if (diffInDays < 7) return `${diffInDays}일 전`;
+            const diffInWeeks = Math.floor(diffInDays / 7);
+            if (diffInWeeks < 4) return `${diffInWeeks}주 전`;
+            const diffInMonths = Math.floor(diffInWeeks / 4);
+            if (diffInMonths < 12) return `${diffInMonths}달 전`;
+            return `${Math.floor(diffInMonths / 12)}년 전`;
         }
 
-        // 비추천 버튼
-        if (e.target.closest('.dislike-btn')) {
-            const dislikeBtn = e.target.closest('.dislike-btn');
-            const dislikeCount = dislikeBtn.querySelector('.dislike-count');
-            dislikeCount.textContent = parseInt(dislikeCount.textContent) + 1;
+        function updateTimeAgo() {
+            const timeElements = document.querySelectorAll(".comment-meta .text-muted[data-timestamp]");
+            timeElements.forEach((element) => {
+                const timestamp = parseInt(element.getAttribute("data-timestamp"), 10);
+                element.textContent = timeAgo(timestamp);
+            });
         }
-    });
 
-</script>
+        setInterval(updateTimeAgo, 60000);
+        updateTimeAgo();
+    </script>
 {% endblock %}
