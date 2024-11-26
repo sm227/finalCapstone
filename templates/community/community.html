@@ -8,6 +8,42 @@
 </head>
 
 <style>
+    #commentInput {
+        background-color: #2B2B2B; /* 회색 배경 */
+        color: #e0e0e0; /* 텍스트 색상 */
+        border: 1px solid #404040; /* 테두리 */
+        border-radius: 5px; /* 모서리 둥글게 */
+    }
+
+    #commentInput:focus {
+        background-color: #333333; /* 포커스 시 더 진한 회색 */
+        border-color: #3182f6; /* 포커스 시 파란 테두리 */
+        outline: none;
+        box-shadow: 0 0 5px rgba(49, 130, 246, 0.5); /* 살짝 강조 효과 */
+    }
+
+    .card {
+        background-color: #1e1e1e;
+        border: none;
+    }
+
+    .card-header {
+        background-color: #292929;
+        border-bottom: 1px solid #404040;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: #3d6eff;
+        color: #fff;
+    }
+
     body {
         background-color: #121212;
         color: #e0e0e0;
@@ -241,6 +277,73 @@
         --text-secondary: #999999;
         --accent-blue: #3182f6;
     }
+
+    /* 공통 버튼 스타일 */
+    .btn-light-outline {
+        color: #ffffff; /* 텍스트 색상 */
+        background-color: transparent; /* 기본 투명 */
+        border: 1px solid #404040; /* 회색 테두리 */
+        transition: all 0.3s ease; /* 부드러운 전환 */
+    }
+
+    /* 좋아요 버튼 (Hover와 Focus 포함) */
+    .btn-light-outline.like-btn {
+        background-color: #3182f6; /* 기본 배경 */
+    }
+
+    .btn-light-outline.like-btn:hover {
+        background-color: #3182f6; /* Hover 시 파란색 */
+        border-color: #3182f6;
+    }
+
+    .btn-light-outline.like-btn:focus {
+        background-color: #4a90e2; /* Focus 시 더 진한 파란색 */
+        box-shadow: 0 0 5px #3182f6;
+    }
+
+    /* 비추천 버튼 (Hover와 Focus 포함) */
+    .btn-light-outline.dislike-btn {
+        background-color: #d32f2f; /* 기본 배경 */
+    }
+
+    .btn-light-outline.dislike-btn:hover {
+        background-color: #d32f2f; /* Hover 시 빨간색 */
+        border-color: #d32f2f;
+    }
+
+    .btn-light-outline.dislike-btn:focus {
+        background-color: #b71c1c; /* Focus 시 더 진한 빨간색 */
+        box-shadow: 0 0 5px #d32f2f;
+    }
+
+
+    /* 답글 버튼 (Hover와 Focus 포함) */
+    .btn-light-outline.reply-btn {
+        background-color: #3a3a3a; /* 기본 배경 */
+    }
+
+    .btn-light-outline.reply-btn:hover {
+        background-color: #5a5a5a; /* Hover 시 녹색 */
+        border-color: #5a5a5a;
+    }
+
+    .btn-light-outline.reply-btn:focus {
+        background-color: #5a5a5a; /* Focus 시 더 진한 녹색 */
+        box-shadow: 0 0 5px #5a5a5a;
+    }
+
+    h6.mb-0 {
+        display: flex;
+        justify-content: space-between; /* 이름 왼쪽, 날짜 오른쪽 정렬 */
+        align-items: center;
+        color: #ffffff; /* 사용자 이름 색상 */
+    }
+
+    h6.mb-0 .text-muted {
+        color: #e0e0e0 !important; /* 날짜 색상 강제 적용 */
+        font-size: 0.9rem; /* 폰트 크기 조정 */
+        margin-left: auto; /* 날짜를 오른쪽으로 밀기 */
+    }
 </style>
 
 <div class="container-fluid">
@@ -311,151 +414,166 @@
             <i class="bi bi-list"></i>
         </button>
 
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-9">
+                    <!-- 종목 토론방 -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4 class="mb-0">알테오젠 종목 토론방</h4>
+                        </div>
+                    </div>
 
-        <div class="comment-section">
-            <div class="comment">
-                <div class="comment-header">
-                    <div class="user-avatar">주</div>
-                    <div class="user-details">
-                        <span class="username">짱구왕</span>
-                        <span class="comment-time">3시간 전</span>
+                    <!-- 댓글 작성 -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>의견 남기기</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="commentForm">
+                                <textarea id="commentInput" class="form-control mb-3" rows="3"
+                                          placeholder="의견을 입력하세요..."></textarea>
+                                <button type="submit" class="btn btn-primary"><i class="bi bi-chat-dots"></i> 댓글 작성
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 댓글 목록 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>댓글 목록</h5>
+                        </div>
+                        <div class="card-body" id="commentList">
+                            <!-- 새 댓글이 여기 추가됩니다 -->
+                        </div>
                     </div>
                 </div>
-                <div class="comment-body">
-                    배우는 입장에서 개인적인 소견입니다.
-                    <br>
-                    민주적 형식으로, 그래도 보면 나쁘지는 않아요...
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 사이드바 관련 스크립트 추가 -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.querySelector('.sidebar-toggle');
+        const overlay = document.querySelector('.sidebar-overlay');
+        let autoHideTimer;
+
+        function showSidebar() {
+            sidebar.classList.add('show');
+            overlay.classList.add('show');
+            toggle.classList.add('active');
+            clearTimeout(autoHideTimer);
+        }
+
+        function hideSidebar() {
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+            toggle.classList.remove('active');
+        }
+
+        toggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (sidebar.classList.contains('show')) {
+                hideSidebar();
+            } else {
+                showSidebar();
+            }
+        });
+
+        overlay.addEventListener('click', hideSidebar);
+
+        sidebar.addEventListener('mouseleave', function () {
+            autoHideTimer = setTimeout(hideSidebar, 3000);
+        });
+
+        sidebar.addEventListener('mouseenter', function () {
+            clearTimeout(autoHideTimer);
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                hideSidebar();
+            }
+        });
+    });
+</script>
+
+<script>
+    // DOM 요소 가져오기
+    const commentForm = document.getElementById('commentForm');
+    const commentInput = document.getElementById('commentInput');
+    const commentList = document.getElementById('commentList');
+
+    // 댓글 추가 이벤트 핸들러
+    commentForm.addEventListener('submit', function (e) {
+        e.preventDefault(); // 기본 동작 방지
+
+        const commentText = commentInput.value.trim();
+        if (commentText === '') {
+            alert('댓글 내용을 입력하세요!');
+            return;
+        }
+        const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+        const currentDateTime = new Date();
+        const formattedDateTime = currentDateTime.toLocaleString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+        // 새 댓글 요소 생성
+        const commentItem = document.createElement('div');
+        commentItem.classList.add('d-flex', 'align-items-start', 'mb-3');
+        commentItem.innerHTML = `
+            <div class="user-avatar me-3" style="background-color: ${randomColor};">{{ user.username|slice:":1"}}</div>
+            <div>
+                <h6 class="mb-0">{{ user.username }}
+                    <small class="text-muted">${formattedDateTime}</small>
+                </h6>
+                <p>${commentText}</p>
+                <div>
+                    <button class="btn btn-sm btn-light-outline like-btn me-2">
+                        <i class="bi bi-hand-thumbs-up"></i> <span class="like-count">0</span>
+                    </button>
+
+                    <button class="btn btn-sm btn-danger dislike-btn me-2">
+                        <i class="bi bi-hand-thumbs-down"></i> <span class="dislike-count">0</span>
+                    </button>
+                    <button class="btn btn-sm btn-light-outline reply-btn">
+                        <i class="bi bi-reply"></i> 답글 달기</button>
                 </div>
-                <div class="comment-footer">
-                    <button class="like-btn"><i class="bi bi-hand-thumbs-up"></i> 34</button>
-                    <button class="reply-btn"><i class="bi bi-reply"></i>
-                        <div class="container my-4">
-                            <div class="card bg-dark text-light">
-                                <div class="card-header">
-                                    <h5 class="mb-0">알테오젠 커뮤니티</h5>
-                                </div>
-                                <div class="card-body">
-                                    <!-- 댓글 입력 필드 -->
-                                    <form class="mb-4">
-                                        <div class="mb-3">
-                                            <textarea class="form-control" rows="3"
-                                                      placeholder="의견을 남기려면 로그인하세요"></textarea>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">댓글 작성</button>
-                                    </form>
 
-                                    <!-- 인기 글 섹션 -->
-                                    <h6 class="text-muted">인기 급상승 커뮤니티</h6>
-                                    <ul class="list-group list-group-flush mb-4">
-                                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
-                                            알테오젠 <span class="text-danger">-9.8%</span>
-                                        </li>
-                                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
-                                            위츠 <span class="text-success">+16.2%</span>
-                                        </li>
-                                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
-                                            쓰리빌리언 <span class="text-danger">-30.0%</span>
-                                        </li>
-                                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
-                                            와이제이링크 <span class="text-success">+5.2%</span>
-                                        </li>
-                                        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
-                                            루미르 <span class="text-success">+9.1%</span>
-                                        </li>
-                                    </ul>
+            </div>
+        `;
 
-                                    <!-- 댓글 목록 -->
-                                    <div class="comment mb-3">
-                                        <div class="d-flex align-items-start mb-2">
-                                            <div class="user-avatar bg-primary text-white rounded-circle d-flex justify-content-center align-items-center"
-                                                 style="width: 40px; height: 40px;">주
-                                            </div>
-                                            <div class="ms-3">
-                                                <h6 class="mb-0">짱구왕</h6>
-                                                <small class="text-muted">3시간 전</small>
-                                            </div>
-                                        </div>
-                                        <p>배우는 입장에서 개인적인 소견입니다. 민주적 형식으로, 그래도 보면 나쁘지는 않아요...</p>
-                                        <div>
-                                            <button class="btn btn-sm btn-outline-light me-2"><i
-                                                    class="bi bi-hand-thumbs-up"></i> 34
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-light"><i class="bi bi-reply"></i> 댓글
-                                                달기
-                                            </button>
-                                        </div>
-                                    </div>
+        // 댓글 목록에 추가
+        commentList.prepend(commentItem); // 최신 댓글이 상단에 오도록 추가
 
-                                    <div class="comment mb-3">
-                                        <div class="d-flex align-items-start mb-2">
-                                            <div class="user-avatar bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center"
-                                                 style="width: 40px; height: 40px;">승
-                                            </div>
-                                            <div class="ms-3">
-                                                <h6 class="mb-0">승리와진리</h6>
-                                                <small class="text-muted">52분 전</small>
-                                            </div>
-                                        </div>
-                                        <p>형님, 누님들 무섭고 두렵나요? 알테오젠을 믿나요?</p>
-                                        <div>
-                                            <button class="btn btn-sm btn-outline-light me-2"><i
-                                                    class="bi bi-hand-thumbs-up"></i> 12
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-light"><i class="bi bi-reply"></i> 댓글
-                                                달기
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        // 입력 필드 초기화
+        commentInput.value = '';
+    });
 
+    // 좋아요와 비추천 버튼 클릭 이벤트
+    document.addEventListener('click', function (e) {
+        // 좋아요 버튼
+        if (e.target.closest('.like-btn')) {
+            const likeBtn = e.target.closest('.like-btn');
+            const likeCount = likeBtn.querySelector('.like-count'); // 'like-count' 참조
+            likeCount.textContent = parseInt(likeCount.textContent) + 1; // 숫자 증가
+        }
 
-                        <!-- 사이드바 관련 스크립트 추가 -->
-                        <script>
-                            document.addEventListener('DOMContentLoaded', function () {
-                                const sidebar = document.getElementById('sidebar');
-                                const toggle = document.querySelector('.sidebar-toggle');
-                                const overlay = document.querySelector('.sidebar-overlay');
-                                let autoHideTimer;
+        // 비추천 버튼
+        if (e.target.closest('.dislike-btn')) {
+            const dislikeBtn = e.target.closest('.dislike-btn');
+            const dislikeCount = dislikeBtn.querySelector('.dislike-count');
+            dislikeCount.textContent = parseInt(dislikeCount.textContent) + 1;
+        }
+    });
 
-                                function showSidebar() {
-                                    sidebar.classList.add('show');
-                                    overlay.classList.add('show');
-                                    toggle.classList.add('active');
-                                    clearTimeout(autoHideTimer);
-                                }
-
-                                function hideSidebar() {
-                                    sidebar.classList.remove('show');
-                                    overlay.classList.remove('show');
-                                    toggle.classList.remove('active');
-                                }
-
-                                toggle.addEventListener('click', function (e) {
-                                    e.stopPropagation();
-                                    if (sidebar.classList.contains('show')) {
-                                        hideSidebar();
-                                    } else {
-                                        showSidebar();
-                                    }
-                                });
-
-                                overlay.addEventListener('click', hideSidebar);
-
-                                sidebar.addEventListener('mouseleave', function () {
-                                    autoHideTimer = setTimeout(hideSidebar, 3000);
-                                });
-
-                                sidebar.addEventListener('mouseenter', function () {
-                                    clearTimeout(autoHideTimer);
-                                });
-
-                                document.addEventListener('keydown', function (e) {
-                                    if (e.key === 'Escape') {
-                                        hideSidebar();
-                                    }
-                                });
-                            });
-                        </script>
-                        {% endblock %}
+</script>
+{% endblock %}
