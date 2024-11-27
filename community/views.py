@@ -14,22 +14,28 @@ import os
 # 댓글 작성
 def post_comment(request):
     if request.method == "POST":
-        text = request.POST.get('comment_text')  # 댓글 내용
-        image = request.FILES.get('comment_image') #이미지
-
-        image_url = None
-
-
-        if text:
-            comment = Comment.objects.create(user=request.user, text=text)
+        text = request.POST.get('comment_text')
+        image = request.FILES.get('comment_image')
+        
+        if text or image:  # 텍스트나 이미지 중 하나라도 있으면 진행
+            comment = Comment.objects.create(
+                user=request.user,
+                text=text if text else ''
+            )
+            
+            if image:
+                comment.image = image
+                comment.save()
+            
             return JsonResponse({
                 'success': True,
                 'comment_id': comment.id,
                 'user': request.user.username,
                 'user_id': request.user.id,
-                'created_at': int(comment.created_at.timestamp())  # Unix 타임스탬프
+                'created_at': int(comment.created_at.timestamp()),
+                'image_url': comment.image.url if comment.image else None
             })
-    return JsonResponse({'success': False, 'message': '댓글 내용이 없습니다.'})
+    return JsonResponse({'success': False, 'message': '댓글 내용이나 이미지가 필요합니다.'})
 
 
 # 댓글 가져오기
@@ -42,7 +48,8 @@ def get_comments(request):
             'user': comment.user.username,
             'user_id': comment.user.id,
             'text': comment.text,
-            'created_at': int(comment.created_at.timestamp()),  # Unix 타임스탬프
+            'created_at': int(comment.created_at.timestamp()),
+            'image_url': comment.image.url if comment.image else None
         })
     return JsonResponse({'comments': comments_data})
 

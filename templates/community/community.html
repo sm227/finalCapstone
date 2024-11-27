@@ -641,6 +641,23 @@
         box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
         transform: translateY(-2px);
     }
+
+    .comment-input-wrapper {
+        position: relative;
+    }
+
+    #imagePreview {
+        background: rgba(0, 0, 0, 0.05);
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    #pastedImage {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+    }
 </style>
 
 <nav id="sidebar">
@@ -727,12 +744,30 @@
                     <h5 class="mb-0">의견 남기기</h5>
                 </div>
                 <div class="card-body comment-form-wrapper">
-                    <form id="commentForm">
-                            <textarea id="commentInput" class="form-control mb-3" rows="3"
-                                      placeholder="여러분의 의견을 공유해주세요..."></textarea>
-                        <button type="submit" class="btn comment-submit-btn">
-                            <i class="bi bi-send-fill me-2"></i>작성하기
-                        </button>
+                    <form id="commentForm" enctype="multipart/form-data">
+                        <div class="comment-input-wrapper position-relative">
+                            <textarea id="commentInput" class="form-control mb-3" rows="3" 
+                                placeholder="여러분의 의견을 공유해주세요..."
+                                onpaste="handlePaste(event)"></textarea>
+                            <div id="imagePreview" class="mt-2" style="display: none;">
+                                <img id="pastedImage" class="img-fluid rounded mb-2" style="max-height: 200px;">
+                                <button type="button" class="btn btn-sm btn-danger" onclick="removeImage()">
+                                    <i class="bi bi-x"></i> 이미지 제거
+                                </button>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="image-upload">
+                                <label for="imageInput" class="btn btn-outline-secondary">
+                                    <i class="bi bi-image me-2"></i>이미지 추가
+                                </label>
+                                <input type="file" id="imageInput" name="comment_image" accept="image/*" style="display: none;">
+                                <span id="imagePreviewName" class="ms-2"></span>
+                            </div>
+                            <button type="submit" class="btn comment-submit-btn">
+                                <i class="bi bi-send-fill me-2"></i>작성하기
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -842,6 +877,11 @@
                 .then(data => {
                     const commentList = document.getElementById('commentList');
                     data.comments.forEach(comment => {
+                        const imageHtml = comment.image_url ? 
+                            `<div class="comment-image mt-2">
+                                <img src="${comment.image_url}" alt="댓글 이미지" class="img-fluid rounded">
+                            </div>` : '';
+
                         const commentItem = document.createElement('div');
                         commentItem.classList.add('d-flex', 'align-items-start', 'mb-3');
                         commentItem.innerHTML = `
@@ -850,9 +890,10 @@
                                 <div class="comment-meta">
                                     <span class="user-name">${comment.user}</span>
                                     <small class="text-muted" data-timestamp="${comment.created_at}">${timeAgo(comment.created_at)}</small>
-                                    <button class="btn btn-danger btn-sm ms-2 .btn-light-outline delete-comment-btn" data-id="${comment.id}">삭제</button>
+                                    <button class="btn btn-danger btn-sm ms-2 delete-comment-btn" data-id="${comment.id}">삭제</button>
                                 </div>
                                 <p>${comment.text}</p>
+                                ${imageHtml}
                             </div>
                         `;
                         commentList.appendChild(commentItem);
@@ -869,13 +910,18 @@
         e.preventDefault();
 
         const commentText = commentInput.value.trim();
-        if (commentText === '') {
-            alert('댓글 내용을 입력하세요!');
+        const imageFile = document.getElementById('imageInput').files[0];
+        
+        if (commentText === '' && !imageFile) {
+            alert('댓글 내용이나 이미지를 입력하세요!');
             return;
         }
 
         const formData = new FormData();
         formData.append('comment_text', commentText);
+        if (imageFile) {
+            formData.append('comment_image', imageFile);
+        }
 
         fetch('{% url "post_comment" %}', {
             method: 'POST',
@@ -884,32 +930,40 @@
                 'X-CSRFToken': '{{ csrf_token }}',
             }
         })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const commentItem = document.createElement('div');
-                        commentItem.classList.add('d-flex', 'align-items-start', 'mb-3');
-                        commentItem.innerHTML = `
-                            <div class="user-avatar me-3" style="background-color: ${generateUserColor(data.user_id)};">${data.user[0]}</div>
-                            <div class="comment-content">
-                                <div class="comment-meta">
-                                    <span class="user-name">${data.user}</span>
-                                    <small class="text-muted" data-timestamp="${data.created_at}">방금 전</small>
-                                    <button class="btn btn-danger btn-sm ms-2 delete-comment-btn" data-id="${data.comment_id}">삭제</button>
-                                </div>
-                                <p>${commentText}</p>
-                            </div>
-                        `;
-                        commentList.prepend(commentItem);
-                        commentInput.value = '';
-                    } else {
-                        alert('댓글 작성에 실패했습니다. 다시 시도해 주세요.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('댓글 작성에 실패했습니다. 다시 시도해 주세요.');
-                });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const imageHtml = data.image_url ? 
+                    `<div class="comment-image mt-2">
+                        <img src="${data.image_url}" alt="댓글 이미지" class="img-fluid rounded">
+                    </div>` : '';
+
+                const commentItem = document.createElement('div');
+                commentItem.classList.add('d-flex', 'align-items-start', 'mb-3');
+                commentItem.innerHTML = `
+                    <div class="user-avatar me-3" style="background-color: ${generateUserColor(data.user_id)};">${data.user[0]}</div>
+                    <div class="comment-content">
+                        <div class="comment-meta">
+                            <span class="user-name">${data.user}</span>
+                            <small class="text-muted" data-timestamp="${data.created_at}">방금 전</small>
+                            <button class="btn btn-danger btn-sm ms-2 delete-comment-btn" data-id="${data.comment_id}">삭제</button>
+                        </div>
+                        <p>${commentText}</p>
+                        ${imageHtml}
+                    </div>
+                `;
+                commentList.prepend(commentItem);
+                commentInput.value = '';
+                document.getElementById('imageInput').value = '';
+                document.getElementById('imagePreviewName').textContent = '';
+            } else {
+                alert('댓글 작성에 실패했습니다. 다시 시도해 주세요.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('댓글 작성에 실패했습니다. 다시 시도해 주세요.');
+        });
     });
 
     // 댓글 삭제
@@ -1015,6 +1069,61 @@
                 hideSidebar();
             }
         });
+    });
+
+    // 이미지 미리보기 처리
+    document.getElementById('imageInput').addEventListener('change', function(e) {
+        const fileName = e.target.files[0]?.name;
+        if (fileName) {
+            document.getElementById('imagePreviewName').textContent = fileName;
+        }
+    });
+
+    // 이미지 붙여넣기 처리
+    function handlePaste(e) {
+        const items = e.clipboardData.items;
+        
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                e.preventDefault();
+                
+                const blob = items[i].getAsFile();
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    document.getElementById('pastedImage').src = event.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                    
+                    // 파일 입력에 붙여넣은 이미지 ���정
+                    const container = new DataTransfer();
+                    container.items.add(new File([blob], 'pasted-image.png', {type: blob.type}));
+                    document.getElementById('imageInput').files = container.files;
+                };
+                
+                reader.readAsDataURL(blob);
+                break;
+            }
+        }
+    }
+
+    // 이미지 제거
+    function removeImage() {
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('pastedImage').src = '';
+        document.getElementById('imageInput').value = '';
+    }
+
+    // 파일 입력 처리 (기존 코드 수정)
+    document.getElementById('imageInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('pastedImage').src = event.target.result;
+                document.getElementById('imagePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
     });
 </script>
 {% endblock %}
