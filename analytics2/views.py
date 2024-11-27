@@ -1,5 +1,7 @@
 import os
 import time
+from urllib import request
+
 from django.shortcuts import render
 from django.http import JsonResponse
 import yfinance as yf
@@ -278,7 +280,7 @@ def analyze_and_store_stocks():
     try:
         # 이미 분석 중이면 실행하지 않음
         if ANALYSIS_IN_PROGRESS:
-            print("이미 분석이 진행 중입니.")
+            print("이미 분석이 진행 중입니다.")
             return
             
         ANALYSIS_IN_PROGRESS = True
@@ -382,6 +384,14 @@ def analyze_and_store_stocks():
                     price_target=response_data['price_target'],
                     stop_loss=response_data['stop_loss']
                 )
+                try:
+                    user_profile = UserProfile.objects.get(user=request.user)
+                    buy(ticker_symbol, user_profile)
+                except UserProfile.DoesNotExist:
+                    # UserProfile이 없는 경우 에러 처리
+                    return JsonResponse({'message': '사용자 프로필을 찾을 수 없습니다.'}, status=400)
+
+
             time.sleep(60)  # API 호출 제한 고려
                 
     except Exception as e:
