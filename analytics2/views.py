@@ -384,12 +384,14 @@ def analyze_and_store_stocks():
                     price_target=response_data['price_target'],
                     stop_loss=response_data['stop_loss']
                 )
-                try:
-                    user_profile = UserProfile.objects.get(user=request.user)
-                    buy(ticker_symbol, user_profile)
-                except UserProfile.DoesNotExist:
-                    # UserProfile이 없는 경우 에러 처리
-                    return JsonResponse({'message': '사용자 프로필을 찾을 수 없습니다.'}, status=400)
+                
+                # 자동투자가 활성화된 모든 사용자에 대해 매수 실행
+                auto_invest_users = UserProfile.objects.filter(auto_investment=True)
+                for user_profile in auto_invest_users:
+                    try:
+                        buy(ticker_symbol, user_profile)
+                    except Exception as e:
+                        print(f"Error buying for user {user_profile.user.username}: {str(e)}")
 
 
             time.sleep(60)  # API 호출 제한 고려
@@ -420,3 +422,30 @@ def update_investment_style(request):
         return JsonResponse({'message': '투자 성향이 업데이트되었습니다.'})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+@login_required
+@require_POST
+def update_auto_investment(request):
+    try:
+        # JSON 데이터 파싱
+        data = json.loads(request.body)
+        enabled = data.get('enabled', False)
+        
+        # UserProfile 업데이트
+        profile = request.user.userprofile
+        profile.auto_investment = enabled
+        profile.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': '자동투자 설정이 업데이트되었습니다.',
+            'enabled': enabled
+        })
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'error': 'Invalid JSON format'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e)
+        }, status=500)
