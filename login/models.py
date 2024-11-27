@@ -20,6 +20,7 @@ class UserProfile(models.Model):
         choices=INVESTMENT_CHOICES,
         default='balanced'
     )
+    auto_investment = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.username

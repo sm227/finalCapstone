@@ -1,5 +1,7 @@
 import os
 import time
+from urllib import request
+
 from django.shortcuts import render
 from django.http import JsonResponse
 import yfinance as yf
@@ -216,12 +218,6 @@ def index(request):
             rec.current_price = None
             rec.rec_close = None
     
-    # 분석 중이거나 데이터가 없는 경우 로딩 페이지 표시
-    if ANALYSIS_IN_PROGRESS or not recommendations.exists():
-        return render(request, 'analytics2/loading.html', {
-            'is_analyzing': ANALYSIS_IN_PROGRESS
-        })
-    
     return render(request, 'analytics2/index.html', {
         'recommendations': recommendations,
         'investment_style': investment_style
@@ -271,14 +267,14 @@ def sell(predict_price, user_profile):
 def read_aggressive_stocks():
     with open('공격형.txt', 'r') as file:
         stocks = file.readlines()
-    return [stock.strip() for stock in stocks][:10]  # 상위 5개만 반환
+    return [stock.strip() for stock in stocks] # 상위 5개만 반환
 
 def analyze_and_store_stocks():
     global ANALYSIS_IN_PROGRESS
     try:
         # 이미 분석 중이면 실행하지 않음
         if ANALYSIS_IN_PROGRESS:
-            print("이미 분석이 진행 중입니.")
+            print("이미 분석이 진행 중입니다.")
             return
             
         ANALYSIS_IN_PROGRESS = True
@@ -382,6 +378,16 @@ def analyze_and_store_stocks():
                     price_target=response_data['price_target'],
                     stop_loss=response_data['stop_loss']
                 )
+                
+                # 자동투자가 활성화된 모든 사용자에 대해 매수 실행
+                auto_invest_users = UserProfile.objects.filter(auto_investment=True)
+                for user_profile in auto_invest_users:
+                    try:
+                        buy(ticker_symbol, user_profile)
+                    except Exception as e:
+                        print(f"Error buying for user {user_profile.user.username}: {str(e)}")
+
+
             time.sleep(60)  # API 호출 제한 고려
                 
     except Exception as e:
@@ -391,10 +397,8 @@ def analyze_and_store_stocks():
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    # 즉시 첫 분석 실행
-    analyze_and_store_stocks()
-    # 이후 하루마다 실행
-    scheduler.add_job(analyze_and_store_stocks, 'interval', days=1)
+    # 매일 밤 11시 40분에 실행되도록 설정
+    scheduler.add_job(analyze_and_store_stocks, 'cron', hour=23, minute=40)
     scheduler.start()
 
 @login_required
@@ -412,3 +416,30 @@ def update_investment_style(request):
         return JsonResponse({'message': '투자 성향이 업데이트되었습니다.'})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+@login_required
+@require_POST
+def update_auto_investment(request):
+    try:
+        # JSON 데이터 파싱
+        data = json.loads(request.body)
+        enabled = data.get('enabled', False)
+        
+        # UserProfile 업데이트
+        profile = request.user.userprofile
+        profile.auto_investment = enabled
+        profile.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': '자동투자 설정이 업데이트되었습니다.',
+            'enabled': enabled
+        })
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'error': 'Invalid JSON format'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e)
+        }, status=500)

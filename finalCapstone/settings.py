@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'login',
     'portfolio',
     'analytics',
+    'community',
     'analytics2',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -87,6 +88,10 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+#이미지 업로드
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
