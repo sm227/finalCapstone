@@ -5,6 +5,9 @@ from .models import Comment
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.core.files.storage import default_storage
+from django.conf import settings
+import os
 
 
 @login_required
@@ -12,12 +15,18 @@ import json
 def post_comment(request):
     if request.method == "POST":
         text = request.POST.get('comment_text')  # 댓글 내용
+        image = request.FILES.get('comment_image') #이미지
+
+        image_url = None
+
+
         if text:
             comment = Comment.objects.create(user=request.user, text=text)
             return JsonResponse({
                 'success': True,
                 'comment_id': comment.id,
                 'user': request.user.username,
+                'user_id': request.user.id,
                 'created_at': int(comment.created_at.timestamp())  # Unix 타임스탬프
             })
     return JsonResponse({'success': False, 'message': '댓글 내용이 없습니다.'})
@@ -31,6 +40,7 @@ def get_comments(request):
         comments_data.append({
             'id': comment.id,
             'user': comment.user.username,
+            'user_id': comment.user.id,
             'text': comment.text,
             'created_at': int(comment.created_at.timestamp()),  # Unix 타임스탬프
         })
@@ -89,7 +99,7 @@ def get_hangang_temperature():
 @login_required
 def community(request):
     load_dotenv()
-    temperature = get_hangang_temperature()  # 한강 물 온도 가져오기
+    temperature = float(get_hangang_temperature())  # 한강 물 온도 가져오기
 
     # 현재 로그인한 사용자의 UserProfile 가져오기
     try:
