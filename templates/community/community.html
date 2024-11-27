@@ -8,7 +8,7 @@
     </head>
 
     <style>
-
+        
         /* 사이드바 기본 스타일 */
         #sidebar {
             background: linear-gradient(180deg, #1a1a1f 0%, #24242b 100%);
@@ -212,7 +212,7 @@
             padding-left: 100px !important;
             padding-right: 100px !important;
             width: calc(100% - 200px) !important;
-            margin: 0 auto !important;
+            margin-top: 30px; !important;
         }
 
         /* 메인 컨텐츠 영역 */
@@ -337,11 +337,102 @@
             font-size: 0.85rem;
             color: #e0e0e0; /* 텍스트 색상 유지 */
         }
+
+        /* 한강 물 온도 스타일 */
+        .temperature {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3182f6;
+        }
+
+        /* Top Stocks 리스트 스타일 */
+        .stock-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .stock-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            transition: background-color 0.3s ease;
+        }
+
+        .stock-item:last-child {
+            border-bottom: none;
+        }
+
+        .stock-item:hover {
+            background-color: #333;
+        }
+
+        .stock-rank {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffffff;
+            width: 30px;
+            text-align: center;
+        }
+
+        .stock-info {
+            flex: 1;
+            margin-left: 10px;
+        }
+
+        .stock-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .stock-symbol {
+            display: block;
+            font-size: 0.85rem;
+            color: #a0a0a0;
+        }
+
+        .stock-profit {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* 카드 공통 스타일 */
+        .card {
+            background-color: #1e1e1e;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background-color: #292929;
+            border-bottom: 1px solid #404040;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .card-body {
+            color: #e0e0e0;
+        }
+
+        body {
+            background-color: #121212;
+        }
+
+        .top-margin {
+            margin-top: 30px; /* 원하는 간격 크기 */
+        }
     </style>
 
-    <div class="container-fluid">
+    <div class="container-fluid top-margin">
         <div class="row">
-            <div class="col-lg-9">
+            <!-- 게시판 영역 -->
+            <div class="col-lg-8 col-md-12">
                 <div class="card mb-4">
                     <div class="card-header">
                         <h4 class="mb-0">주주 톡방</h4>
@@ -355,8 +446,8 @@
                     </div>
                     <div class="card-body">
                         <form id="commentForm">
-                            <textarea id="commentInput" class="form-control mb-3" rows="3"
-                                      placeholder="의견을 입력하세요..."></textarea>
+                        <textarea id="commentInput" class="form-control mb-3" rows="3"
+                                  placeholder="의견을 입력하세요..."></textarea>
                             <button type="submit" class="btn btn-primary"><i class="bi bi-chat-dots"></i> 댓글 작성</button>
                         </form>
                     </div>
@@ -369,6 +460,45 @@
                     </div>
                     <div class="card-body" id="commentList">
                         <!-- 댓글이 여기 추가됩니다 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 사이드바 영역 -->
+            <div class="col-lg-4 col-md-12">
+                <!-- 한강 물 온도 섹션 -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5>한강 물 온도</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="temperature" style="font-size: 2rem; font-weight: bold;">
+                            {{ temperature }}°C 🥶
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Stocks 섹션 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Top 5 주식</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="stock-list">
+                            {% for stock in stocks %}
+                                <li class="stock-item d-flex align-items-center justify-content-between">
+                                    <div class="stock-rank">{{ forloop.counter }}</div>
+                                    <div class="stock-info">
+                                        <span class="stock-name">{{ stock.name }}</span>
+                                        <span class="stock-symbol">{{ stock.symbol }}</span>
+                                    </div>
+                                    <div class="stock-profit"
+                                         style="color: {% if stock.profit_loss_rate > 0 %} #20b16c {% else %} #ef454a {% endif %}; font-weight: bold;">
+                                        {{ stock.profit_loss_rate|floatformat:2 }}%
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -489,7 +619,7 @@
                 }
             }
         });
-        
+
         function timeAgo(timestamp) {
             const now = Date.now();
             const diffInSeconds = Math.floor((now - timestamp * 1000) / 1000);
