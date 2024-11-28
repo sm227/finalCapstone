@@ -10,6 +10,7 @@ import module.koreainvestment as mojito
 from login.models import UserProfile
 from django.contrib import messages
 import requests
+from analytics2.models import StockRecommendation
 
 @login_required(login_url='login')
 def dashboard(request):
@@ -37,6 +38,9 @@ def dashboard(request):
     stock_holdings = []
     total_value = 0
 
+    # AI 추천 종목 목록 가져오기
+    ai_recommendations = StockRecommendation.objects.values_list('symbol', flat=True)
+
     for comp in balance['output1']:
         stock_holdings.append({
             'symbol': comp['pdno'],
@@ -48,6 +52,7 @@ def dashboard(request):
             'exchange_rate': float(comp['bass_exrt']),
             'unit_amt': float(comp['frcr_pchs_amt']),
             'last_updated': timezone.now(),
+            'is_ai_recommended': comp['pdno'] in ai_recommendations
         })
 
     total_value = balance['output3'].get('tot_asst_amt', 0)
