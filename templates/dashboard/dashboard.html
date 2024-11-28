@@ -927,7 +927,6 @@
                                     <th>Market Name</th>
                                     <th>Profit Loss Rate</th>
                                     <th>Exchange Rate</th>
-                                    <th>Purchase Amount Foreign</th>
                                     <th>Last Updated</th>
                                 </tr>
                                 </thead>
@@ -951,7 +950,6 @@
                                             {{ stock.profit_loss_rate|floatformat:2 }}%
                                         </td>
                                         <td>{{ stock.exchange_rate }}</td>
-                                        <td>{{ stock.purchase_amount_foreign }}</td>
                                         <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>
                                     </tr>
                                 {% endfor %}
