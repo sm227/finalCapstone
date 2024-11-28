@@ -150,7 +150,7 @@ def comment_stream(request):
     return response
 
 
-# 추천
+# 추천/
 @login_required
 def like_comment(request):
     if request.method == "POST":
