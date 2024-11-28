@@ -8,6 +8,9 @@ import json
 from django.core.files.storage import default_storage
 from django.conf import settings
 import os
+from django.db.models import Count
+from django.http import StreamingHttpResponse
+import time
 
 
 @login_required
@@ -16,17 +19,17 @@ def post_comment(request):
     if request.method == "POST":
         text = request.POST.get('comment_text')
         image = request.FILES.get('comment_image')
-        
+
         if text or image:  # 텍스트나 이미지 중 하나라도 있으면 진행
             comment = Comment.objects.create(
                 user=request.user,
                 text=text if text else ''
             )
-            
+
             if image:
                 comment.image = image
                 comment.save()
-            
+
             return JsonResponse({
                 'success': True,
                 'comment_id': comment.id,
@@ -49,7 +52,9 @@ def get_comments(request):
             'user_id': comment.user.id,
             'text': comment.text,
             'created_at': int(comment.created_at.timestamp()),
-            'image_url': comment.image.url if comment.image else None
+            'image_url': comment.image.url if comment.image else None,
+            'total_likes': comment.total_likes(),
+            'liked': request.user in comment.likes.all() if request.user.is_authenticated else False
         })
     return JsonResponse({'comments': comments_data})
 
@@ -83,6 +88,7 @@ from login.models import UserProfile
 from django.contrib import messages
 import requests
 
+
 def get_hangang_temperature():
     url = 'https://hangang.life/'
     response = requests.get(url)
@@ -96,13 +102,84 @@ def get_hangang_temperature():
             temperature_text = temperature_element.get_text().strip()
             match = re.search(r'[-+]?\d*\.\d+|\d+', temperature_text)  # 소수점 포함 숫자 추출
             if match:
-                return match.group()  # 매칭된 숫자 반환
+                return match.group()  # 매칭된 숫자 ���환
             else:
                 return "온도 데이터를 처리할 수 없습니다."
         else:
             return "온도 정보를 찾을 수 없습니다."
     else:
         return "웹사이트를 가져오는 데 실패했습니다."
+
+
+# 댓글 갱신
+def comment_stream(request):
+    def event_stream():
+        last_comments = set(Comment.objects.values_list('id', 'user_id'))
+        last_likes = {comment.id: comment.total_likes() for comment in Comment.objects.all()}
+        
+        while True:
+            current_comments = set(Comment.objects.values_list('id', 'user_id'))
+            current_likes = {comment.id: comment.total_likes() for comment in Comment.objects.all()}
+            
+            # 새 댓글 확인
+            new_comments = current_comments - last_comments
+            if new_comments:
+                for comment_id, user_id in new_comments:
+                    if user_id != request.user.id:
+                        yield f"data: new_comment\n\n"
+                        break
+            
+
+            deleted_comments = last_comments - current_comments
+            if deleted_comments:
+                for comment_id, _ in deleted_comments:
+                    yield f"data: deleted_{comment_id}\n\n"
+            
+
+            for comment_id, current_like_count in current_likes.items():
+                if comment_id in last_likes and last_likes[comment_id] != current_like_count:
+                    yield f"data: like_{comment_id}_{current_like_count}\n\n"
+            
+            last_comments = current_comments
+            last_likes = current_likes
+            time.sleep(1)
+
+    response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+    response['Cache-Control'] = 'no-cache'
+    response['X-Accel-Buffering'] = 'no'
+    return response
+
+
+# 추천
+@login_required
+def like_comment(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            comment_id = data.get('comment_id')
+            comment = Comment.objects.get(id=comment_id)
+
+            if request.user in comment.likes.all():
+                # 이미 추천한 경우 추천 취소
+                comment.likes.remove(request.user)
+                liked = False
+            else:
+                # 추천하지 않은 경우 추천 추가
+                comment.likes.add(request.user)
+                liked = True
+
+            return JsonResponse({
+                'success': True,
+                'liked': liked,
+                'total_likes': comment.total_likes()
+            })
+        except Comment.DoesNotExist:
+            return JsonResponse({'success': False, 'message': '댓글을 찾을 수 없습니다.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': '잘못된 요청입니다.'})
+
+
 @login_required
 def community(request):
     load_dotenv()
@@ -156,3 +233,13 @@ def community(request):
     }
 
     return render(request, 'community/community.html', context)
+
+
+def check_like_status(request):
+    comment_id = request.GET.get('comment_id')
+    try:
+        comment = Comment.objects.get(id=comment_id)
+        liked = request.user in comment.likes.all() if request.user.is_authenticated else False
+        return JsonResponse({'liked': liked})
+    except Comment.DoesNotExist:
+        return JsonResponse({'liked': False})
