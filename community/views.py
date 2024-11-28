@@ -8,25 +8,27 @@ import json
 from django.core.files.storage import default_storage
 from django.conf import settings
 import os
+from django.urls import reverse
 
 
 @login_required
-# 댓글 작성
-def post_comment(request):
+def post_comment(request, symbol):
+    stock = get_object_or_404(Stock, symbol=symbol)  # 주식 종목 정보 가져오기
     if request.method == "POST":
         text = request.POST.get('comment_text')
         image = request.FILES.get('comment_image')
-        
+
         if text or image:  # 텍스트나 이미지 중 하나라도 있으면 진행
             comment = Comment.objects.create(
                 user=request.user,
-                text=text if text else ''
+                text=text if text else '',
+                stock=stock  # 작성한 댓글을 특정 주식 종목에 연결
             )
-            
+
             if image:
                 comment.image = image
                 comment.save()
-            
+
             return JsonResponse({
                 'success': True,
                 'comment_id': comment.id,
@@ -38,9 +40,12 @@ def post_comment(request):
     return JsonResponse({'success': False, 'message': '댓글 내용이나 이미지가 필요합니다.'})
 
 
+
 # 댓글 가져오기
-def get_comments(request):
-    comments = Comment.objects.all().order_by('-created_at')
+#@login_required
+def get_comments(request, symbol):
+    stock = get_object_or_404(Stock, symbol=symbol)  # 주식 종목 정보 가져오기
+    comments = Comment.objects.filter(stock=stock).order_by('-created_at')  # 해당 주식 종목에 대한 댓글만 가져오기
     comments_data = []
     for comment in comments:
         comments_data.append({
@@ -83,6 +88,7 @@ from login.models import UserProfile
 from django.contrib import messages
 import requests
 
+
 def get_hangang_temperature():
     url = 'https://hangang.life/'
     response = requests.get(url)
@@ -103,6 +109,8 @@ def get_hangang_temperature():
             return "온도 정보를 찾을 수 없습니다."
     else:
         return "웹사이트를 가져오는 데 실패했습니다."
+
+
 @login_required
 def community(request):
     load_dotenv()
@@ -156,3 +164,30 @@ def community(request):
     }
 
     return render(request, 'community/community.html', context)
+
+
+# 새로운 community 뷰 (종목별 커뮤니티 페이지)
+from .models import Stock
+
+from django.shortcuts import get_object_or_404
+
+@login_required
+def community_symbol(request, symbol):
+    # 주어진 심볼(symbol)에 해당하는 Stock 객체 가져오기
+    stock = get_object_or_404(Stock, symbol=symbol)
+
+    # 해당 Stock과 연결된 댓글 가져오기
+    comments = Comment.objects.filter(stock=stock)
+
+    context = {
+        'symbol': symbol,
+        'stock': stock,  # 주식 정보도 템플릿에 전달
+        'comments': comments
+    }
+
+    comments_url = reverse('get_comments', kwargs={'symbol': symbol})
+
+    context['comments_url'] = comments_url
+
+    return render(request, 'community/community.html', context)
+

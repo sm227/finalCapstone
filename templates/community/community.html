@@ -72,7 +72,7 @@
             height: 40px;
         {
             #background: linear-gradient(45deg, #2962ff, #3d6eff);
-            #
+
         } border-radius: 50%;
             display: flex;
             align-items: center;
@@ -742,7 +742,7 @@
                 <div class="card mb-4">
                     <div class="card-header d-flex align-items-center">
                         <i class="bi bi-people-fill me-2"></i>
-                        <h4 class="mb-0">주주 톡방</h4>
+                        <h4 class="mb-0">{{ stock.name }} 주주 톡방</h4>
                     </div>
                 </div>
 
@@ -881,8 +881,13 @@
             return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
         }
 
+
         window.addEventListener('DOMContentLoaded', function () {
-            fetch("{% url 'get_comments' %}")
+            const symbol = '{{ symbol }}';  // 템플릿에서 주식 심볼을 가져옴
+            //const commentsUrl = "{% url 'get_comments' symbol %}";  // symbol 값을 URL에 전달
+            const commentsUrl = "{{ comments_url }}";  // context에서 전달된 comments_url 사용
+
+            fetch(commentsUrl)
                 .then(response => response.json())
                 .then(data => {
                     const commentList = document.getElementById('commentList');
@@ -911,10 +916,12 @@
                 });
         });
 
-        // 댓글 추가
+        // 댓글 작성
         const commentForm = document.getElementById('commentForm');
         const commentInput = document.getElementById('commentInput');
         const commentList = document.getElementById('commentList');
+        const symbol = '{{ symbol }}';  // 템플릿에서 주식 심볼을 가져옴
+
 
         commentForm.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -929,11 +936,12 @@
 
             const formData = new FormData();
             formData.append('comment_text', commentText);
+            formData.append('symbol', symbol);  // 주식 심볼 추가
             if (imageFile) {
                 formData.append('comment_image', imageFile);
             }
 
-            fetch('{% url "post_comment" %}', {
+            fetch("{% url 'post_comment' symbol=symbol %}", {  // symbol 값을 URL에 전달
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -977,6 +985,7 @@
                     alert('댓글 작성에 실패했습니다. 다시 시도해 주세요.');
                 });
         });
+
 
         // 댓글 삭제
         document.addEventListener('click', function (e) {
@@ -1106,7 +1115,7 @@
                         document.getElementById('pastedImage').src = event.target.result;
                         document.getElementById('pastedImage').className = 'comment-image';
                         document.getElementById('imagePreview').style.display = 'block';
-                        
+
                         const container = new DataTransfer();
                         container.items.add(new File([blob], 'pasted-image.png', {type: blob.type}));
                         document.getElementById('imageInput').files = container.files;
