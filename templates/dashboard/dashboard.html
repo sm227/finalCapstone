@@ -681,6 +681,22 @@
             margin: 0;
             padding: 0;
         }
+
+        .badge {
+            padding: 0.4em 0.6em;
+            font-size: 0.75em;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .badge:hover {
+            transform: scale(1.1);
+        }
+        
+        .badge .bi {
+            font-size: 0.9em;
+            margin-right: 2px;
+        }
     </style>
 
     <!-- TradingView Widget BEGIN -->
@@ -905,12 +921,12 @@
                                 <tr>
                                     <th>Symbol</th>
                                     <th>Name</th>
+                                    <th>Order</th>
                                     <th>Country</th>
                                     <th>Exchange Code</th>
                                     <th>Market Name</th>
                                     <th>Profit Loss Rate</th>
                                     <th>Exchange Rate</th>
-                                    <th>Purchase Amount Foreign</th>
                                     <th>Last Updated</th>
                                 </tr>
                                 </thead>
@@ -920,6 +936,17 @@
                                         <td>{{ stock.symbol }}</td>
                                         <td><a href="#" class="stock-link text-light"
                                                data-symbol="{{ stock.symbol }}">{{ stock.name }}</a></td>
+                                        <td>
+                                            {% if stock.is_ai_recommended %}
+                                                <span class="badge bg-primary" data-bs-toggle="tooltip" data-bs-placement="right" title="AI 분석 기반 추천 종목">
+                                                    <i class="bi bi-robot"></i> AI
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="직접 매수한 종목">
+                                                    <i class="bi bi-person"></i> Manual
+                                                </span>
+                                            {% endif %}
+                                        </td>
                                         <td>{{ stock.country }}</td>
                                         <td>{{ stock.exchange_code }}</td>
                                         <td>{{ stock.market_name }}</td>
@@ -927,7 +954,6 @@
                                             {{ stock.profit_loss_rate|floatformat:2 }}%
                                         </td>
                                         <td>{{ stock.exchange_rate }}</td>
-                                        <td>{{ stock.purchase_amount_foreign }}</td>
                                         <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>
                                     </tr>
                                 {% endfor %}
