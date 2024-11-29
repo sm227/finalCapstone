@@ -11,6 +11,7 @@ from login.models import UserProfile
 from django.contrib import messages
 import requests
 from analytics2.models import StockRecommendation
+from community.models import Stock
 
 @login_required(login_url='login')
 def dashboard(request):
@@ -42,6 +43,15 @@ def dashboard(request):
     ai_recommendations = StockRecommendation.objects.values_list('symbol', flat=True)
 
     for comp in balance['output1']:
+        # Stock 모델에 데이터 추가 또는 존재 시 업데이트
+        stock, created = Stock.objects.get_or_create(
+            symbol=comp['pdno'],
+            defaults={
+                'name': comp['prdt_name'],
+                'price': float(comp['frcr_pchs_amt']),
+            }
+        )
+
         stock_holdings.append({
             'symbol': comp['pdno'],
             'name': comp['prdt_name'],

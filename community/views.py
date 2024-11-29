@@ -11,19 +11,28 @@ import os
 from django.db.models import Count
 from django.http import StreamingHttpResponse
 import time
+from django.urls import reverse
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+import module.koreainvestment as mojito
+from login.models import UserProfile
+from django.contrib import messages
+import requests
+from .models import Stock
 
 
 @login_required
-# 댓글 작성
-def post_comment(request):
+def post_comment(request, symbol):
+    stock = get_object_or_404(Stock, symbol=symbol)
     if request.method == "POST":
         text = request.POST.get('comment_text')
         image = request.FILES.get('comment_image')
 
-        if text or image:  # 텍스트나 이미지 중 하나라도 있으면 진행
+        if text or image:
             comment = Comment.objects.create(
                 user=request.user,
-                text=text if text else ''
+                text=text if text else '',
+                stock=stock
             )
 
             if image:
@@ -41,9 +50,12 @@ def post_comment(request):
     return JsonResponse({'success': False, 'message': '댓글 내용이나 이미지가 필요합니다.'})
 
 
+
 # 댓글 가져오기
-def get_comments(request):
-    comments = Comment.objects.all().order_by('-created_at')
+#@login_required
+def get_comments(request, symbol):
+    stock = get_object_or_404(Stock, symbol=symbol)  # 주식 종목 정보 가져오기
+    comments = Comment.objects.filter(stock=stock).order_by('-created_at')  # 해당 주식 종목에 대한 댓글만 가져오기
     comments_data = []
     for comment in comments:
         comments_data.append({
@@ -102,7 +114,7 @@ def get_hangang_temperature():
             temperature_text = temperature_element.get_text().strip()
             match = re.search(r'[-+]?\d*\.\d+|\d+', temperature_text)  # 소수점 포함 숫자 추출
             if match:
-                return match.group()  # 매칭된 숫자 ���환
+                return match.group()  # 매칭된 숫자 환
             else:
                 return "온도 데이터를 처리할 수 없습니다."
         else:
@@ -181,19 +193,16 @@ def like_comment(request):
 
 
 @login_required
-def community(request):
+def community(request, symbol):
     load_dotenv()
-    temperature = float(get_hangang_temperature())  # 한강 물 온도 가져오기
+    temperature = float(get_hangang_temperature())
 
-    # 현재 로그인한 사용자의 UserProfile 가져오기
     try:
         user_profile = UserProfile.objects.get(user=request.user)
     except UserProfile.DoesNotExist:
-        # UserProfile이 없는 경우 에러 처리
         messages.error(request, "사용자 프로필을 찾을 수 없습니다. 관리자에게 문의하세요.")
         return redirect('login')
 
-    # 주식 API 데이터 가져오기
     broker = mojito.KoreaInvestment(
         api_key=user_profile.api_key,
         api_secret=user_profile.api_secret,
@@ -204,11 +213,18 @@ def community(request):
 
     balance = broker.fetch_present_balance()
     test = broker.fetch_balance_oversea()
-    print(balance)
-
     stock_holdings = []
 
     for comp in test['output1']:
+        # Stock 모델 생성 또는 업데이트
+        stock, created = Stock.objects.get_or_create(
+            symbol=comp['ovrs_pdno'],
+            defaults={
+                'name': comp['ovrs_item_name'],
+                'price': 0.0
+            }
+        )
+        
         stock_holdings.append({
             'symbol': comp['ovrs_pdno'],
             'name': comp['ovrs_item_name'],
@@ -217,20 +233,21 @@ def community(request):
             'profit_loss_rate': float(comp['evlu_pfls_rt']),
             'last_updated': timezone.now(),
         })
-    top_5_stocks = sorted(stock_holdings, key=lambda x: x['profit_loss_rate'], reverse=True)[:5]
 
-    total_value = balance['output3'].get('tot_asst_amt', 0)
-    PnL = balance['output3'].get('tot_evlu_pfls_amt')
+    # 현재 선택된 주식 정보 가져오기
+    stock = get_object_or_404(Stock, symbol=symbol)
+    comments = Comment.objects.filter(stock=stock)
 
-    # 모든 데이터를 하나의 딕셔너리에 포함
     context = {
-        'acc_no': user_profile.acc_num,
-        'stocks': top_5_stocks,
-        'total_value': total_value,
-        'total_stocks': len(stock_holdings),
-        'PnL': float(PnL),
-        'temperature': temperature  # 한강 물 온도 추가
+        'symbol': symbol,
+        'stock': stock,
+        'comments': comments,
+        'temperature': temperature,
+        'stocks': stock_holdings
     }
+
+    comments_url = reverse('get_comments', kwargs={'symbol': symbol})
+    context['comments_url'] = comments_url
 
     return render(request, 'community/community.html', context)
 
@@ -243,3 +260,4 @@ def check_like_status(request):
         return JsonResponse({'liked': liked})
     except Comment.DoesNotExist:
         return JsonResponse({'liked': False})
+
