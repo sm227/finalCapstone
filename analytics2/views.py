@@ -398,7 +398,7 @@ def analyze_and_store_stocks():
 def start_scheduler():
     scheduler = BackgroundScheduler()
     # 매일 밤 11시 40분에 실행되도록 설정
-    scheduler.add_job(analyze_and_store_stocks, 'cron', hour=23, minute=40)
+    scheduler.add_job(analyze_and_store_stocks, 'cron', hour=00, minute=00)
     scheduler.start()
 
 @login_required
