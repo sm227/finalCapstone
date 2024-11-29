@@ -900,10 +900,26 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="card text-white bg-info">
+                        <div class="card text-white" style="background: linear-gradient(45deg, #0dcaf0, #0d6efd);">
                             <div class="card-body">
-                                <h5 class="card-title">AI Prediction</h5>
-                                <p class="card-text display-6">Bullish</p>
+                                <h5 class="card-title">AI 분석 현황</h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <small class="text-light">추천 종목 수</small>
+                                        <p class="h3 mb-0">{{ ai_recommendations_count|default:"0" }}</p>
+                                    </div>
+                                    <div class="text-end d-flex align-items-center gap-2">
+                                        <small class="text-light">예측 정확도</small>
+                                        <p class="h3 mb-0">{{ ai_accuracy|default:"0" }}%</p>
+                                    </div>
+                                </div>
+                                <div class="progress mt-2" style="height: 4px; background: rgba(255,255,255,0.2);">
+                                    <div class="progress-bar bg-light" role="progressbar" 
+                                         style="width: {{ ai_accuracy|default:'0' }}%" 
+                                         aria-valuenow="{{ ai_accuracy|default:'0' }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100"></div>
+                                </div>
                             </div>
                         </div>
                     </div>

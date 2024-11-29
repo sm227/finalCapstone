@@ -62,6 +62,14 @@ def dashboard(request):
 
     cpi_data = crawl_cpi_data()
 
+    # AI 추천 종목 수와 정확도 계산
+    ai_recommended_stocks = [stock for stock in stock_holdings if stock['is_ai_recommended']]
+    ai_recommendations_count = len(ai_recommended_stocks)
+    
+    # 수익이 발생한 AI 추천 종목 수 계산
+    profitable_ai_stocks = [stock for stock in ai_recommended_stocks if stock['profit_loss_rate'] > 0]
+    ai_accuracy = (len(profitable_ai_stocks) / ai_recommendations_count * 100) if ai_recommendations_count > 0 else 0
+
     context = {
         'acc_no': user_profile.acc_num,
         'stocks': stock_holdings,
@@ -69,7 +77,9 @@ def dashboard(request):
         'total_stocks': len(stock_holdings),
         'PnL': float(PnL),
         'cpi_data': cpi_data,
-        'ppi_data': ppi_data
+        'ppi_data': ppi_data,
+        'ai_recommendations_count': ai_recommendations_count,  # 추가
+        'ai_accuracy': round(ai_accuracy, 1)  # 추가 (소수점 첫째자리까지 표시)
     }
 
     return render(request, 'dashboard/dashboard.html', context)
