@@ -215,16 +215,8 @@ def community(request, symbol):
     test = broker.fetch_balance_oversea()
     stock_holdings = []
 
+    # 주식 정보 수집
     for comp in test['output1']:
-        # Stock 모델 생성 또는 업데이트
-        stock, created = Stock.objects.get_or_create(
-            symbol=comp['ovrs_pdno'],
-            defaults={
-                'name': comp['ovrs_item_name'],
-                'price': 0.0
-            }
-        )
-        
         stock_holdings.append({
             'symbol': comp['ovrs_pdno'],
             'name': comp['ovrs_item_name'],
@@ -233,6 +225,19 @@ def community(request, symbol):
             'profit_loss_rate': float(comp['evlu_pfls_rt']),
             'last_updated': timezone.now(),
         })
+        
+        # Stock 모델 생성 또는 업데이트
+        stock, created = Stock.objects.get_or_create(
+            symbol=comp['ovrs_pdno'],
+            defaults={
+                'name': comp['ovrs_item_name'],
+                'price': 0.0
+            }
+        )
+
+    # 수익률 기준으로 정렬하고 상위 5개만 선택
+    stock_holdings.sort(key=lambda x: x['profit_loss_rate'], reverse=True)
+    top_5_stocks = stock_holdings[:5]
 
     # 현재 선택된 주식 정보 가져오기
     stock = get_object_or_404(Stock, symbol=symbol)
@@ -243,7 +248,7 @@ def community(request, symbol):
         'stock': stock,
         'comments': comments,
         'temperature': temperature,
-        'stocks': stock_holdings
+        'stocks': top_5_stocks  # 변경된 부분: top 5 주식만 전달
     }
 
     comments_url = reverse('get_comments', kwargs={'symbol': symbol})
