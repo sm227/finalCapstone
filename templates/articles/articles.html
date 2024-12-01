@@ -14,9 +14,50 @@
     }
 
     .card {
-        background-color: #1e1e1e;
-        border-color: #333;
-        height: 300px;
+        height: auto;
+        min-height: 250px;
+        background-color: rgba(30, 30, 30, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }?
+
+    .card-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .card-text {
+        color: #b0b0b0;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        flex-grow: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-bottom: 1rem;
     }
 
     .table {
@@ -24,8 +65,27 @@
     }
 
     .modal-content {
-        background-color: #1e1e1e;
+        background-color: rgba(30, 30, 30, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
         color: #e0e0e0;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1.5rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+        color: #e0e0e0;
+        line-height: 1.6;
+    }
+
+    .modal-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1.5rem;
     }
 
     .bg-light {
@@ -38,38 +98,33 @@
 
 
     .progress {
-        height: 30px;
-        background-color: #f0f0f0;
-        border-radius: 15px;
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        height: 12px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
         overflow: hidden;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
     }
 
     .progress-bar {
-        background-image: linear-gradient(45deg,
-        rgba(255, 255, 255, .15) 25%, transparent 25%,
-        transparent 50%, rgba(255, 255, 255, .15) 50%,
-        rgba(255, 255, 255, .15) 75%, transparent 75%,
-        transparent);
-        background-size: 40px 40px;
-        animation: stripes 1s linear infinite;
+        background: linear-gradient(45deg, #2962ff, #3d6eff);
+        background-size: 20px 20px;
+        animation: progress-animation 2s linear infinite;
     }
 
-    @keyframes stripes {
+    @keyframes progress-animation {
         0% {
             background-position: 0 0;
         }
         100% {
-            background-position: 40px 0;
+            background-position: 20px 0;
         }
     }
 
     #progressMessage {
-        font-size: 1.2em;
-        font-weight: bold;
-        color: #ffffff;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #b0b0b0;
+        letter-spacing: 0.5px;
     }
 
     .fade-in {
@@ -312,6 +367,85 @@
         --text-primary: #ffffff;
         --text-secondary: #999999;
         --accent-blue: #3182f6;
+    }
+
+    /* 버튼 스타일 업데이트 */
+    .btn-primary {
+        background: linear-gradient(45deg, #2962ff, #3d6eff);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #3d6eff, #2962ff);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(41, 98, 255, 0.3);
+    }
+
+    /* 카드 컨테이너 여백 설정 */
+    .article-card {
+        margin-bottom: 30px;  /* 카드 사이 세로 여백 */
+        padding: 0 15px;      /* 좌우 여백 */
+    }
+
+    .card {
+        height: auto;
+        min-height: 250px;
+        background-color: rgba(30, 30, 30, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* 반응형 여백 조정 */
+    @media (max-width: 768px) {
+        .article-card {
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        .card {
+            min-height: 200px;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .card-text {
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .btn-primary {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+    }
+
+    /* 컨테이너 여백 조정 */
+    @media (max-width: 576px) {
+        .container-fluid {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+            width: 100% !important;
+        }
+
+        .article-card {
+            padding: 0 8px;
+        }
     }
 </style>
 

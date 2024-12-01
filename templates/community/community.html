@@ -929,7 +929,7 @@
                 <div class="card">
                     <div class="card-header d-flex align-items-center">
                         <i class="bi bi-graph-up-arrow me-2"></i>
-                        <h5 class="mb-0">실시간 Top 5 주식</h5>
+                        <h5 class="mb-0">실시간 Top 5 수익률</h5>
                     </div>
                     <div class="card-body p-0">
                         <ul class="stock-list">
@@ -943,7 +943,7 @@
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <div class="stock-title">
                                                     <span>{{ stock.name }}</span>
-                                                    <span class="symbol">{{ stock.symbol }}</span>
+                                                    <span class="stock-symbol">{{ stock.symbol }}</span>
                                                 </div>
                                                 <div class="stock-profit-wrapper">
                                                     <span class="stock-profit {% if stock.profit_loss_rate > 0 %}profit-up{% else %}profit-down{% endif %}">
@@ -955,6 +955,10 @@
                                         </div>
                                     </div>
                                 </li>
+                            {% empty %}
+                                <li class="stock-item text-center py-3">
+                                    <span class="text-muted">보유 중인 주식이 없습니다.</span>
+                                </li>
                             {% endfor %}
                         </ul>
                     </div>
@@ -962,6 +966,25 @@
             </div>
         </div>
     </div>
+
+    <!-- script 부분 추가 -->
+    <script>
+        // 사이드바 토글 기능
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+            const overlay = document.querySelector('.sidebar-overlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('show');
+                sidebarToggle.classList.toggle('active');
+                overlay.classList.toggle('show');
+            }
+
+            sidebarToggle.addEventListener('click', toggleSidebar);
+            overlay.addEventListener('click', toggleSidebar);
+        });
+    </script>
 
     <script>
         function generateUserColor(userId) {
@@ -998,7 +1021,7 @@
                                     <span class="user-name">${comment.user}</span>
                                     <small class="text-muted" data-timestamp="${comment.created_at}">${timeAgo(comment.created_at)}</small>
                                     ${comment.user_id === {{ request.user.id }} ?
-                                        `<button class="btn btn-danger btn-sm ms-2 delete-comment-btn" data-id="${comment.id}">삭제</button>` : ''}
+                            `<button class="btn btn-danger btn-sm ms-2 delete-comment-btn" data-id="${comment.id}">삭제</button>` : ''}
                                 </div>
                                 <p>${comment.text}</p>
                                 ${imageHtml}
@@ -1022,7 +1045,7 @@
         window.addEventListener('DOMContentLoaded', fetchComments);
 
         // 댓글 작성 처리
-        commentForm.addEventListener('submit', function(e) {
+        commentForm.addEventListener('submit', function (e) {
             e.preventDefault();
 
             const commentText = commentInput.value.trim();
@@ -1047,29 +1070,29 @@
                     'X-CSRFToken': '{{ csrf_token }}'
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // 댓글 작성 성공 후 전체 목록 새로고침
-                    fetchComments();
-                    
-                    // 폼 초기화
-                    commentForm.reset();
-                    removeImage();
-                    document.getElementById('imagePreviewName').textContent = '';
-                    document.getElementById('newCommentAlert').style.display = 'none';
-                } else {
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 댓글 작성 성공 후 전체 목록 새로고침
+                        fetchComments();
+
+                        // 폼 초기화
+                        commentForm.reset();
+                        removeImage();
+                        document.getElementById('imagePreviewName').textContent = '';
+                        document.getElementById('newCommentAlert').style.display = 'none';
+                    } else {
+                        alert('댓글 작성에 실패했습니다. 다시 시도해 주세요.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                     alert('댓글 작성에 실패했습니다. 다시 시도해 주세요.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('댓글 작성에 실패했습니다. 다시 시도해 주세요.');
-            });
+                });
         });
 
         // 댓글 삭제
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             if (e.target.classList.contains('delete-comment-btn')) {
                 const commentId = e.target.getAttribute('data-id');
 
@@ -1082,24 +1105,24 @@
                         },
                         body: JSON.stringify({id: commentId})
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            e.target.closest('.d-flex').remove();
-                        } else {
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                e.target.closest('.d-flex').remove();
+                            } else {
+                                alert('댓글 삭제에 실패했습니다.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
                             alert('댓글 삭제에 실패했습니다.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('댓글 삭제에 실패했습니다.');
-                    });
+                        });
                 }
             }
         });
 
         // 추천
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             if (e.target.closest('.like-comment-btn')) {
                 const button = e.target.closest('.like-comment-btn');
                 const commentId = button.getAttribute('data-id');
@@ -1114,19 +1137,19 @@
                         comment_id: commentId
                     })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const likeCount = button.querySelector('.like-count');
-                        likeCount.textContent = data.total_likes;
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const likeCount = button.querySelector('.like-count');
+                            likeCount.textContent = data.total_likes;
 
-                        if (data.liked) {
-                            button.classList.add('active');
-                        } else {
-                            button.classList.remove('active');
+                            if (data.liked) {
+                                button.classList.add('active');
+                            } else {
+                                button.classList.remove('active');
+                            }
                         }
-                    }
-                });
+                    });
             }
         });
 
@@ -1162,7 +1185,7 @@
         updateTimeAgo();
 
         // 이미지 관련 기능
-        document.getElementById('imageInput').addEventListener('change', function(e) {
+        document.getElementById('imageInput').addEventListener('change', function (e) {
             const fileName = e.target.files[0]?.name;
             if (fileName) {
                 document.getElementById('imagePreviewName').textContent = fileName;
@@ -1179,7 +1202,7 @@
                     const blob = items[i].getAsFile();
                     const reader = new FileReader();
 
-                    reader.onload = function(event) {
+                    reader.onload = function (event) {
                         document.getElementById('pastedImage').src = event.target.result;
                         document.getElementById('pastedImage').className = 'comment-image';
                         document.getElementById('imagePreview').style.display = 'block';
@@ -1201,11 +1224,11 @@
             document.getElementById('imageInput').value = '';
         }
 
-        document.getElementById('imageInput').addEventListener('change', function(e) {
+        document.getElementById('imageInput').addEventListener('change', function (e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(event) {
+                reader.onload = function (event) {
                     document.getElementById('pastedImage').src = event.target.result;
                     document.getElementById('imagePreview').style.display = 'block';
                 };
@@ -1213,12 +1236,18 @@
             }
         });
 
+        // 새 댓글 확인하기 함수
+        function loadNewComments() {
+            fetchComments();
+            document.getElementById('newCommentAlert').style.display = 'none';
+        }
+
         // SSE(Server-Sent Events) 연결
         const eventSource = new EventSource("{% url 'comment_stream' %}");
-        
-        eventSource.onmessage = function(event) {
+
+        eventSource.onmessage = function (event) {
             const data = event.data;
-            
+
             if (data === 'new_comment') {
                 // 새 댓글이 있을 때 알림 표시
                 document.getElementById('newCommentAlert').style.display = 'block';
@@ -1242,7 +1271,7 @@
             }
         };
 
-        eventSource.onerror = function(error) {
+        eventSource.onerror = function (error) {
             console.error("EventSource failed:", error);
             eventSource.close();
         };
