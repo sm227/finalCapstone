@@ -5,6 +5,7 @@
     <head>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-aflpha1/dist/css/bootstrap.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </head>
 
     <style>
@@ -736,23 +737,234 @@
             padding-top: 4px;
         }
 
-        .like-comment-btn {
+        .like-comment-btn,
+        .dislike-comment-btn {
             padding: 0.15rem 0.35rem;
             font-size: 0.75rem;
             transition: all 0.2s ease;
         }
 
-        .like-comment-btn.active {
-            background-color: #0d6efd;
+        .like-comment-btn.active,
+        .dislike-comment-btn.active {
             color: white;
         }
 
-        .like-comment-btn i {
+        .like-comment-btn.active {
+            background-color: #0d6efd;
+        }
+
+        .dislike-comment-btn.active {
+            background-color: #dc3545;
+        }
+
+        .like-comment-btn i,
+        .dislike-comment-btn i {
             font-size: 0.7rem;
         }
 
-        .like-count {
+        .like-count,
+        .dislike-count {
             margin-left: 0.2rem;
+        }
+
+        {# 투표 관련 ~ 977 #}
+        .poll-options {
+            margin-bottom: 10px;
+        }
+
+        .poll-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .poll-option:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #3182f6;
+            box-shadow: 0 0 0 2px rgba(49, 130, 246, 0.2);
+            color: #ffffff;
+        }
+
+        {# 투표 결과 표시 #}
+        .poll-result {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .poll-option-result {
+            margin-bottom: 15px;
+        }
+
+        .poll-option-clickable,
+        .poll-option-text {
+            padding: 12px;
+            font-size: 0.85rem;
+        }
+
+        .poll-option-clickable span,
+        .poll-option-text span {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 4px 0;
+        }
+
+        .poll-option-text .d-flex,
+        .poll-option-clickable .d-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .poll-option-text span:last-child,
+        .poll-option-clickable span:last-child {
+            margin-left: 15px;
+            white-space: nowrap;
+        }
+
+        .poll-bar-container {
+        {#background: rgba(255, 255, 255, 0.1);#} border-radius: 8px;
+            overflow: hidden;
+            height: 20px;
+            margin-top: 8px;
+        }
+
+        .poll-bar {
+            background: linear-gradient(45deg, #2962ff, #3d6eff);
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.3s ease, filter 0.2s ease;
+        }
+
+        .poll-option-clickable {
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .poll-option-clickable:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .poll-option-clickable:hover .poll-bar {
+            filter: brightness(1.1);
+        }
+
+        {# 투표 결과 #}
+        .poll-result-text {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        {# 투표 수 표시 #}
+        .poll-vote-count {
+            white-space: nowrap;
+            margin-left: 15px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        {# 엣지 #}
+        @supports (-ms-ime-align: auto) {
+            .poll-option-result {
+                margin-bottom: 25px;
+            }
+
+            .poll-option-clickable,
+            .poll-option-text {
+                padding: 12px;
+            }
+
+            .poll-option-clickable span,
+            .poll-option-text span {
+                padding: 8px 0;
+                line-height: 1.5;
+            }
+
+            .poll-bar-container {
+                margin-top: 12px;
+            }
+
+            .poll-option-text .d-flex,
+            .poll-option-clickable .d-flex {
+                margin: 10px 0;
+            }
+
+            .poll-result {
+                padding: 15px;
+            }
+
+            .poll-option-text span:first-child,
+            .poll-option-clickable span:first-child {
+                margin-right: 15px;
+            }
+
+            .poll-option-text span:last-child,
+            .poll-option-clickable span:last-child {
+                margin-left: auto;
+            }
+        }
+
+        {# 크롬 #}
+        @supports (not (-ms-ime-align: auto)) and (-webkit-appearance: none) {
+            .poll-option-result {
+                margin-bottom: 15px;
+            }
+
+            .poll-option-text span,
+            .poll-option-clickable span {
+                padding: 4px 0;
+            }
+
+            .poll-bar-container {
+                margin-top: 8px;
+            }
+
+            .poll-result {
+                padding: 10px;
+            }
+        }
+
+        .add-poll-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .add-poll-option:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .poll-options-container {
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* 투표 옵션 삭제 버튼 */
+        .remove-poll-option {
+            color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .remove-poll-option:hover {
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 0, 0, 0.1);
         }
     </style>
 
@@ -778,7 +990,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'dashboard' %}">
                         <i class="bi bi-house-door"></i>
-                        <span>대시드</span>
+                        <span>대시보드</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -846,6 +1058,16 @@
                             <textarea id="commentInput" class="form-control mb-3" rows="3"
                                       placeholder="여러분의 의견을 공유해주세요..."
                                       onpaste="handlePaste(event)"></textarea>
+                                <!-- 투표 옵션 컨테이너 -->
+                                <div id="pollOptionsContainer" style="display: none;" class="mb-3">
+                                    <div class="poll-options">
+                                        <input type="text" class="form-control mb-2 poll-option" placeholder="투표 항목 1">
+                                    </div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm"
+                                            onclick="addPollOption()">
+                                        <i class="bi bi-plus"></i> 항목 추가
+                                    </button>
+                                </div>
                                 <div id="imagePreview" class="mt-2" style="display: none;">
                                     <img id="pastedImage" class="img-fluid rounded mb-2" style="max-height: 200px;">
                                     <button type="button" class="btn btn-sm btn-danger" onclick="removeImage()">
@@ -858,6 +1080,12 @@
                                     <label for="imageInput" class="btn btn-outline-secondary">
                                         <i class="bi bi-image me-2"></i>이미지 추가
                                     </label>
+                                    <input type="file" id="imageInput" name="comment_image" accept="image/*"
+                                           style="display: none;">
+                                    <button type="button" class="btn btn-outline-secondary ms-2"
+                                            onclick="togglePollOptions()">
+                                        <i class="bi bi-bar-chart me-2"></i>투표 만들기
+                                    </button>
                                     <input type="file" id="imageInput" name="comment_image" accept="image/*"
                                            style="display: none;">
                                     <span id="imagePreviewName" class="ms-2"></span>
@@ -955,7 +1183,7 @@
                                         </div>
                                     </div>
                                 </li>
-                            {% empty %}
+                                {% empty %}
                                 <li class="stock-item text-center py-3">
                                     <span class="text-muted">보유 중인 주식이 없습니다.</span>
                                 </li>
@@ -969,7 +1197,6 @@
 
     <!-- script 부분 추가 -->
     <script>
-        // 사이드바 토글 기능
         document.addEventListener('DOMContentLoaded', function () {
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.querySelector('.sidebar-toggle');
@@ -987,6 +1214,23 @@
     </script>
 
     <script>
+        let isPollActive = false;
+
+        function togglePollOptions() {
+            const pollContainer = document.getElementById('pollOptionsContainer');
+            isPollActive = !isPollActive;
+            pollContainer.style.display = isPollActive ? 'block' : 'none';
+        }
+
+        function addPollOption() {
+            const pollOptions = document.querySelector('.poll-options');
+            const newOption = document.createElement('input');
+            newOption.type = 'text';
+            newOption.className = 'form-control mb-2 poll-option';
+            newOption.placeholder = `투표 항목 ${pollOptions.children.length + 1}`;
+            pollOptions.appendChild(newOption);
+        }
+
         function generateUserColor(userId) {
             const hue = (userId * 137.508) % 360;
             const saturation = 65;
@@ -1007,38 +1251,78 @@
                 .then(data => {
                     commentList.innerHTML = '';
                     data.comments.forEach(comment => {
-                        const imageHtml = comment.image_url ?
-                            `<div class="comment-image mt-2">
-                                <img src="${comment.image_url}" alt="댓글 이미지" class="img-fluid rounded">
-                            </div>` : '';
-
-                        const commentItem = document.createElement('div');
-                        commentItem.classList.add('d-flex', 'align-items-start', 'mb-3');
-                        commentItem.innerHTML = `
-                            <div class="user-avatar me-3" style="background-color: ${generateUserColor(comment.user_id)};">${comment.user[0]}</div>
-                            <div class="comment-content">
-                                <div class="comment-meta">
-                                    <span class="user-name">${comment.user}</span>
-                                    <small class="text-muted" data-timestamp="${comment.created_at}">${timeAgo(comment.created_at)}</small>
-                                    ${comment.user_id === {{ request.user.id }} ?
-                            `<button class="btn btn-danger btn-sm ms-2 delete-comment-btn" data-id="${comment.id}">삭제</button>` : ''}
-                                </div>
-                                <p>${comment.text}</p>
-                                ${imageHtml}
-                                <div class="comment-actions">
-                                    <button class="btn btn-outline-primary btn-sm like-comment-btn ${comment.liked ? 'active' : ''}" 
-                                            data-id="${comment.id}">
-                                        <i class="bi bi-hand-thumbs-up"></i>
-                                        <span class="like-count">${comment.total_likes}</span>
-                                    </button>
-                                </div>
-                            </div>
-                        `;
+                        const commentItem = renderComment(comment);
                         commentList.appendChild(commentItem);
                     });
                     updateTimeAgo();
                 })
                 .catch(error => console.error('Error:', error));
+        }
+
+        function renderComment(comment) {
+            const pollHtml = comment.is_poll ? `
+                <div class="poll-result">
+                    ${comment.poll_options.map((option, index) => `
+                        <div class="poll-option-result" data-option-id="${option.id}">
+                            ${!comment.user_voted ? `
+                                <div class="poll-option-clickable" onclick="votePoll(${comment.id}, ${option.id})">
+                            ` : `
+                                <div class="poll-option-text">
+                            `}
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span>${option.text}</span>
+                                    <span class="vote-count">${option.votes} 표 (${option.percentage}%)</span>
+                                </div>
+                                <div class="poll-bar-container">
+                                    <div class="poll-bar" style="width: ${option.percentage}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '';
+
+            const commentItem = document.createElement('div');
+            commentItem.classList.add('d-flex', 'align-items-start', 'mb-3');
+
+            const imageHtml = comment.image_url ?
+                `<div class="comment-image mt-2">
+                    <img src="${comment.image_url}" alt="댓글 이미지" class="img-fluid rounded">
+                </div>` : '';
+
+            commentItem.innerHTML = `
+                <div class="user-avatar me-3" style="background-color: ${generateUserColor(comment.user_id)};">
+                    ${comment.user[0]}
+                </div>
+                <div class="comment-content">
+                    <div class="comment-meta">
+                        <span class="user-name">${comment.user}</span>
+                        <small class="text-muted" data-timestamp="${comment.created_at}">
+                            ${timeAgo(comment.created_at)}
+                        </small>
+                        ${comment.user_id === {{ request.user.id }} ?
+                `<button class="btn btn-danger btn-sm ms-2 delete-comment-btn" data-id="${comment.id}">삭제</button>`
+                : ''}
+                    </div>
+                    <p>${comment.text}</p>
+                    ${imageHtml}
+                    ${pollHtml}
+                    <div class="comment-actions">
+                        <button class="btn btn-outline-primary btn-sm like-comment-btn ${comment.liked ? 'active' : ''}" 
+                                data-id="${comment.id}">
+                            <i class="bi bi-hand-thumbs-up"></i>
+                            <span class="like-count">${comment.total_likes}</span>
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm ms-2 dislike-comment-btn ${comment.disliked ? 'active' : ''}" 
+                                data-id="${comment.id}">
+                            <i class="bi bi-hand-thumbs-down"></i>
+                            <span class="dislike-count">${comment.total_dislikes}</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            return commentItem;
         }
 
         // 페이지 로드시 댓글 불러오기
@@ -1050,17 +1334,35 @@
 
             const commentText = commentInput.value.trim();
             const imageFile = document.getElementById('imageInput').files[0];
+            const pollOptions = isPollActive ? Array.from(document.querySelectorAll('.poll-option'))
+                .map(input => input.value.trim())
+                .filter(value => value !== '') : [];
 
-            if (commentText === '' && !imageFile) {
-                alert('댓글 내용이나 이미지를 입력하세요!');
+            // 투표 옵션이 활성화되어 있을 때는 최소 2개의 옵션이 필요
+            if (isPollActive && pollOptions.length < 2) {
+                alert('최소 2개 이상의 투표 항목을 입력하세요!');
+                return;
+            }
+
+            // 댓글, 이미지, 투표 중 하나라도 있어야 함
+            if (!commentText && !imageFile && !isPollActive) {
+                alert('댓글 내용이나 이미지를 입력하거나, 투표를 만들어주세요!');
                 return;
             }
 
             const formData = new FormData();
             formData.append('comment_text', commentText);
             formData.append('symbol', symbol);
+
             if (imageFile) {
                 formData.append('comment_image', imageFile);
+            }
+
+            if (isPollActive) {
+                formData.append('is_poll', 'true');
+                pollOptions.forEach((option, index) => {
+                    formData.append(`poll_option_${index}`, option);
+                });
             }
 
             fetch("{% url 'post_comment' symbol=symbol %}", {
@@ -1073,24 +1375,68 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // 댓글 작성 성공 후 전체 목록 새로고침
                         fetchComments();
-
-                        // 폼 초기화
                         commentForm.reset();
                         removeImage();
                         document.getElementById('imagePreviewName').textContent = '';
                         document.getElementById('newCommentAlert').style.display = 'none';
+
+                        // 투표 옵션 초기화
+                        if (isPollActive) {
+                            togglePollOptions();
+                            document.querySelector('.poll-options').innerHTML = `
+                    <input type="text" class="form-control mb-2 poll-option" placeholder="투표 항목 1">
+                `;
+                        }
                     } else {
-                        alert('댓글 작성에 실패했습니다. 다시 시도해 주세요.');
+                        alert(data.message || '댓글 작성에 실패했습니다.');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('댓글 작성에 실패했습니다. 다시 시도해 주세요.');
+                    alert('댓글 작성에 실패했습니다.');
                 });
         });
 
+        function votePoll(commentId, optionId) {
+            fetch("{% url 'vote_poll' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    comment_id: commentId,
+                    option_id: optionId
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('투표 성공:', data);
+                        fetchComments(); // 댓글 목록 새로고침
+                    } else {
+                        // 투표 중복 시도 시 알림창 표시
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '투표 불가',
+                            text: data.message,
+                            confirmButtonText: '확인'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: '오류',
+                        text: '투표 처리 중 오류가 발생했습니다.',
+                        confirmButtonText: '확인'
+                    });
+                });
+        }
+
+        
         // 댓글 삭제
         document.addEventListener('click', function (e) {
             if (e.target.classList.contains('delete-comment-btn')) {
@@ -1145,8 +1491,51 @@
 
                             if (data.liked) {
                                 button.classList.add('active');
+                                const dislikeButton = button.parentElement.querySelector('.dislike-comment-btn');
+                                dislikeButton.classList.remove('active');
+                                const dislikeCount = dislikeButton.querySelector('.dislike-count');
+                                dislikeCount.textContent = data.total_dislikes;
                             } else {
                                 button.classList.remove('active');
+                            }
+                        }
+                    });
+            }
+        });
+
+        // 비추천 기능
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('.dislike-comment-btn')) {
+                const button = e.target.closest('.dislike-comment-btn');
+                const commentId = button.getAttribute('data-id');
+
+                fetch('{% url "dislike_comment" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        comment_id: commentId
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const dislikeCount = button.querySelector('.dislike-count');
+                            dislikeCount.textContent = data.total_dislikes;
+
+                            if (data.disliked) {
+                                button.classList.add('active');
+                            } else {
+                                button.classList.remove('active');
+                            }
+
+                            const likeButton = button.parentElement.querySelector('.like-comment-btn');
+                            const likeCount = likeButton.querySelector('.like-count');
+                            likeCount.textContent = data.total_likes;
+                            if (data.disliked) {
+                                likeButton.classList.remove('active');
                             }
                         }
                     });
@@ -1183,6 +1572,7 @@
 
         setInterval(updateTimeAgo, 60000);
         updateTimeAgo();
+
 
         // 이미지 관련 기능
         document.getElementById('imageInput').addEventListener('change', function (e) {
@@ -1236,11 +1626,13 @@
             }
         });
 
+
         // 새 댓글 확인하기 함수
         function loadNewComments() {
             fetchComments();
             document.getElementById('newCommentAlert').style.display = 'none';
         }
+
 
         // SSE(Server-Sent Events) 연결
         const eventSource = new EventSource("{% url 'comment_stream' %}");
@@ -1249,17 +1641,14 @@
             const data = event.data;
 
             if (data === 'new_comment') {
-                // 새 댓글이 있을 때 알림 표시
                 document.getElementById('newCommentAlert').style.display = 'block';
             } else if (data.startsWith('deleted_')) {
-                // 댓글이 삭제되었을 때
                 const commentId = data.split('_')[1];
                 const commentElement = document.querySelector(`[data-id="${commentId}"]`).closest('.d-flex');
                 if (commentElement) {
                     commentElement.remove();
                 }
             } else if (data.startsWith('like_')) {
-                // 좋아요 수가 변경되었을 때
                 const [_, commentId, likeCount] = data.split('_');
                 const likeButton = document.querySelector(`.like-comment-btn[data-id="${commentId}"]`);
                 if (likeButton) {
@@ -1268,12 +1657,41 @@
                         likeCountElement.textContent = likeCount;
                     }
                 }
+            } else if (data.startsWith('poll_')) {
+                try {
+                    const pollData = JSON.parse(data.substring(5));
+                    const commentElement = document.querySelector(`[data-id="${pollData.comment_id}"]`);
+                    if (commentElement) {
+                        const pollContainer = commentElement.querySelector('.poll-result');
+                        if (pollContainer) {
+                            pollData.poll_options.forEach(option => {
+                                const optionElement = pollContainer.querySelector(`[data-option-id="${option.id}"]`);
+                                if (optionElement) {
+                                    const voteCountElement = optionElement.querySelector('.vote-count');
+                                    if (voteCountElement) {
+                                        voteCountElement.textContent = `${option.votes} 표 (${option.percentage}%)`;
+                                    }
+
+                                    const progressBar = optionElement.querySelector('.poll-bar');
+                                    if (progressBar) {
+                                        progressBar.style.width = `${option.percentage}%`;
+                                    }
+                                }
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to parse poll data:', error);
+                }
             }
         };
 
         eventSource.onerror = function (error) {
             console.error("EventSource failed:", error);
             eventSource.close();
+            setTimeout(() => {
+                window.location.reload();
+            }, 5000);
         };
     </script>
 {% endblock %}
