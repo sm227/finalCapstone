@@ -265,131 +265,152 @@ def sell(predict_price, user_profile):
     )
 
 
-def read_aggressive_stocks():
-    with open('공격형.txt', 'r') as file:
-        stocks = file.readlines()
-    return [stock.strip() for stock in stocks] # 상위 5개만 반환
+def read_stocks_by_style(investment_style):
+    # 투자 성향에 따른 파일명 매핑
+    style_files = {
+        'conservative': '안정형.txt',
+        'balanced': '중립형.txt',
+        'aggressive': '공격형.txt'
+    }
+    
+    # 해당하는 투자 성향의 파일 읽기
+    file_name = style_files.get(investment_style, '중립형.txt')  # 기본값으로 중립형 설정
+    try:
+        with open(file_name, 'r', encoding='utf-8') as file:
+            stocks = file.readlines()
+        return [stock.strip() for stock in stocks]
+    except FileNotFoundError:
+        print(f"파일을 찾을 수 없습니다: {file_name}")
+        return []
 
 def analyze_and_store_stocks():
     global ANALYSIS_IN_PROGRESS
     try:
-        # 이미 분석 중이면 실행하지 않음
         if ANALYSIS_IN_PROGRESS:
             print("이미 분석이 진행 중입니다.")
             return
             
         ANALYSIS_IN_PROGRESS = True
-        stocks = read_aggressive_stocks()
         
-        for ticker_symbol in stocks:
-            # 기존 추천이 있는지 확인
-            if StockRecommendation.objects.filter(symbol=ticker_symbol).exists():
-                print(f"{ticker_symbol}은 이미 분석되어 있습니다.")
+        # 각 투자 성향별로 분석 수행
+        for style, _ in UserProfile.INVESTMENT_CHOICES:
+            stocks = read_stocks_by_style(style)
+            if not stocks:
                 continue
                 
-            print(f"{ticker_symbol} 분석 시작")
-            # 기존 분석 로직
-            ticker = yf.Ticker(ticker_symbol)
-            end_time = datetime.now(pytz.timezone('America/New_York'))
-            start_time = end_time - timedelta(days=30)
-            
-            df = ticker.history(start=start_time, end=end_time, interval='1d')
-            df = calculate_technical_indicators(df)
-            
-            # JSON 데이터 구성 (기존 코드와 동일)
-            json_data = {
-                "symbol": ticker_symbol,
-                "data": []
-            }
-           
-           
-            for index, row in df.tail(30).iterrows():  # 마지막 30분 데이터만 사용
-                json_data["data"].append({
-                    "timestamp": index.strftime("%Y-%m-%d %H:%M:%S"),
-                    "price": {
-                        "open": float(row['Open']),
-                        "high": float(row['High']),
-                        "low": float(row['Low']),
-                        "close": float(row['Close']),
-                        "volume": int(row['Volume'])
-                    },
-                    "indicators": {
-                        "rsi": round(float(row['RSI']), 2) if not pd.isna(row['RSI']) else None,
-                        "macd": {
-                            "macd_line": round(float(row['MACD']), 2) if not pd.isna(row['MACD']) else None,
-                            "signal_line": round(float(row['Signal_Line']), 2) if not pd.isna(row['Signal_Line']) else None
-                        },
-                        "bollinger_bands": {
-                            "upper": round(float(row['BB_Upper']), 2) if not pd.isna(row['BB_Upper']) else None,
-                            "middle": round(float(row['MA20']), 2) if not pd.isna(row['MA20']) else None,
-                            "lower": round(float(row['BB_Lower']), 2) if not pd.isna(row['BB_Lower']) else None
-                        }
-                    }
-                })
-
-
-            # 유해성 조정
-            safety_settings = [
-                {
-                    "category": "HARM_CATEGORY_DANGEROUS",
-                    "threshold": "BLOCK_NONE",
-                },
-                {
-                    "category": "HARM_CATEGORY_HARASSMENT",
-                    "threshold": "BLOCK_NONE",
-                },
-                {
-                    "category": "HARM_CATEGORY_HATE_SPEECH",
-                    "threshold": "BLOCK_NONE",
-                },
-                {
-                    "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                    "threshold": "BLOCK_NONE",
-                },
-                {
-                    "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                    "threshold": "BLOCK_NONE",
-                },
-            ]
-            load_dotenv()
-
-            # Gemini API 분석
-            genai.configure(api_key=os.getenv('gemini_api_key'))  # API 키는 환경변수로 관리하는 것을 추천
-            prompt = generate_summary_prompt(json.dumps(json_data, indent=2, ensure_ascii=False))
-            model = genai.GenerativeModel("gemini-1.5-flash", safety_settings=safety_settings)
-            response = model.generate_content(prompt)
-            
-            # JSON 응답 파싱
-            response_text = response.text
-            start_index = response_text.find('{')
-            end_index = response_text.rfind('}') + 1
-            json_str = response_text[start_index:end_index]
-            response_data = json.loads(json_str)
-            
-            # 한 번만 출력
-            action = response_data['action'].lower()
-            print(f"{ticker_symbol} 분석 결과: {action}")
-            
-            # 매수 추천인 경우 DB에 저장
-            if action == 'buy':
-                StockRecommendation.objects.create(
-                    symbol=ticker_symbol,
-                    action=response_data['action'],
-                    reason=response_data['reason'],
-                    price_target=response_data['price_target'],
-                    stop_loss=response_data['stop_loss']
-                )
+            # 해당 투자 성향을 가진 사용자들 필터링
+            users_with_style = UserProfile.objects.filter(investment_style=style)
+            if not users_with_style.exists():
+                continue
                 
-                # 자동투자가 활성화된 모든 사용자에 대해 매수 실행
-                auto_invest_users = UserProfile.objects.filter(auto_investment=True)
-                for user_profile in auto_invest_users:
-                    try:
-                        buy(ticker_symbol, user_profile)
-                    except Exception as e:
-                        print(f"Error buying for user {user_profile.user.username}: {str(e)}")
+            for ticker_symbol in stocks:
+                # 기존 추천이 있는지 확인
+                if StockRecommendation.objects.filter(symbol=ticker_symbol).exists():
+                    print(f"{ticker_symbol}은 이미 분석되어 있습니다.")
+                    continue
+                
+                print(f"{ticker_symbol} 분석 시작")
+                # 기존 분석 로직
+                ticker = yf.Ticker(ticker_symbol)
+                end_time = datetime.now(pytz.timezone('America/New_York'))
+                start_time = end_time - timedelta(days=30)
+                
+                df = ticker.history(start=start_time, end=end_time, interval='1d')
+                df = calculate_technical_indicators(df)
+                
+                # JSON 데이터 구성 (기존 코드와 동일)
+                json_data = {
+                    "symbol": ticker_symbol,
+                    "data": []
+                }
+                
+                for index, row in df.tail(30).iterrows():  # 마지막 30분 데이터만 사용
+                    json_data["data"].append({
+                        "timestamp": index.strftime("%Y-%m-%d %H:%M:%S"),
+                        "price": {
+                            "open": float(row['Open']),
+                            "high": float(row['High']),
+                            "low": float(row['Low']),
+                            "close": float(row['Close']),
+                            "volume": int(row['Volume'])
+                        },
+                        "indicators": {
+                            "rsi": round(float(row['RSI']), 2) if not pd.isna(row['RSI']) else None,
+                            "macd": {
+                                "macd_line": round(float(row['MACD']), 2) if not pd.isna(row['MACD']) else None,
+                                "signal_line": round(float(row['Signal_Line']), 2) if not pd.isna(row['Signal_Line']) else None
+                            },
+                            "bollinger_bands": {
+                                "upper": round(float(row['BB_Upper']), 2) if not pd.isna(row['BB_Upper']) else None,
+                                "middle": round(float(row['MA20']), 2) if not pd.isna(row['MA20']) else None,
+                                "lower": round(float(row['BB_Lower']), 2) if not pd.isna(row['BB_Lower']) else None
+                            }
+                        }
+                    })
 
 
-            time.sleep(60)  # API 호출 제한 고려
+                # 유해성 조정
+                safety_settings = [
+                    {
+                        "category": "HARM_CATEGORY_DANGEROUS",
+                        "threshold": "BLOCK_NONE",
+                    },
+                    {
+                        "category": "HARM_CATEGORY_HARASSMENT",
+                        "threshold": "BLOCK_NONE",
+                    },
+                    {
+                        "category": "HARM_CATEGORY_HATE_SPEECH",
+                        "threshold": "BLOCK_NONE",
+                    },
+                    {
+                        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                        "threshold": "BLOCK_NONE",
+                    },
+                    {
+                        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                        "threshold": "BLOCK_NONE",
+                    },
+                ]
+                load_dotenv()
+
+                # Gemini API 분석
+                genai.configure(api_key=os.getenv('gemini_api_key'))  # API 키는 환경변수로 관리하는 것을 추천
+                prompt = generate_summary_prompt(json.dumps(json_data, indent=2, ensure_ascii=False))
+                model = genai.GenerativeModel("gemini-1.5-flash", safety_settings=safety_settings)
+                response = model.generate_content(prompt)
+                
+                # JSON 응답 파싱
+                response_text = response.text
+                start_index = response_text.find('{')
+                end_index = response_text.rfind('}') + 1
+                json_str = response_text[start_index:end_index]
+                response_data = json.loads(json_str)
+                
+                # 한 번만 출력
+                action = response_data['action'].lower()
+                print(f"{ticker_symbol} 분석 결과: {action}")
+                
+                # 매수 추천인 경우 DB에 저장
+                if action == 'buy':
+                    StockRecommendation.objects.create(
+                        symbol=ticker_symbol,
+                        action=response_data['action'],
+                        reason=response_data['reason'],
+                        price_target=response_data['price_target'],
+                        stop_loss=response_data['stop_loss']
+                    )
+                    
+                    # 자동투자가 활성화된 모든 사용자에 대해 매수 실행
+                    auto_invest_users = UserProfile.objects.filter(auto_investment=True)
+                    for user_profile in auto_invest_users:
+                        try:
+                            buy(ticker_symbol, user_profile)
+                        except Exception as e:
+                            print(f"Error buying for user {user_profile.user.username}: {str(e)}")
+
+
+                time.sleep(60)  # API 호출 제한 고려
                 
     except Exception as e:
         print(f"Error during analysis: {str(e)}")
