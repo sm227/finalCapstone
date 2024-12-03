@@ -1,14 +1,14 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from .models import Comment
+from .models import Comment, PollOption, PollVote
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.core.files.storage import default_storage
 from django.conf import settings
 import os
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django.http import StreamingHttpResponse
 import time
 from django.urls import reverse
@@ -27,17 +27,41 @@ def post_comment(request, symbol):
     if request.method == "POST":
         text = request.POST.get('comment_text')
         image = request.FILES.get('comment_image')
+        is_poll = request.POST.get('is_poll') == 'true'
 
-        if text or image:
+        # 댓글이나 이미지나 투표 중 하나라도 있으면 댓글 생성
+        if text or image or is_poll:
             comment = Comment.objects.create(
                 user=request.user,
                 text=text if text else '',
-                stock=stock
+                stock=stock,
+                is_poll=is_poll
             )
 
             if image:
                 comment.image = image
                 comment.save()
+
+            # 투표 옵션 처리
+            if is_poll:
+                poll_options = []
+                index = 0
+                while True:
+                    option_text = request.POST.get(f'poll_option_{index}')
+                    if not option_text:
+                        break
+                    poll_option = PollOption.objects.create(
+                        comment=comment,
+                        text=option_text,
+                        votes=0
+                    )
+                    poll_options.append({
+                        'id': poll_option.id,
+                        'text': poll_option.text,
+                        'votes': 0,
+                        'percentage': 0
+                    })
+                    index += 1
 
             return JsonResponse({
                 'success': True,
@@ -45,20 +69,65 @@ def post_comment(request, symbol):
                 'user': request.user.username,
                 'user_id': request.user.id,
                 'created_at': int(comment.created_at.timestamp()),
-                'image_url': comment.image.url if comment.image else None
+                'image_url': comment.image.url if comment.image else None,
+                'is_poll': is_poll,
+                'poll_options': poll_options if is_poll else None,
+                'text': text
             })
-    return JsonResponse({'success': False, 'message': '댓글 내용이나 이미지가 필요합니다.'})
+    return JsonResponse({'success': False, 'message': '댓글 내용이나 이미지 또는 투표가 필요합니다.'})
 
+
+@login_required
+def vote_poll(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            comment_id = data.get('comment_id')
+            option_id = data.get('option_id')
+
+            # 옵션 가져오기
+            option = get_object_or_404(PollOption, id=option_id)
+            comment = option.comment
+
+            # 이미 투표했는지 확인
+            if PollVote.objects.filter(option__comment=comment, user=request.user).exists():
+                return JsonResponse({'success': False, 'message': '이미 투표하셨습니다.'})
+
+            # 투표 생성
+            PollVote.objects.create(option=option, user=request.user)
+            option.votes += 1
+            option.save()
+
+            # 전체 투표 수와 비율 계산
+            total_votes = comment.poll_options.aggregate(total=Sum('votes'))['total']
+            poll_options = []
+            for opt in comment.poll_options.all():
+                percentage = (opt.votes / total_votes * 100) if total_votes > 0 else 0
+                poll_options.append({
+                    'id': opt.id,
+                    'text': opt.text,
+                    'votes': opt.votes,
+                    'percentage': round(percentage, 1)
+                })
+
+            return JsonResponse({
+                'success': True,
+                'poll_options': poll_options
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': '잘못된 요청입니다.'})
 
 
 # 댓글 가져오기
-#@login_required
+# @login_required
 def get_comments(request, symbol):
-    stock = get_object_or_404(Stock, symbol=symbol)  # 주식 종목 정보 가져오기
-    comments = Comment.objects.filter(stock=stock).order_by('-created_at')  # 해당 주식 종목에 대한 댓글만 가져오기
+    stock = get_object_or_404(Stock, symbol=symbol)
+    comments = Comment.objects.filter(stock=stock).order_by('-created_at')
     comments_data = []
+
     for comment in comments:
-        comments_data.append({
+        comment_data = {
             'id': comment.id,
             'user': comment.user.username,
             'user_id': comment.user.id,
@@ -66,8 +135,30 @@ def get_comments(request, symbol):
             'created_at': int(comment.created_at.timestamp()),
             'image_url': comment.image.url if comment.image else None,
             'total_likes': comment.total_likes(),
-            'liked': request.user in comment.likes.all() if request.user.is_authenticated else False
-        })
+            'total_dislikes': comment.total_dislikes(),
+            'liked': request.user in comment.likes.all() if request.user.is_authenticated else False,
+            'is_poll': comment.is_poll
+        }
+
+        if comment.is_poll:
+            total_votes = comment.poll_options.aggregate(total=Sum('votes'))['total'] or 0
+            poll_options = []
+            for option in comment.poll_options.all():
+                percentage = (option.votes / total_votes * 100) if total_votes > 0 else 0
+                poll_options.append({
+                    'id': option.id,
+                    'text': option.text,
+                    'votes': option.votes,
+                    'percentage': round(percentage, 1)
+                })
+            comment_data['poll_options'] = poll_options
+            comment_data['user_voted'] = PollVote.objects.filter(
+                option__comment=comment,
+                user=request.user
+            ).exists() if request.user.is_authenticated else False
+
+        comments_data.append(comment_data)
+
     return JsonResponse({'comments': comments_data})
 
 
@@ -128,11 +219,21 @@ def comment_stream(request):
     def event_stream():
         last_comments = set(Comment.objects.values_list('id', 'user_id'))
         last_likes = {comment.id: comment.total_likes() for comment in Comment.objects.all()}
-        
+        last_poll_votes = {
+            option.id: option.votes
+            for comment in Comment.objects.filter(is_poll=True)
+            for option in comment.poll_options.all()
+        }
+
         while True:
             current_comments = set(Comment.objects.values_list('id', 'user_id'))
             current_likes = {comment.id: comment.total_likes() for comment in Comment.objects.all()}
-            
+            current_poll_votes = {
+                option.id: option.votes
+                for comment in Comment.objects.filter(is_poll=True)
+                for option in comment.poll_options.all()
+            }
+
             # 새 댓글 확인
             new_comments = current_comments - last_comments
             if new_comments:
@@ -140,20 +241,41 @@ def comment_stream(request):
                     if user_id != request.user.id:
                         yield f"data: new_comment\n\n"
                         break
-            
 
+            # 삭제된 댓글 확인
             deleted_comments = last_comments - current_comments
             if deleted_comments:
                 for comment_id, _ in deleted_comments:
                     yield f"data: deleted_{comment_id}\n\n"
-            
 
+            # 좋아요 변경 확인
             for comment_id, current_like_count in current_likes.items():
                 if comment_id in last_likes and last_likes[comment_id] != current_like_count:
                     yield f"data: like_{comment_id}_{current_like_count}\n\n"
-            
+
+            for option_id, current_votes in current_poll_votes.items():
+                if option_id in last_poll_votes and last_poll_votes[option_id] != current_votes:
+                    option = PollOption.objects.get(id=option_id)
+                    comment = option.comment
+                    total_votes = sum(opt.votes for opt in comment.poll_options.all())
+
+                    poll_data = {
+                        'comment_id': comment.id,
+                        'poll_options': [
+                            {
+                                'id': opt.id,
+                                'votes': opt.votes,
+                                'percentage': round((opt.votes / total_votes * 100) if total_votes > 0 else 0, 1)
+                            }
+                            for opt in comment.poll_options.all()
+                        ]
+                    }
+                    yield f"data: poll_{json.dumps(poll_data)}\n\n"
+                    break
+
             last_comments = current_comments
             last_likes = current_likes
+            last_poll_votes = current_poll_votes
             time.sleep(1)
 
     response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
@@ -172,24 +294,56 @@ def like_comment(request):
             comment = Comment.objects.get(id=comment_id)
 
             if request.user in comment.likes.all():
-                # 이미 추천한 경우 추천 취소
                 comment.likes.remove(request.user)
                 liked = False
             else:
-                # 추천하지 않은 경우 추천 추가
+                if request.user in comment.dislikes.all():
+                    comment.dislikes.remove(request.user)
                 comment.likes.add(request.user)
                 liked = True
 
             return JsonResponse({
                 'success': True,
                 'liked': liked,
-                'total_likes': comment.total_likes()
+                'total_likes': comment.total_likes(),
+                'total_dislikes': comment.total_dislikes()
             })
         except Comment.DoesNotExist:
             return JsonResponse({'success': False, 'message': '댓글을 찾을 수 없습니다.'})
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)})
     return JsonResponse({'success': False, 'message': '잘못된 요청입니다.'})
+
+
+# 비추천
+@login_required
+def dislike_comment(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            comment_id = data.get('comment_id')
+            comment = Comment.objects.get(id=comment_id)
+
+            if request.user in comment.dislikes.all():
+                comment.dislikes.remove(request.user)
+                disliked = False
+            else:
+                if request.user in comment.likes.all():
+                    comment.likes.remove(request.user)
+                comment.dislikes.add(request.user)
+                disliked = True
+
+            return JsonResponse({
+                'success': True,
+                'disliked': disliked,
+                'total_dislikes': comment.total_dislikes(),
+                'total_likes': comment.total_likes()
+            })
+        except Comment.DoesNotExist:
+            return JsonResponse({'success': False, 'message': '댓글을 찾을 수 없습니다.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': '잘못된 요청'})
 
 
 @login_required
@@ -225,7 +379,7 @@ def community(request, symbol):
             'profit_loss_rate': float(comp['evlu_pfls_rt']),
             'last_updated': timezone.now(),
         })
-        
+
         # Stock 모델 생성 또는 업데이트
         stock, created = Stock.objects.get_or_create(
             symbol=comp['ovrs_pdno'],
@@ -265,4 +419,3 @@ def check_like_status(request):
         return JsonResponse({'liked': liked})
     except Comment.DoesNotExist:
         return JsonResponse({'liked': False})
-
