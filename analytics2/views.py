@@ -20,6 +20,7 @@ from .models import StockRecommendation
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from dotenv import load_dotenv
+from pytz import timezone
 
 # 파일 상단에 전역 변수 추가
 ANALYSIS_IN_PROGRESS = False
@@ -230,7 +231,7 @@ def buy(ticker_symbol, user_profile):
         api_key=user_profile.api_key,
         api_secret=user_profile.api_secret,
         acc_no=user_profile.acc_num,  # 계좌 번호
-        exchange='나스닥',  # 애플 주식을 구매할 때 사용 (NASDAQ)
+        exchange='나스닥',  # 애플 주식을 구���할 때 사용 (NASDAQ)
         mock=True  # 모의 투자 모드
     )
 
@@ -397,8 +398,8 @@ def analyze_and_store_stocks():
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    # 매일 밤 11시 40분에 실행되도록 설정
-    scheduler.add_job(analyze_and_store_stocks, 'cron', hour=00, minute=00)
+    # 매일 밤 11시 40분에 실행되도록 설정, 시간대 명시
+    scheduler.add_job(analyze_and_store_stocks, 'cron', hour=23, minute=40, timezone=timezone('Asia/Seoul'))
     scheduler.start()
 
 @login_required
