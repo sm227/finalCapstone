@@ -948,11 +948,12 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    {% for stock in stocks %}
+                                {% for stock in stocks %}
                                     <tr>
                                         <td>{{ stock.symbol }}</td>
                                         <td>
-                                            <a href="#" class="stock-link text-light" data-symbol="{{ stock.symbol }}">{{ stock.name }}</a>
+                                            <a href="#" class="stock-link text-light"
+                                               data-symbol="{{ stock.symbol }}">{{ stock.name }}</a>
                                         </td>
                                         <td>
                                             {% if stock.is_ai_recommended %}
@@ -961,14 +962,16 @@
                                                     <i class="bi bi-robot"></i> AI
                                                 </span>
                                             {% else %}
-                                                <span class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="직접 매수한 종목">
+                                                <span class="badge bg-secondary" data-bs-toggle="tooltip"
+                                                      data-bs-placement="right" title="직접 매수한 종목">
                                                     <i class="bi bi-person"></i> Manual
                                                 </span>
                                             {% endif %}
                                         </td>
-                                        <td>
-                                            <a href="{% url 'community' stock.symbol %}" class="text-light" title="Go to Community">
-                                                💬
+                                        <td class="text-center">
+                                            <a href="{% url 'community' stock.symbol %}" class="text-light"
+                                               title="Go to Community" style="margin-left: -20px;">
+                                                👨‍👩‍👧‍👦
                                             </a>
                                         </td>
                                         <td>{{ stock.country }}</td>
@@ -980,7 +983,7 @@
                                         <td>{{ stock.exchange_rate }}</td>
                                         <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>
                                     </tr>
-                                    {% endfor %}
+                                {% endfor %}
                                 </tbody>
                             </table>
                         </div>
