@@ -9,26 +9,61 @@ from django.utils import timezone
 from datetime import timedelta
 import json
 from django.contrib import messages
+import requests
+from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor
+from django.core.paginator import Paginator
 
 load_dotenv()
 
 
+def fetch_stock_news(symbol):
+    try:
+        url = f"https://finance.yahoo.com/quote/{symbol}/news"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+        }
+
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # 새로운 선택자 사용
+        news_items = soup.select('h3.clamp')  # class가 'clamp'인 h3 태그 선택
+        print(f"Found {len(news_items)} news items for {symbol}")  # 디버깅용
+
+        news_data = []
+        for item in news_items[:5]:
+            link_element = item.find_parent('a')  # 상위 a 태그 찾기
+            if link_element:
+                news_data.append({
+                    'symbol': symbol,
+                    'title': item.text.strip(),
+                    'link': link_element.get('href', '')
+                })
+
+        return news_data
+
+    except Exception as e:
+        print(f"Error fetching news for {symbol}: {str(e)}")
+        return []
+
+
 @login_required(login_url='login')
-# Create your views here.
 def portfolio(request):
-    # 현재 로그인한 사용자의 UserProfile 가져오기
     try:
         user_profile = UserProfile.objects.get(user=request.user)
     except UserProfile.DoesNotExist:
-        # UserProfile이 없는 경우 에러 처리
         messages.error(request, "사용자 프로필을 찾을 수 없습니다. 관리자에게 문의하세요.")
         return redirect('login')
 
-    # 주식 API 데이터 가져오기
     broker = mojito.KoreaInvestment(
         api_key=user_profile.api_key,
         api_secret=user_profile.api_secret,
-        acc_no=user_profile.acc_num,  # 계좌 번호
+        acc_no=user_profile.acc_num,
         exchange='나스닥',
         mock=True
     )
@@ -69,12 +104,25 @@ def portfolio(request):
     for i, stock in enumerate(stock_holdings):
         stock['color'] = colors[i % len(colors)]
 
+    all_news = []
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        news_futures = [executor.submit(fetch_stock_news, stock['symbol']) for stock in stock_holdings]
+        for future in news_futures:
+            all_news.extend(future.result())
+
+        # 페이지네이션 추가
+    paginator = Paginator(all_news, 5)  # 페이지당 5개 뉴스
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
     context = {
         'acc_no': user_profile.acc_num,
         'stocks': stock_holdings,
         'total_value': total_value,
         'total_stocks': len(stock_holdings),
-        'PnL': float(PnL)
+        'PnL': float(PnL),
+        'stock_news': page_obj
     }
+    print(all_news)
 
     return render(request, 'portfolio/portfolio.html', context)

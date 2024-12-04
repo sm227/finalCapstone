@@ -473,7 +473,187 @@
         .tab-pane {
             min-height: 400px; /* 또는 원하는 높이 */
         }
+
+        .trading-header {
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .trading-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 16px 0;
+        }
+
+        .market-status-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .market-status {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .status-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #dc3545;
+        }
+
+        .status-indicator.active {
+            background-color: #28a745;
+        }
+
+        .status-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .status-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .trading-hours {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .market-time {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .timezone {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .market-summary {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .index-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .index-name {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .index-value {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .index-change {
+            font-size: 13px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .up {
+            color: #20b16c;
+            background: rgba(32, 177, 108, 0.1);
+        }
+
+        .down {
+            color: #ef454a;
+            background: rgba(239, 69, 74, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .trading-header {
+                padding: 20px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .header-right {
+                width: 100%;
+            }
+        }
+
+        .col-lg-10-5 {
+            width: 88.5% !important;
+            flex: 0 0 88.5% !important;
+            max-width: 88.5% !important;
+        }
+
+        .pagination {
+            gap: 5px;
+        }
+        
+        .page-link {
+            background-color: rgba(255,255,255,0.05);
+            border: none;
+            color: #a0a0a0;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+        
+        .page-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: #ffffff;
+        }
+        
+        .page-item.active .page-link {
+            background: linear-gradient(45deg, #2962ff, #3d6eff);
+            color: #ffffff;
+        }
+        
+        .page-item.disabled .page-link {
+            background-color: rgba(255,255,255,0.02);
+            color: #666;
+        }
     </style>
+    <main class="col-md-9 ms-sm-auto col-lg-10-5">
+        <!-- Trading Header -->
+        <div class="trading-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="title-group">
+                        <h1 class="trading-title">포트폴리오</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <div class="container-fluid p-0">
         <!-- Sidebar -->
@@ -542,8 +722,6 @@
         <button class="sidebar-toggle">
             <i class="bi bi-list"></i>
         </button>
-
-
         <!-- 메인 컨텐츠 -->
         <main class="main-content">
             <!-- 왼쪽 컨테이너 - 차트 섹션 -->
@@ -631,7 +809,51 @@
                             <!-- 뉴스 탭 -->
                             <div class="tab-pane fade show active" id="news" role="tabpanel" aria-labelledby="news-tab">
                                 <div class="side-card-body">
-                                    뉴스 리스트는 이곳에.
+                                    {% if stock_news %}
+                                        {% for news in stock_news %}
+                                            <div class="news-item mb-3 p-3" style="background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <span class="badge bg-primary me-2">{{ news.symbol }}</span>
+                                                </div>
+                                                <a href="{{ news.link }}" target="_blank" class="text-decoration-none">
+                                                    <h6 class="mb-0 text-white">{{ news.title }}</h6>
+                                                </a>
+                                            </div>
+                                        {% endfor %}
+
+                                        <!-- 페이지네이션 -->
+                                        {% if stock_news.has_other_pages %}
+                                            <nav aria-label="News pagination" class="mt-4">
+                                                <ul class="pagination justify-content-center">
+                                                    {% if stock_news.has_previous %}
+                                                        <li class="page-item">
+                                                            <a class="page-link" href="?page={{ stock_news.previous_page_number }}" aria-label="Previous">
+                                                                <span aria-hidden="true">&laquo;</span>
+                                                            </a>
+                                                        </li>
+                                                    {% endif %}
+
+                                                    {% for num in stock_news.paginator.page_range %}
+                                                        <li class="page-item {% if stock_news.number == num %}active{% endif %}">
+                                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                                        </li>
+                                                    {% endfor %}
+
+                                                    {% if stock_news.has_next %}
+                                                        <li class="page-item">
+                                                            <a class="page-link" href="?page={{ stock_news.next_page_number }}" aria-label="Next">
+                                                                <span aria-hidden="true">&raquo;</span>
+                                                            </a>
+                                                        </li>
+                                                    {% endif %}
+                                                </ul>
+                                            </nav>
+                                        {% endif %}
+                                    {% else %}
+                                        <div class="text-center text-muted">
+                                            <p>현재 표시할 뉴스가 없습니다.</p>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
 
