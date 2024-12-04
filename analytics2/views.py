@@ -178,6 +178,7 @@ def stock_analysis(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+@login_required(login_url='login')
 def index(request):
     recommendations = StockRecommendation.objects.all().order_by('-created_at')
     
