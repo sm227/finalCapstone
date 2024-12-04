@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 import module.koreainvestment as mojito
-from django.http import JsonResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from login.models import UserProfile
 from dotenv import load_dotenv
 from django.views.decorators.csrf import csrf_exempt
@@ -13,6 +13,7 @@ import requests
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 from django.core.paginator import Paginator
+import time
 
 load_dotenv()
 
@@ -126,3 +127,47 @@ def portfolio(request):
     print(all_news)
 
     return render(request, 'portfolio/portfolio.html', context)
+
+
+@login_required
+def fetch_portfolio_news(request):
+    def generate_news():
+        try:
+            user_profile = UserProfile.objects.get(user=request.user)
+            broker = mojito.KoreaInvestment(
+                api_key=user_profile.api_key,
+                api_secret=user_profile.api_secret,
+                acc_no=user_profile.acc_num,
+                exchange='나스닥',
+                mock=True
+            )
+            
+            test = broker.fetch_balance_oversea()
+            stock_holdings = [comp['ovrs_pdno'] for comp in test['output1']]
+            total_stocks = len(stock_holdings)
+            
+            for idx, symbol in enumerate(stock_holdings, 1):
+                progress = (idx / total_stocks) * 100
+                news_data = fetch_stock_news(symbol)
+                
+                data = {
+                    'progress': progress,
+                    'message': f'뉴스를 불러오는 중... ({idx}/{total_stocks})',
+                    'news': news_data
+                }
+                
+                yield f"data: {json.dumps(data)}\n\n"
+                time.sleep(0.5)  # 서버 부하 방지
+                
+        except Exception as e:
+            error_data = {
+                'error': str(e),
+                'progress': 100,
+                'message': '오류가 발생했습니다.'
+            }
+            yield f"data: {json.dumps(error_data)}\n\n"
+
+    return StreamingHttpResponse(
+        generate_news(),
+        content_type='text/event-stream'
+    )
