@@ -327,9 +327,12 @@
 
         /* 메인 컨텐츠 영역 */
         .main-content {
-            margin-left: 240px;
-            margin-right: 280px;
+            margin-left: 100px;
+            margin-right: 0;
             padding: 20px;
+            display: flex;
+            gap: 20px;
+            width: 90%;
         }
 
         /* 포트폴리오 스타일 */
@@ -399,13 +402,6 @@
             flex-grow: 0; /* 자동 확장 방지 */
         }
 
-        .main-content {
-            margin-left: 240px;
-            margin-right: 0; /* 오른쪽 마진 제거 */
-            padding: 20px;
-            display: flex; /* Flexbox 사용 */
-            gap: 20px; /* 컨테이너 사이 간격 */
-        }
 
         .content-container {
             flex: 1; /* 남은 공간을 동일하게 분배 */
@@ -478,6 +474,7 @@
             padding: 24px 32px;
             margin-bottom: 32px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateX(-80px) !important;
         }
 
         .header-content {
@@ -613,33 +610,54 @@
             width: 88.5% !important;
             flex: 0 0 88.5% !important;
             max-width: 88.5% !important;
+            margin-left: 100px;
         }
 
-        .pagination {
-            gap: 5px;
+        /* 기존 스타일에 추가 */
+        .news-item {
+            transition: all 0.2s ease;
         }
 
-        .page-link {
-            background-color: rgba(255, 255, 255, 0.05);
-            border: none;
-            color: #a0a0a0;
-            padding: 8px 12px;
-            border-radius: 6px;
+        .news-item:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            transform: translateX(5px);
         }
 
-        .page-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
+        .news-thumbnail img {
+            transition: all 0.2s ease;
         }
 
-        .page-item.active .page-link {
-            background: linear-gradient(45deg, #2962ff, #3d6eff);
-            color: #ffffff;
+        .news-item:hover .news-thumbnail img {
+            transform: scale(1.05);
         }
 
-        .page-item.disabled .page-link {
-            background-color: rgba(255, 255, 255, 0.02);
-            color: #666;
+        /* 스크롤바 스타일 */
+        .side-card-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .side-card-body::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .side-card-body::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .side-card-body::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* 뉴스 아이템 호버 효과 */
+        .news-item {
+            transition: all 0.2s ease;
+        }
+
+        .news-item:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            transform: translateX(5px);
         }
     </style>
     <main class="col-md-9 ms-sm-auto col-lg-10-5">
@@ -657,7 +675,6 @@
 
     <div class="container-fluid p-0">
         <!-- Sidebar -->
-        <!-- 기존 스타일은 그대로 유지하고 사이드바 HTML 구조만 수정 -->
         <nav id="sidebar">
             <div class="sidebar-content">
                 {% if user.is_authenticated %}
@@ -786,7 +803,7 @@
             <div class="content-container">
                 <div class="card">
                     <div class="card-body">
-                        <!-- 탭 네비게이션 -->
+                        <!--  네비게이션 -->
                         <ul class="nav nav-tabs mb-3" id="rightContentTabs" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="news-tab" data-bs-toggle="tab"
@@ -808,34 +825,53 @@
                         <div class="tab-content" id="rightContentTabsContent">
                             <!-- 뉴스 탭 -->
                             <div class="tab-pane fade show active" id="news" role="tabpanel" aria-labelledby="news-tab">
-                                <p id="newsProgressMessage" class="text-center mb-3"></p>
-
-                                <!-- 뉴스 컨테이너 -->
-                                <div id="newsContainer" class="side-card-body">
-                                    <!-- 뉴스 항목들이 여기에 동적으로 추가됨 -->
-                                </div>
-
-                                <!-- 페이지네이션 추가 -->
-                                <div class="d-flex justify-content-center mt-3">
-                                    <nav aria-label="Page navigation" id="newsPagination" style="display: none;">
-                                        <ul class="pagination">
-                                            <li class="page-item disabled" id="prevPage">
-                                                <a class="page-link" href="#" tabindex="-1">이전</a>
-                                            </li>
-                                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                            <li class="page-item disabled" id="nextPage">
-                                                <a class="page-link" href="#">다음</a>
-                                            </li>
-                                        </ul>
-                                    </nav>
+                                <div class="side-card-body" style="max-height: 600px; overflow-y: auto;">
+                                    {% if stock_news %}
+                                        {% for news in stock_news %}
+                                            <div class="news-item mb-3 p-3"
+                                                 style="background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                                <div class="d-flex">
+                                                    {% if news.thumbnail %}
+                                                        <div class="news-thumbnail me-3">
+                                                            <img src="{{ news.thumbnail }}"
+                                                                 alt="news thumbnail"
+                                                                 style="width: 100px; height: 60px; object-fit: cover; border-radius: 4px;">
+                                                        </div>
+                                                    {% endif %}
+                                                    <div class="flex-grow-1">
+                                                        <div class="d-flex align-items-center mb-2">
+                                                            <span class="badge bg-primary me-2">{{ news.symbol }}</span>
+                                                            <span style="color: {% if news.profit_loss_rate > 0 %}#20b16c{% else %}#ef454a{% endif %};">
+                                                                {% if news.profit_loss_rate > 0 %}
+                                                                    +{% endif %}{{ news.profit_loss_rate|floatformat:2 }}
+                                                                %
+                                                            </span>
+                                                            <span class="ms-auto text-secondary"
+                                                                  style="font-size: 0.85rem;">
+                                                                {{ news.published|date:"Y.m.d H:i" }}
+                                                            </span>
+                                                        </div>
+                                                        <a href="{{ news.link }}" target="_blank"
+                                                           class="text-decoration-none">
+                                                            <h6 class="mb-0 text-white">{{ news.title }}</h6>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="text-center text-muted">
+                                            <p>현재 표시할 뉴스가 없습니다.</p>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
 
                             <!-- 매매일지 탭 -->
                             <div class="tab-pane fade" id="trading-log" role="tabpanel"
                                  aria-labelledby="trading-log-tab">
-                                <div class="side-card-body">
-                                    매매일지는 이곳에.
+                                <div class="text-center text-muted">
+                                    <p>매매일지 작업 끝나면 이부분 뉴스 탭처럼 else 문으로 "현재 표시할 매매일지가 없습니다." 표기 부탁해요~</p>
                                 </div>
                             </div>
                         </div>
@@ -919,7 +955,7 @@
                         tooltip: {
                             backgroundColor: 'rgba(0,0,0,0.8)',
                             borderWidth: 0,  // 툴팁 테두리 제거
-                            {#displayColors: false,  // 색상 표시 박스 제거#}
+                            {#displayColors: false,  // 상 표시 박스 제거#}
                             padding: 12,
                             callbacks: {
                                 label: function (context) {
@@ -938,125 +974,6 @@
             };
 
             new Chart(ctx, config);
-        });
-    </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const newsContainer = document.getElementById('newsContainer');
-            const pagination = document.getElementById('newsPagination');
-
-            let allNews = [];
-            let currentPage = 1;
-            const itemsPerPage = 5;
-
-            // 뉴스 아이템 생성 함수
-            function createNewsItem(news) {
-                const publishDate = new Date(news.published * 1000).toLocaleString('ko-KR');
-                return `
-                    <div class="news-item mb-3 p-3" style="background: rgba(255,255,255,0.05); border-radius: 8px;">
-                        <div class="d-flex align-items-center mb-2">
-                            <span class="badge bg-primary me-2">${news.symbol}</span>
-                            <small class="text-muted">${publishDate}</small>
-                        </div>
-                        <a href="${news.link}" target="_blank" class="text-decoration-none">
-                            <h6 class="mb-0 text-white">${news.title}</h6>
-                        </a>
-                    </div>
-                `;
-            }
-
-            // 페이지네이션 업데이트 함수
-            function updatePagination() {
-                const totalPages = Math.ceil(allNews.length / itemsPerPage);
-                if (totalPages <= 1) {
-                    pagination.style.display = 'none';
-                    return;
-                }
-
-                pagination.style.display = 'block';
-                const paginationList = pagination.querySelector('ul');
-                paginationList.innerHTML = '';
-
-                // 이전 버튼
-                const prevLi = document.createElement('li');
-                prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
-                prevLi.innerHTML = `<a class="page-link" href="#">이전</a>`;
-                prevLi.onclick = () => {
-                    if (currentPage > 1) {
-                        currentPage--;
-                        displayNews();
-                    }
-                };
-                paginationList.appendChild(prevLi);
-
-                // 페이지 번호
-                for (let i = 1; i <= totalPages; i++) {
-                    const li = document.createElement('li');
-                    li.className = `page-item ${currentPage === i ? 'active' : ''}`;
-                    li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-                    li.onclick = () => {
-                        currentPage = i;
-                        displayNews();
-                    };
-                    paginationList.appendChild(li);
-                }
-
-                // 다음 버튼
-                const nextLi = document.createElement('li');
-                nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
-                nextLi.innerHTML = `<a class="page-link" href="#">다음</a>`;
-                nextLi.onclick = () => {
-                    if (currentPage < totalPages) {
-                        currentPage++;
-                        displayNews();
-                    }
-                };
-                paginationList.appendChild(nextLi);
-            }
-
-            // 뉴스 표시 함수
-            function displayNews() {
-                const start = (currentPage - 1) * itemsPerPage;
-                const end = start + itemsPerPage;
-                const pageNews = allNews.slice(start, end);
-
-                newsContainer.innerHTML = '';
-                pageNews.forEach(news => {
-                    newsContainer.insertAdjacentHTML('beforeend', createNewsItem(news));
-                });
-
-                updatePagination();
-            }
-
-            // EventSource 설정
-            const eventSource = new EventSource("{% url 'fetch_portfolio_news' %}");
-
-            eventSource.onmessage = function (event) {
-                const data = JSON.parse(event.data);
-
-                // 뉴스 데이터가 있으면 추가
-                if (data.news && data.news.length > 0) {
-                    allNews = [...allNews, ...data.news];
-                    displayNews();
-                }
-
-                // 완료되면 EventSource 종료
-                if (data.progress >= 100) {
-                    eventSource.close();
-                    setTimeout(() => {
-                        progressBar.parentElement.style.display = 'none';
-                        progressMessage.style.display = 'none';
-                    }, 1000);
-                }
-            };
-
-            eventSource.onerror = function (error) {
-                console.error("EventSource failed:", error);
-                eventSource.close();
-                progressMessage.textContent = "뉴스를 불러오는 중 오류가 발생했습니다.";
-                progressMessage.style.color = '#dc3545';
-            };
         });
     </script>
 {% endblock %}

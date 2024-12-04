@@ -15,22 +15,24 @@ from concurrent.futures import ThreadPoolExecutor
 from django.core.paginator import Paginator
 import time
 import yfinance as yf
+from random import shuffle
 
 load_dotenv()
 
 def fetch_stock_news(symbol):
     try:
-        # yfinance Ticker 객체 생성
         ticker = yf.Ticker(symbol)
         
-        # 뉴스 데이터 가져오기
         news_data = []
-        for news in ticker.news[:5]:  # 최근 5개의 뉴스만 가져오기
+        for news in ticker.news[:20]:
+            published_time = timezone.datetime.fromtimestamp(news['providerPublishTime'])
+            
             news_data.append({
                 'symbol': symbol,
                 'title': news['title'],
                 'link': news['link'],
-                'published': news['providerPublishTime']
+                'published': published_time,
+                'thumbnail': news.get('thumbnail', {}).get('resolutions', [{}])[0].get('url', '')
             })
             
         print(f"Found {len(news_data)} news items for {symbol}")
@@ -104,10 +106,7 @@ def portfolio(request):
                 news['profit_loss_rate'] = stock['profit_loss_rate']
             all_news.extend(news_items)
 
-    # 페이지네이션 추가
-    paginator = Paginator(all_news, 5)  # 페이지당 5개 뉴스
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
+    shuffle(all_news)
 
     context = {
         'acc_no': user_profile.acc_num,
@@ -115,7 +114,7 @@ def portfolio(request):
         'total_value': total_value,
         'total_stocks': len(stock_holdings),
         'PnL': float(PnL),
-        'stock_news': page_obj
+        'stock_news': all_news
     }
     print(all_news)
 
@@ -135,19 +134,19 @@ def fetch_portfolio_news(request):
             )
 
             test = broker.fetch_balance_oversea()
-            # 수익률 기준으로 주식 정렬
-            stock_holdings = sorted(
-                [{'symbol': comp['ovrs_pdno'], 'profit_loss_rate': float(comp['evlu_pfls_rt'])} 
-                 for comp in test['output1']],
-                key=lambda x: x['profit_loss_rate'],
-                reverse=True
-            )
+            # 정렬 제거하고 그대로 사용
+            stock_holdings = [
+                {'symbol': comp['ovrs_pdno'], 'profit_loss_rate': float(comp['evlu_pfls_rt'])} 
+                for comp in test['output1']
+            ]
+            # 랜덤으로 섞기
+            shuffle(stock_holdings)
+            
             total_stocks = len(stock_holdings)
 
             for idx, stock in enumerate(stock_holdings, 1):
                 progress = (idx / total_stocks) * 100
                 news_data = fetch_stock_news(stock['symbol'])
-                # 뉴스 데이터에 수익률 추가
                 for news in news_data:
                     news['profit_loss_rate'] = stock['profit_loss_rate']
 
@@ -158,7 +157,7 @@ def fetch_portfolio_news(request):
                 }
 
                 yield f"data: {json.dumps(data)}\n\n"
-                time.sleep(0.1)  # 서버 부하 감소
+                time.sleep(0.1)
 
         except Exception as e:
             error_data = {
