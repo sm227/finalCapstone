@@ -14,44 +14,31 @@ from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 from django.core.paginator import Paginator
 import time
+import yfinance as yf
 
 load_dotenv()
 
-
 def fetch_stock_news(symbol):
     try:
-        url = f"https://finance.yahoo.com/quote/{symbol}/news"
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-        }
-
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-
-        soup = BeautifulSoup(response.text, 'html.parser')
-
-        # 새로운 선택자 사용
-        news_items = soup.select('h3.clamp')  # class가 'clamp'인 h3 태그 선택
-        print(f"Found {len(news_items)} news items for {symbol}")  # 디버깅용
-
+        # yfinance Ticker 객체 생성
+        ticker = yf.Ticker(symbol)
+        
+        # 뉴스 데이터 가져오기
         news_data = []
-        for item in news_items[:5]:
-            link_element = item.find_parent('a')  # 상위 a 태그 찾기
-            if link_element:
-                news_data.append({
-                    'symbol': symbol,
-                    'title': item.text.strip(),
-                    'link': link_element.get('href', '')
-                })
-
+        for news in ticker.news[:5]:  # 최근 5개의 뉴스만 가져오기
+            news_data.append({
+                'symbol': symbol,
+                'title': news['title'],
+                'link': news['link'],
+                'published': news['providerPublishTime']
+            })
+            
+        print(f"Found {len(news_data)} news items for {symbol}")
         return news_data
 
     except Exception as e:
         print(f"Error fetching news for {symbol}: {str(e)}")
         return []
-
 
 @login_required(login_url='login')
 def portfolio(request):
@@ -89,10 +76,12 @@ def portfolio(request):
             'last_updated': timezone.now(),
         })
 
+    # 수익률 기준으로 정렬
+    stock_holdings = sorted(stock_holdings, key=lambda x: x['profit_loss_rate'], reverse=True)
+
+    # 정렬 후 퍼센티지 계산
     for stock in stock_holdings:
         stock['amount_percentage'] = (stock['amount'] / total_amount * 100) if total_amount > 0 else 0
-
-    stock_holdings = sorted(stock_holdings, key=lambda x: x['amount_percentage'], reverse=True)
 
     total_value = balance['output3'].get('tot_asst_amt', 0)
     PnL = balance['output3'].get('tot_evlu_pfls_amt')
@@ -108,10 +97,14 @@ def portfolio(request):
     all_news = []
     with ThreadPoolExecutor(max_workers=5) as executor:
         news_futures = [executor.submit(fetch_stock_news, stock['symbol']) for stock in stock_holdings]
-        for future in news_futures:
-            all_news.extend(future.result())
+        for future, stock in zip(news_futures, stock_holdings):
+            news_items = future.result()
+            # 각 뉴스 항목에 수익률 정보 추가
+            for news in news_items:
+                news['profit_loss_rate'] = stock['profit_loss_rate']
+            all_news.extend(news_items)
 
-        # 페이지네이션 추가
+    # 페이지네이션 추가
     paginator = Paginator(all_news, 5)  # 페이지당 5개 뉴스
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
@@ -128,7 +121,6 @@ def portfolio(request):
 
     return render(request, 'portfolio/portfolio.html', context)
 
-
 @login_required
 def fetch_portfolio_news(request):
     def generate_news():
@@ -141,24 +133,33 @@ def fetch_portfolio_news(request):
                 exchange='나스닥',
                 mock=True
             )
-            
+
             test = broker.fetch_balance_oversea()
-            stock_holdings = [comp['ovrs_pdno'] for comp in test['output1']]
+            # 수익률 기준으로 주식 정렬
+            stock_holdings = sorted(
+                [{'symbol': comp['ovrs_pdno'], 'profit_loss_rate': float(comp['evlu_pfls_rt'])} 
+                 for comp in test['output1']],
+                key=lambda x: x['profit_loss_rate'],
+                reverse=True
+            )
             total_stocks = len(stock_holdings)
-            
-            for idx, symbol in enumerate(stock_holdings, 1):
+
+            for idx, stock in enumerate(stock_holdings, 1):
                 progress = (idx / total_stocks) * 100
-                news_data = fetch_stock_news(symbol)
-                
+                news_data = fetch_stock_news(stock['symbol'])
+                # 뉴스 데이터에 수익률 추가
+                for news in news_data:
+                    news['profit_loss_rate'] = stock['profit_loss_rate']
+
                 data = {
                     'progress': progress,
                     'message': f'뉴스를 불러오는 중... ({idx}/{total_stocks})',
                     'news': news_data
                 }
-                
+
                 yield f"data: {json.dumps(data)}\n\n"
-                time.sleep(0.5)  # 서버 부하 방지
-                
+                time.sleep(0.1)  # 서버 부하 감소
+
         except Exception as e:
             error_data = {
                 'error': str(e),
