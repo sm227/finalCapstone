@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load humanize %}
 {% load static %}
+{% load portfolio_tags %}
 
 {% block content %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -327,12 +328,13 @@
 
         /* 메인 컨텐츠 영역 */
         .main-content {
-            margin-left: 100px;
-            margin-right: 0;
+            margin-left: auto; /* 변경 */
+            margin-right: auto; /* 변경 */
             padding: 20px;
             display: flex;
             gap: 20px;
             width: 90%;
+            max-width: 1400px; /* 추가: 최대 너비 설정 */
         }
 
         /* 포트폴리오 스타일 */
@@ -396,22 +398,8 @@
             flex-shrink: 0; /* 차트 크기 고정 */
         }
 
-        /* 주식 리스트 컨테이너 수정 */
-        .stock-list {
-            max-width: 400px; /* 리스트 최대 폭 제한 */
-            flex-grow: 0; /* 자동 확장 방지 */
-        }
-
 
         .content-container {
-            flex: 1; /* 남은 공간을 동일하게 분배 */
-        }
-
-        /* 기존 right-sidebar 스타일 수정 */
-        .right-sidebar {
-            position: static; /* fixed 제거 */
-            width: auto; /* 고정 너비 제거 */
-            height: auto; /* 고정 높이 제거 */
             flex: 1; /* 남은 공간을 동일하게 분배 */
         }
 
@@ -419,18 +407,22 @@
             .main-content {
                 flex-direction: column; /* 모바일에서는 세로로 배치 */
             }
-
-            .right-sidebar {
-                margin-top: 20px;
-            }
         }
 
         /* 탭 스타일링 */
         .nav-tabs {
+            display: flex;
+            width: 100%;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+        .nav-tabs .nav-item {
+            flex: 1; /* 각 탭이 동일한 비율로 공간 차지 */
+        }
+
         .nav-tabs .nav-link {
+            width: 100%;
+            text-align: center;
             color: #a0a0a0;
             border: none;
             padding: 10px 20px;
@@ -474,7 +466,11 @@
             padding: 24px 32px;
             margin-bottom: 32px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            transform: translateX(-80px) !important;
+            transform: none !important; /* 변경: translateX 제거 */
+            width: 90%; /* 추가 */
+            max-width: 1400px; /* 추가 */
+            margin-left: auto; /* 추가 */
+            margin-right: auto; /* 추가 */
         }
 
         .header-content {
@@ -490,107 +486,6 @@
             margin: 0 0 16px 0;
         }
 
-        .market-status-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .market-status {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .status-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #dc3545;
-        }
-
-        .status-indicator.active {
-            background-color: #28a745;
-        }
-
-        .status-label {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        .status-text {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .trading-hours {
-            font-size: 13px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .market-time {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-top: 4px;
-        }
-
-        .timezone {
-            color: #666;
-            font-size: 12px;
-        }
-
-        .market-summary {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .index-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .index-name {
-            color: var(--text-secondary);
-            font-size: 13px;
-        }
-
-        .index-value {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .index-change {
-            font-size: 13px;
-            font-weight: 500;
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
-
-        .up {
-            color: #20b16c;
-            background: rgba(32, 177, 108, 0.1);
-        }
-
-        .down {
-            color: #ef454a;
-            background: rgba(239, 69, 74, 0.1);
-        }
-
         @media (max-width: 768px) {
             .trading-header {
                 padding: 20px;
@@ -600,20 +495,15 @@
                 flex-direction: column;
                 gap: 20px;
             }
-
-            .header-right {
-                width: 100%;
-            }
         }
 
         .col-lg-10-5 {
-            width: 88.5% !important;
-            flex: 0 0 88.5% !important;
-            max-width: 88.5% !important;
-            margin-left: 100px;
+            width: 90% !important; /* 수정 */
+            max-width: 1400px !important; /* 추가 */
+            margin-left: auto !important; /* 변경 */
+            margin-right: auto !important; /* 추가 */
         }
 
-        /* 기존 스타일에 추가 */
         .news-item {
             transition: all 0.2s ease;
         }
@@ -659,8 +549,59 @@
             background: rgba(255, 255, 255, 0.1) !important;
             transform: translateX(5px);
         }
+
+        /* 배당 캘린더 스타일 */
+        .dividend-item {
+            transition: all 0.2s ease;
+        }
+
+        .dividend-item:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .dividend-info {
+            position: relative;
+        }
+
+        .dividend-info::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 70%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 스크롤바 스타일링 */
+        .dividend-calendar {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .dividend-calendar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .dividend-calendar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .dividend-calendar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .dividend-calendar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
     </style>
-    <main class="col-md-9 ms-sm-auto col-lg-10-5">
+
+    <div class="container-fluid p-0">
         <!-- Trading Header -->
         <div class="trading-header">
             <div class="header-content">
@@ -671,9 +612,6 @@
                 </div>
             </div>
         </div>
-    </main>
-
-    <div class="container-fluid p-0">
         <!-- Sidebar -->
         <nav id="sidebar">
             <div class="sidebar-content">
@@ -739,13 +677,12 @@
         <button class="sidebar-toggle">
             <i class="bi bi-list"></i>
         </button>
-        <!-- 메인 컨텐츠 -->
+
         <main class="main-content">
-            <!-- 왼쪽 컨테이너 - 차트 섹션 -->
+            <!-- 왼쪽 컨테이너 -->
             <div class="content-container">
                 <div class="card">
                     <div class="card-body">
-                        <!-- 총 수익률 섹션 -->
                         <div class="total-profit-section mb-4">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -762,7 +699,7 @@
                             </div>
                         </div>
 
-                        <!-- 포트폴리오 구성 차트 섹션 -->
+                        <!-- 포트폴리오 섹션 -->
                         <div class="portfolio-chart-section mb-4">
                             <h6 class="text-secondary mb-3">포트폴리오 구성</h6>
                             <div class="d-flex">
@@ -770,50 +707,144 @@
                                 <div style="width: 300px; height: 300px;">
                                     <canvas id="portfolioChart"></canvas>
                                 </div>
-                                <!-- 종목 리스트 -->
-                                <div class="stock-list ms-4 flex-grow-1">
+
+                                <div class="stock-list ms-4 flex-grow-1"
+                                     style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
                                     {% for stock in stocks %}
-                                        <div class="stock-item d-flex align-items-center mb-2 p-2"
-                                             style="background: rgba(255,255,255,0.05); border-radius: 8px;">
-                                            <div class="color-box" style="background-color: {{ stock.color }};"></div>
-                                            <div class="flex-grow-1 ms-2">
-                                                <div class="d-flex justify-content-between">
-                                                    <span class="stock-name">{{ stock.name }}</span>
-                                                    <span class="stock-percentage">{{ stock.amount_percentage|floatformat:1 }}%</span>
+                                        <div class="p-1"
+                                             style="background: rgba(255,255,255,0.03); border-radius: 4px;">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div style="width: 3px; height: 12px; background-color: {{ stock.color }}; border-radius: 1px;"></div>
+                                                    <span class="stock-name"
+                                                          style="font-size: 0.9em; color: #ffffff;">{{ stock.symbol }}</span>
                                                 </div>
-                                                <div class="d-flex justify-content-between text-secondary"
-                                                     style="font-size: 0.9em;">
-                                                    <span>{{ stock.symbol }}</span>
-                                                    <span style="color: {% if stock.profit_loss_rate > 0 %}#20b16c{% else %}#ef454a{% endif %};">
-                                                {% if stock.profit_loss_rate > 0 %}
-                                                    +{% endif %}{{ stock.profit_loss_rate|floatformat:2 }}%
-                                            </span>
-                                                </div>
+                                                <span class="stock-percentage"
+                                                      style="font-size: 0.9em; color: #a0a0a0;">
+                                                    {{ stock.amount_percentage|floatformat:1 }}%
+                                                </span>
                                             </div>
                                         </div>
                                     {% endfor %}
                                 </div>
                             </div>
                         </div>
+                        <!-- 섹터별 분석 -->
+                        <div class="sector-analysis-section mb-4">
+                            <h6 class="text-secondary mb-3">분야별 비중</h6>
+                            <div class="sector-bar" style="width: 100%; height: 20px; display: flex;">
+                                {% for sector in sector_percentages %}
+                                    <div style="width: {{ sector.percentage }}%; height: 100%;
+                                            background: {% if forloop.counter == 1 %}#ef454a
+                                    {% elif forloop.counter == 2 %}#ff9800
+                                    {% elif forloop.counter == 3 %}#2962ff
+                                    {% elif forloop.counter == 4 %}#673ab7
+                                    {% elif forloop.counter == 5 %}#2196f3
+                                    {% else %}#607d8b{% endif %};">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div style="margin-top: 10px;">
+                                {% for sector in sector_percentages %}
+                                    <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                                        <div style="width: 12px; height: 12px; margin-right: 8px;
+                                                background: {% if forloop.counter == 1 %}#ef454a
+                                        {% elif forloop.counter == 2 %}#ff9800
+                                        {% elif forloop.counter == 3 %}#2962ff
+                                        {% elif forloop.counter == 4 %}#673ab7
+                                        {% elif forloop.counter == 5 %}#2196f3
+                                        {% else %}#607d8b{% endif %};">
+                                        </div>
+                                        <span style="font-size: 0.85em; color: #a0a0a0;">{{ sector.sector }}</span>
+                                        <span style="font-size: 0.85em; color: #ffffff; margin-left: auto;">{{ sector.percentage|floatformat:1 }}%</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 배당 캘린더 섹션 -->
+                <div class="content-container mt-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="text-secondary mb-4">배당 캘린더</h6>
+                            {% if dividend_calendar %}
+                                <div class="dividend-calendar">
+                                    {% for dividend in dividend_calendar %}
+                                        <div class="dividend-item d-flex align-items-center mb-3 p-3"
+                                             style="background: rgba(255,255,255,0.05); border-radius: 12px;">
+                                            <div class="company-info d-flex align-items-center" style="flex: 1;">
+                                                <img src="{{ dividend.logo_url  }}"
+                                                     alt="{{ dividend.symbol }}"
+                                                     style="width: 32px; height: 32px; border-radius: 8px; margin-right: 16px;"
+                                                     onerror="this.style.display='none'">
+                                                <div>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span style="font-size: 1.1em; font-weight: 500;">{{ dividend.symbol }}</span>
+                                                        <span style="color: #a0a0a0; font-size: 0.9em;">{{ dividend.name }}</span>
+                                                    </div>
+                                                    <div style="font-size: 0.85em; color: #808080;">
+                                                        배당수익률: {{ dividend.dividend_yield|floatformat:2 }}%
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="dividend-info text-end" style="min-width: 200px;">
+                                                <div style="font-size: 1.1em; color: #e0e0e0;">
+                                                    <span style="color: #a0a0a0; font-size: 0.8em;">배당 예정일: </span>
+                                                    <span style="color: #a0a0a0; font-size: 0.8em;">{{ dividend.expected_next_date|date:"Y년 m월 d일" }}</span>
+                                                </div>
+                                                <div style="font-size: 1.1em; font-weight: 500;">
+                                                    <div>
+                                                        <span style="color: #a0a0a0; font-size: 0.8em;">1회 배당금:</span>
+                                                        <span style="color: #2962ff; font-size: 0.8em;">{{ dividend.dividend_per_payment|floatformat:2 }} USD</span>
+                                                    </div>
+                                                    <div>
+                                                        <span style="color: #a0a0a0; font-size: 0.8em;">연간 예상 배당금:</span>
+                                                        {% with expected_total=dividend.annual_dividend|multiply:dividend.amount %}
+                                                            <span style="color: #2962ff; font-size: 0.8em;">{{ expected_total|floatformat:2 }} USD</span>
+                                                        {% endwith %}
+                                                    </div>
+                                                    <div style="font-size: 0.8em; color: #808080;">
+                                                        (연 {{ dividend.dividend_frequency }}회 배당)
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center text-muted p-4">
+                                    <i class="bi bi-calendar-x" style="font-size: 2rem;"></i>
+                                    <p class="mt-3">배당 정보가 없습니다.</p>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 오른쪽 컨테이너 - 뉴스 및 매매일지 -->
+            <!-- 오른쪽 컨테이너 -->
             <div class="content-container">
                 <div class="card">
                     <div class="card-body">
-                        <!--  네비게이션 -->
+                        <!-- 네비게이션 -->
                         <ul class="nav nav-tabs mb-3" id="rightContentTabs" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="news-tab" data-bs-toggle="tab"
-                                        data-bs-target="#news" type="button" role="tab" aria-controls="news"
+                                <button class="nav-link active text-center" id="assets-tab" data-bs-toggle="tab"
+                                        data-bs-target="#assets" type="button" role="tab" aria-controls="assets"
                                         aria-selected="true">
+                                    자산
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link text-center" id="news-tab" data-bs-toggle="tab"
+                                        data-bs-target="#news" type="button" role="tab" aria-controls="news"
+                                        aria-selected="false">
                                     실시간 뉴스
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="trading-log-tab" data-bs-toggle="tab"
+                                <button class="nav-link text-center" id="trading-log-tab" data-bs-toggle="tab"
                                         data-bs-target="#trading-log" type="button" role="tab"
                                         aria-controls="trading-log" aria-selected="false">
                                     매매일지
@@ -821,10 +852,67 @@
                             </li>
                         </ul>
 
-                        <!-- 탭 컨텐츠 -->
                         <div class="tab-content" id="rightContentTabsContent">
+                            <!-- 자산 탭 -->
+                            <div class="tab-pane fade show active" id="assets" role="tabpanel"
+                                 aria-labelledby="assets-tab">
+                                <div class="side-card-body" style="max-height: 600px; overflow-y: auto;">
+                                    <div class="stock-list" style="width : 100%">
+                                        {% for stock in stocks %}
+                                            <div class="stock-item d-flex align-items-center mb-2 p-2"
+                                                 style="background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                                <div class="d-flex align-items-center" style="flex: 1;">
+                                                    <img src="{{ stock.logo_url }}"
+                                                         alt="{{ stock.symbol }}"
+                                                         style="width: 24px; height: 24px; border-radius: 4px; margin-right: 12px;"
+                                                         onerror="this.style.display='none'">
+                                                    <div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span style="font-size: 1.1em; font-weight: 500;">{{ stock.symbol }}</span>
+                                                            <span style="color: #a0a0a0; font-size: 0.9em;">{{ stock.name }}</span>
+                                                        </div>
+                                                        <div style="font-size: 0.8em; color: #808080;">
+                                                            수량 {{ stock.amount }}주
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-end flex-column" style="gap: 4px;">
+                                                    <div style="font-weight: 500;">
+                                                        {% if stock.current_price != 0 %}
+                                                            <span style="color: #808080; font-size: 0.85em;">현재가 : </span>
+                                                            <span style="color: {% if stock.current_price > stock.purchase_price %}#20b16c{% elif stock.current_price < stock.purchase_price %}#ef454a{% else %}#e0e0e0{% endif %}; font-size: 0.85em;">
+                                                                {{ stock.current_price|floatformat:2 }} {{ stock.currency }}
+                                                            </span>
+                                                        {% else %}
+                                                            <span style="color: #808080; font-size: 0.9em;">
+                                                                마지막 거래가: {{ stock.purchase_price|floatformat:2 }} {{ stock.currency }}
+                                                            </span>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div style="font-size: 0.85em; color: #808080;">
+                                                        매수가:
+                                                        {{ stock.purchase_price|floatformat:2 }} {{ stock.currency }}
+                                                    </div>
+                                                    <div class="d-flex align-items-center gap-3"
+                                                         style="font-size: 0.9em;">
+                                                        <span style="color: {% if stock.profit_loss_rate > 0 %}#20b16c{% elif stock.profit_loss_rate < 0 %}#ef454a{% else %}#e0e0e0{% endif %};">
+                                                            {% if stock.profit_loss_rate > 0 %}
+                                                                ▲{% elif stock.profit_loss_rate < 0 %}▼{% endif %}
+                                                            {{ stock.profit_loss_rate|floatformat:2 }}%
+                                                        </span>
+                                                        {#                                                        <span style="color: #808080;">#}
+                                                        {#                                                            {{ stock.amount_percentage|floatformat:1 }}%#}
+                                                        {#                                                        </span>#}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- 뉴스 탭 -->
-                            <div class="tab-pane fade show active" id="news" role="tabpanel" aria-labelledby="news-tab">
+                            <div class="tab-pane fade" id="news" role="tabpanel" aria-labelledby="news-tab">
                                 <div class="side-card-body" style="max-height: 600px; overflow-y: auto;">
                                     {% if stock_news %}
                                         {% for news in stock_news %}
