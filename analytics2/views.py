@@ -178,6 +178,7 @@ def stock_analysis(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+@login_required(login_url='login')
 def index(request):
     recommendations = StockRecommendation.objects.all().order_by('-created_at')
     
@@ -226,22 +227,41 @@ def index(request):
 
 
 def buy(ticker_symbol, user_profile):
+    # 현재 주식 가격 조회
+    ticker = yf.Ticker(ticker_symbol)
+    current_price = ticker.history(period='1d')['Close'].iloc[-1]
+    
+    # 주문 수량 계산
+    if user_profile.per_stock_amount:
+        quantity = int(float(user_profile.per_stock_amount) / current_price)
+    else:
+        # 기본값으로 1주 설정
+        quantity = 1
+    
+    # 최소 1주 이상 확인
+    quantity = max(1, quantity)
+    
+    # 총 투자금액 제한 확인
+    if user_profile.total_investment:
+        max_quantity = int(float(user_profile.total_investment) / current_price)
+        quantity = min(quantity, max_quantity)
+    
     # 한국투자 API 연결
     broker = mojito.KoreaInvestment(
         api_key=user_profile.api_key,
         api_secret=user_profile.api_secret,
-        acc_no=user_profile.acc_num,  # 계좌 번호
-        exchange='나스닥',  # 애플 주식을 구���할 때 사용 (NASDAQ)
-        mock=True  # 모의 투자 모드
+        acc_no=user_profile.acc_num,
+        exchange='나스닥',
+        mock=True
     )
 
     # 주문 실행
     broker.create_oversea_order(
-        side='buy',  # 매수
-        symbol=ticker_symbol,  # 주식 코드
-        price=1000,  # 지정가
-        quantity=5,  # 수
-        order_type="00"  # 00은 지정가 주문
+        side='buy',
+        symbol=ticker_symbol,
+        price=current_price,  # 현재가로 설정
+        quantity=quantity,
+        order_type="00"  # 지정가 주문
     )
 
 
@@ -419,7 +439,7 @@ def analyze_and_store_stocks():
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    # 매일 밤 11시 40분에 실행되도록 설정, 시간대 명시
+    # 매일 밤 11시 40분에 ��행되도록 설정, 시간대 명시
     scheduler.add_job(analyze_and_store_stocks, 'cron', hour=23, minute=40, timezone=timezone('Asia/Seoul'))
     scheduler.start()
 
@@ -465,3 +485,41 @@ def update_auto_investment(request):
         return JsonResponse({
             'error': str(e)
         }, status=500)
+
+@login_required
+@require_POST
+def update_portfolio_settings(request):
+    try:
+        # JSON 데이터 파싱
+        data = json.loads(request.body)
+        total_investment = data.get('total_investment')
+        per_stock_amount = data.get('per_stock_amount')
+        
+        # 입력값 검증
+        if not total_investment or not per_stock_amount:
+            return JsonResponse({'error': '모든 필드를 입력해주세요.'}, status=400)
+            
+        try:
+            total_investment = float(total_investment)
+            per_stock_amount = float(per_stock_amount)
+        except ValueError:
+            return JsonResponse({'error': '유효한 숫자를 입력해주세요.'}, status=400)
+            
+        if total_investment < 0 or per_stock_amount < 0:
+            return JsonResponse({'error': '금액은 0보다 커야 합니다.'}, status=400)
+            
+        if per_stock_amount > total_investment:
+            return JsonResponse({'error': '종목당 투자금액은 총 투자금액을 초과할 수 없습니다.'}, status=400)
+        
+        # UserProfile 업데이트
+        profile = request.user.userprofile
+        profile.total_investment = total_investment
+        profile.per_stock_amount = per_stock_amount
+        profile.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': '포트폴리오 설정이 업데이트되었습니다.'
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

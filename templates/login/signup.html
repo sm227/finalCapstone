@@ -98,6 +98,31 @@
             padding: 12px 16px;
             text-align: center;
         }
+
+        .form-check {
+            padding-left: 1.8rem;
+        }
+
+        .form-check-input {
+            background-color: #2B2B2B;
+            border: 1px solid #404040;
+            cursor: pointer;
+            margin-left: -1.8rem;
+            width: 1.2em;
+            height: 1.2em;
+        }
+
+        .form-check-input:checked {
+            background-color: #3182f6;
+            border-color: #3182f6;
+        }
+
+        .form-check-label {
+            color: #cccccc;
+            cursor: pointer;
+            font-size: 14px;
+            padding-top: 2px;
+        }
     </style>
 
     <div class="container">
@@ -132,6 +157,10 @@
                         <label for="acc_num" class="form-label">계좌번호</label>
                         <input type="text" class="form-control text-white" id="acc_num" name="acc_num" 
                                placeholder="계좌번호를 입력해 주세요" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="is_demo" name="is_demo">
+                        <label class="form-check-label" for="is_demo">모의투자 계정으로 등록</label>
                     </div>
                     <button type="submit" class="btn btn-primary">회원가입</button>
                 </form>
