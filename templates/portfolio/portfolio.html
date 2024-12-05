@@ -599,6 +599,25 @@
         .dividend-calendar::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.2);
         }
+
+        .volatility-item:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .custom-tooltip {
+            --bs-tooltip-bg: rgba(0, 0, 0, 0.9);
+            --bs-tooltip-color: #fff;
+            font-size: 0.8rem;
+            padding: 0.8rem;
+            max-width: 400px;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+
+        .tooltip {
+            z-index: 9999;
+        }
     </style>
 
     <div class="container-fluid p-0">
@@ -774,7 +793,7 @@
                                         <div class="dividend-item d-flex align-items-center mb-3 p-3"
                                              style="background: rgba(255,255,255,0.05); border-radius: 12px;">
                                             <div class="company-info d-flex align-items-center" style="flex: 1;">
-                                                <img src="{{ dividend.logo_url  }}"
+                                                <img src="{{ dividend.logo_url }}"
                                                      alt="{{ dividend.symbol }}"
                                                      style="width: 32px; height: 32px; border-radius: 8px; margin-right: 16px;"
                                                      onerror="this.style.display='none'">
@@ -870,6 +889,9 @@
                                                         <div class="d-flex align-items-center gap-2">
                                                             <span style="font-size: 1.1em; font-weight: 500;">{{ stock.symbol }}</span>
                                                             <span style="color: #a0a0a0; font-size: 0.9em;">{{ stock.name }}</span>
+
+                                                            <span style="color: #a0a0a0; font-size: 0.9em;">{{ stock.sector }}</span>
+
                                                         </div>
                                                         <div style="font-size: 0.8em; color: #808080;">
                                                             수량 {{ stock.amount }}주
@@ -965,9 +987,77 @@
                         </div>
                     </div>
                 </div>
+                <div class="content-container mt-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- 주가 변동성 섹션 -->
+                            <h6 class="text-secondary mb-3 d-flex align-items-center gap-2">
+                                주가 변동성
+                                <i class="bi bi-question-circle"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="right"
+                                   data-bs-custom-class="custom-tooltip"
+                                   style="cursor: pointer; font-size: 0.9em;"
+                                   title="주가 변동성은 주가의 표준 편차를 기반으로 하며, 연간 변동성을 나타냅니다.
+                                   
+                                    리스크 증가: 주가가 크게 변동할 수 있어 손실 가능성이 커집니다.
+                                    기회 증가: 반대로, 주가가 크게 오를 가능성도 있어 높은 수익을 기대할 수 있습니다.
+                                    시장 불안정성: 변동성이 높을 때는 시장이 불안정하거나 예측하기 어려운 상황일 수 있습니다.
+                                  
+                                    투자자는 변동성을 고려하여 자신의 리스크 허용 범위에 맞는 투자 결정을 내리는 것이 중요합니다."></i>
+                            </h6>
+                            <div class="stock-list"
+                                 style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                                {% for stock in stocks %}
+                                    <div class="volatility-item p-3"
+                                         style="background: rgba(255,255,255,0.05); 
+                                border-radius: 12px; 
+                                transition: transform 0.2s;">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <img src="{{ stock.logo_url }}"
+                                                     alt="{{ stock.symbol }}"
+                                                     style="width: 32px; height: 32px; border-radius: 8px;"
+                                                     onerror="this.style.display='none'">
+                                                <div>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span style="font-size: 1.1em; font-weight: 500;">{{ stock.symbol }}</span>
+                                                        <span style="color: #a0a0a0; font-size: 0.9em;">{{ stock.name }}</span>
+                                                    </div>
+                                                    <div class="mt-1">
+                                                        <span style="font-size: 0.85em; color: #808080;">변동성:</span>
+                                                        <span style="font-size: 0.9em; color: {% if stock.volatility > 1 %}#ef454a{% elif stock.volatility > 0.5 %}#ff9800{% else %}#20b16c{% endif %};">
+                                            {{ stock.volatility|floatformat:2 }}
+                                        </span>
+                                                        <span style="font-size: 0.8em; color: #808080;">
+                                            ({% if stock.volatility > 1 %}높음{% elif stock.volatility > 0.5 %}
+                                                            중간{% else %}낮음{% endif %})
+                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
         </main>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl, {
+                    container: 'body'  // 툴팁을 body에 직접 추가
+                })
+            })
+        });
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

@@ -10,15 +10,14 @@ from datetime import timedelta
 import json
 from django.contrib import messages
 import requests
-from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
-from django.core.paginator import Paginator
 import time
 import yfinance as yf
 from random import shuffle
 from module.koreainvestment import CURRENCY_CODE
 import concurrent.futures
 import pandas as pd
+import numpy as np
 from django.core.cache import cache
 
 load_dotenv()
@@ -167,6 +166,8 @@ def portfolio(request):
             market_value = current_price * amount
             total_market_value += market_value
 
+            hist = ticker.history(period="1y")
+            volatility = np.std(hist['Close'].pct_change()) * np.sqrt(252)  # 연간 변동성
             stock_data = {
                 'symbol': symbol,
                 'name': comp['ovrs_item_name'],
@@ -179,7 +180,8 @@ def portfolio(request):
                 'last_updated': timezone.now(),
                 'market_value': market_value,
                 'logo_url': get_company_logo(symbol),
-                'sector': ticker.info.get('sector', '기타')
+                'sector': ticker.info.get('sector', '기타'),
+                'volatility': volatility  # 변동성 추가
             }
             stock_holdings.append(stock_data)
         except Exception as e:
@@ -212,7 +214,7 @@ def portfolio(request):
             all_news.extend(news_items)
 
     shuffle(all_news)
-    all_news = all_news[:20]  # 전체 뉴스 20개로 제한
+    all_news = all_news[:60]
 
     # 섹터 데이터 처리
     sector_data = {}
@@ -281,10 +283,21 @@ def portfolio(request):
         'dividend_calendar': dividend_calendar
     }
 
-    # 결과 캐싱 (5분)
-    cache.set(cache_key, context, 300)
+    # 결과 캐싱 (60분)
+    cache.set(cache_key, context, 3600)
 
     return render(request, 'portfolio/portfolio.html', context)
+
+
+@login_required
+def update_trading_memo(request, log_id):
+    if request.method == 'POST':
+        memo = request.POST.get('memo')
+        trading_log = TradingLog.objects.get(id=log_id)
+        trading_log.memo = memo
+        trading_log.save()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'})
 
 
 def get_company_logo(symbol):
@@ -294,7 +307,6 @@ def get_company_logo(symbol):
     if cached_logo:
         return cached_logo
 
-    # API 키가 필요없는 URL 목록
     logo_urls = [
         # f"https://d1u1p2xjjiahg3.cloudfront.net/logo/{symbol.upper()}.png",  # TradingView
         # f"https://cdn.icon-icons.com/icons2/2429/PNG/512/{symbol.lower()}_logo_icon_147274.png",  # Icon-Icons
@@ -315,7 +327,6 @@ def get_company_logo(symbol):
         except:
             continue
 
-    # 모든 시도가 실패하면 마지막 대안으로 Google Favicon 사용
     google_favicon = f"https://www.google.com/s2/favicons?domain={symbol.lower()}.com&sz=128"
     cache.set(cache_key, google_favicon, 60 * 60 * 24)
     return google_favicon
