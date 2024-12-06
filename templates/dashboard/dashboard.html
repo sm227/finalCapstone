@@ -1075,7 +1075,15 @@
                                 <tbody>
                                     {% for stock in stocks %}
                                     <tr class="align-middle" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                        <td class="px-4 fw-bold">{{ stock.symbol }}</td>
+                                        <td class="px-4">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <img src="{{ stock.logo_url }}"
+                                                     alt="{{ stock.symbol }}"
+                                                     style="width: 24px; height: 24px; border-radius: 4px;"
+                                                     onerror="this.style.display='none'">
+                                                <span class="fw-bold">{{ stock.symbol }}</span>
+                                            </div>
+                                        </td>
                                         <td>
                                             <a href="#" class="stock-link text-light text-decoration-none d-flex align-items-center gap-2"
                                                data-symbol="{{ stock.symbol }}">
@@ -1099,7 +1107,7 @@
                                             {% endif %}
                                         </td>
                                         <td class="text-center">
-                                            <span class="badge {% if stock.profit_loss_rate > 0 %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} px-3 py-2">
+                                            <span class="badge {% if stock.profit_loss_rate > 0 %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} px-3 py-2" style="font-size: 0.9rem;">
                                                 {% if stock.profit_loss_rate > 0 %}+{% endif %}{{ stock.profit_loss_rate|floatformat:2 }}%
                                             </span>
                                         </td>
@@ -1183,7 +1191,7 @@
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <div>
                                     <h5 class="mb-0">생산자물가지수 (PPI)</h5>
-                                    <small class="text-muted">Producer Price Index - 생산단계의 ���가동향을 나타내는 지표</small>
+                                    <small class="text-muted">Producer Price Index - 생산단계의 가동향을 나타내는 지표</small>
                                 </div>
                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top"
                                    title="PPI는 생산자가 생산하는 제품의 가격 변동을 측정하는 지표입니다. 향후 소비자물가 변동을 예측하는데 도움이 됩니다."></i>
