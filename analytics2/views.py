@@ -466,6 +466,7 @@ def update_auto_investment(request):
         # JSON 데이터 파싱
         data = json.loads(request.body)
         enabled = data.get('enabled', False)
+        print(enabled)
         
         # UserProfile 업데이트
         profile = request.user.userprofile
