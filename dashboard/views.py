@@ -89,7 +89,9 @@ def dashboard(request):
         'cpi_data': cpi_data,
         'ppi_data': ppi_data,
         'ai_recommendations_count': ai_recommendations_count,  # 추가
-        'ai_accuracy': round(ai_accuracy, 1)  # 추가 (소수점 첫째자리까지 표시)
+        'ai_accuracy': round(ai_accuracy, 1),  # 추가 (소수점 첫째자리까지 표시)
+        'auto_investment': user_profile.auto_investment,  # 자동투자 상태 추가
+        'investment_style': user_profile.get_investment_style_display()  # 투자 스타일 추가
     }
 
     return render(request, 'dashboard/dashboard.html', context)
