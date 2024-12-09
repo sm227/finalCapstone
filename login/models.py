@@ -21,6 +21,7 @@ class UserProfile(models.Model):
         default='balanced'
     )
     auto_investment = models.BooleanField(default=False)
+    compound_rate = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.username

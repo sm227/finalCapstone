@@ -9,3 +9,5 @@ class StockRecommendation(models.Model):
     price_target = models.FloatField()
     stop_loss = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
+    compound_rate = models.BooleanField(default=False)
+    compound_interest = models.FloatField()
