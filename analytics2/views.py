@@ -11,7 +11,6 @@ import json
 import pandas as pd
 import numpy as np
 import google.generativeai as genai
-from django.views.decorators.csrf import csrf_exempt
 
 import module.koreainvestment as mojito
 from login.models import UserProfile
@@ -23,8 +22,6 @@ from django.contrib.auth.decorators import login_required
 from dotenv import load_dotenv
 from pytz import timezone
 
-
-import dashboard.views
 # 파일 상단에 전역 변수 추가
 ANALYSIS_IN_PROGRESS = False
 
@@ -144,7 +141,7 @@ def stock_analysis(request):
 
         # Gemini API 처리
         genai.configure(api_key=os.getenv('gemini_api_key'))  # API 키는 환경변수로 관리하는 것을 추천
-        # API 키는 환경변수로 관리하는 것을 추천
+          # API 키는 환경변수로 관리하는 것을 추천
         prompt = generate_summary_prompt(json.dumps(json_data, indent=2, ensure_ascii=False))
         model = genai.GenerativeModel("gemini-1.5-flash", safety_settings=safety_settings)
         response = model.generate_content(prompt)
@@ -181,9 +178,10 @@ def stock_analysis(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+@login_required(login_url='login')
 def index(request):
     recommendations = StockRecommendation.objects.all().order_by('-created_at')
-
+    
     # 현재 사용자의 투자 성향 가져오기
     investment_style = None
     if request.user.is_authenticated:
@@ -191,22 +189,22 @@ def index(request):
             investment_style = request.user.userprofile.investment_style
         except:
             pass
-
+    
     # 각 추천 종목의 수익률 계산
     for rec in recommendations:
         try:
             # yfinance로 주식 데이터 가져오기
             ticker = yf.Ticker(rec.symbol)
-
+            
             # 추천일의 종가 가져오기
             rec_date = rec.created_at.strftime('%Y-%m-%d')
             hist = ticker.history(start=rec_date, end=(rec.created_at + timedelta(days=1)).strftime('%Y-%m-%d'))
             if not hist.empty:
                 rec_close = hist['Close'].iloc[0]
-
+                
                 # 현재가 가져오기
                 current_price = ticker.history(period='1d')['Close'].iloc[-1]
-
+                
                 # 수익률 계산
                 profit_rate = ((current_price - rec_close) / rec_close) * 100
                 rec.profit_rate = round(profit_rate, 2)
@@ -221,7 +219,7 @@ def index(request):
             rec.profit_rate = None
             rec.current_price = None
             rec.rec_close = None
-
+    
     return render(request, 'analytics2/index.html', {
         'recommendations': recommendations,
         'investment_style': investment_style
@@ -229,22 +227,41 @@ def index(request):
 
 
 def buy(ticker_symbol, user_profile):
+    # 현재 주식 가격 조회
+    ticker = yf.Ticker(ticker_symbol)
+    current_price = ticker.history(period='1d')['Close'].iloc[-1]
+    
+    # 주문 수량 계산
+    if user_profile.per_stock_amount:
+        quantity = int(float(user_profile.per_stock_amount) / current_price)
+    else:
+        # 기본값으로 1주 설정
+        quantity = 1
+    
+    # 최소 1주 이상 확인
+    quantity = max(1, quantity)
+    
+    # 총 투자금액 제한 확인
+    if user_profile.total_investment:
+        max_quantity = int(float(user_profile.total_investment) / current_price)
+        quantity = min(quantity, max_quantity)
+    
     # 한국투자 API 연결
     broker = mojito.KoreaInvestment(
         api_key=user_profile.api_key,
         api_secret=user_profile.api_secret,
-        acc_no=user_profile.acc_num,  # 계좌 번호
-        exchange='나스닥',  # 애플 주식을 구할 때 사용 (NASDAQ)
-        mock=True  # 모의 투자 모드
+        acc_no=user_profile.acc_num,
+        exchange='나스닥',
+        mock=True
     )
 
     # 주문 실행
     broker.create_oversea_order(
-        side='buy',  # 매수
-        symbol=ticker_symbol,  # 주식 코드
-        price=1000,  # 지정가
-        quantity=5,  # 수
-        order_type="00"  # 00은 지정가 주문
+        side='buy',
+        symbol=ticker_symbol,
+        price=current_price,  # 현재가로 설정
+        quantity=quantity,
+        order_type="00"  # 지정가 주문
     )
 
 
@@ -275,7 +292,7 @@ def read_stocks_by_style(investment_style):
         'balanced': '중립형.txt',
         'aggressive': '공격형.txt'
     }
-
+    
     # 해당하는 투자 성향의 파일 읽기
     file_name = style_files.get(investment_style, '중립형.txt')  # 기본값으로 중립형 설정
     try:
@@ -286,128 +303,47 @@ def read_stocks_by_style(investment_style):
         print(f"파일을 찾을 수 없습니다: {file_name}")
         return []
 
-
-
-#
-# from django.contrib import messages
-# from django.shortcuts import render, redirect
-#
-#
-# @login_required(login_url='login')
-# def dashboard(request):
-#     load_dotenv()
-#
-#     # 현재 로그인한 사용자의 UserProfile 가져오기
-#     try:
-#         user_profile = UserProfile.objects.get(user=request.user)
-#     except UserProfile.DoesNotExist:
-#         # UserProfile이 없는 경우 에러 처리
-#         messages.error(request, "사용자 프로필을 찾을 수 없습니다. 관리자에게 문의하세요.")
-#         return redirect('login')
-#
-#     # 주식 API 데이터 가져오기
-#     broker = mojito.KoreaInvestment(
-#         api_key=user_profile.api_key,
-#         api_secret=user_profile.api_secret,
-#         acc_no=user_profile.acc_num,  # acc_no는 여전히 환경 변수에서 가져옵니다.
-#         exchange='나스닥',
-#         mock=True
-#     )
-#
-#     balance = broker.fetch_present_balance()
-#     stock_holdings = []
-#     total_value = 0
-#
-#     total_value = balance['output3'].get('tot_asst_amt', 0)
-#
-#     print(total_value)
-#
-#     return total_value
-
-@login_required
-@require_POST
-@login_required
-@require_POST
-def compound_interest(request):
-    try:
-        user_profile = UserProfile.objects.get(user=request.user)
-
-        # 한국투자 API 연결
-        broker = mojito.KoreaInvestment(
-            api_key=user_profile.api_key,
-            api_secret=user_profile.api_secret,
-            acc_no=user_profile.acc_num,
-            exchange='나스닥',
-            mock=True
-        )
-
-        # 현재 자산 총액 조회
-        balance = broker.fetch_present_balance()
-        principal = float(balance['output3'].get('tot_asst_amt', 0))
-
-        # 복리 계산
-        rate = 0.03  # 2024 기준 3% 수익률
-        years = 1    # 복리 기간 설정
-        total_amount = int(principal * (1 + rate) ** years)  # 복리운용 시 예상 수익금
-
-        return JsonResponse({
-            'success': True,
-            'total_amount': total_amount  # round() 제거
-        })
-
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
-
-
-
-
-
-
-
 def analyze_and_store_stocks():
     global ANALYSIS_IN_PROGRESS
     try:
         if ANALYSIS_IN_PROGRESS:
             print("이미 분석이 진행 중입니다.")
             return
-
+            
         ANALYSIS_IN_PROGRESS = True
-
+        
         # 각 투자 성향별로 분석 수행
         for style, _ in UserProfile.INVESTMENT_CHOICES:
             stocks = read_stocks_by_style(style)
             if not stocks:
                 continue
-
+                
             # 해당 투자 성향을 가진 사용자들 필터링
             users_with_style = UserProfile.objects.filter(investment_style=style)
             if not users_with_style.exists():
                 continue
-
+                
             for ticker_symbol in stocks:
                 # 기존 추천이 있는지 확인
                 if StockRecommendation.objects.filter(symbol=ticker_symbol).exists():
                     print(f"{ticker_symbol}은 이미 분석되어 있습니다.")
                     continue
-
+                
                 print(f"{ticker_symbol} 분석 시작")
                 # 기존 분석 로직
                 ticker = yf.Ticker(ticker_symbol)
                 end_time = datetime.now(pytz.timezone('America/New_York'))
                 start_time = end_time - timedelta(days=30)
-
+                
                 df = ticker.history(start=start_time, end=end_time, interval='1d')
                 df = calculate_technical_indicators(df)
-
+                
                 # JSON 데이터 구성 (기존 코드와 동일)
                 json_data = {
                     "symbol": ticker_symbol,
                     "data": []
                 }
-
+                
                 for index, row in df.tail(30).iterrows():  # 마지막 30분 데이터만 사용
                     json_data["data"].append({
                         "timestamp": index.strftime("%Y-%m-%d %H:%M:%S"),
@@ -422,8 +358,7 @@ def analyze_and_store_stocks():
                             "rsi": round(float(row['RSI']), 2) if not pd.isna(row['RSI']) else None,
                             "macd": {
                                 "macd_line": round(float(row['MACD']), 2) if not pd.isna(row['MACD']) else None,
-                                "signal_line": round(float(row['Signal_Line']), 2) if not pd.isna(
-                                    row['Signal_Line']) else None
+                                "signal_line": round(float(row['Signal_Line']), 2) if not pd.isna(row['Signal_Line']) else None
                             },
                             "bollinger_bands": {
                                 "upper": round(float(row['BB_Upper']), 2) if not pd.isna(row['BB_Upper']) else None,
@@ -432,6 +367,7 @@ def analyze_and_store_stocks():
                             }
                         }
                     })
+
 
                 # 유해성 조정
                 safety_settings = [
@@ -463,18 +399,18 @@ def analyze_and_store_stocks():
                 prompt = generate_summary_prompt(json.dumps(json_data, indent=2, ensure_ascii=False))
                 model = genai.GenerativeModel("gemini-1.5-flash", safety_settings=safety_settings)
                 response = model.generate_content(prompt)
-
+                
                 # JSON 응답 파싱
                 response_text = response.text
                 start_index = response_text.find('{')
                 end_index = response_text.rfind('}') + 1
                 json_str = response_text[start_index:end_index]
                 response_data = json.loads(json_str)
-
+                
                 # 한 번만 출력
                 action = response_data['action'].lower()
                 print(f"{ticker_symbol} 분석 결과: {action}")
-
+                
                 # 매수 추천인 경우 DB에 저장
                 if action == 'buy':
                     StockRecommendation.objects.create(
@@ -484,7 +420,7 @@ def analyze_and_store_stocks():
                         price_target=response_data['price_target'],
                         stop_loss=response_data['stop_loss']
                     )
-
+                    
                     # 자동투자가 활성화된 모든 사용자에 대해 매수 실행
                     auto_invest_users = UserProfile.objects.filter(auto_investment=True)
                     for user_profile in auto_invest_users:
@@ -493,20 +429,19 @@ def analyze_and_store_stocks():
                         except Exception as e:
                             print(f"Error buying for user {user_profile.user.username}: {str(e)}")
 
-                time.sleep(60)  # API 호출 제한 고려
 
+                time.sleep(60)  # API 호출 제한 고려
+                
     except Exception as e:
         print(f"Error during analysis: {str(e)}")
     finally:
         ANALYSIS_IN_PROGRESS = False
 
-
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    # 매일 밤 11시 40분에 실행되도록 설정, 시간대 명시
+    # 매일 밤 11시 40분에 ��행되도록 설정, 시간대 명시
     scheduler.add_job(analyze_and_store_stocks, 'cron', hour=23, minute=40, timezone=timezone('Asia/Seoul'))
     scheduler.start()
-
 
 @login_required
 @require_POST
@@ -515,15 +450,14 @@ def update_investment_style(request):
         style = request.POST.get('style')
         if style not in ['conservative', 'balanced', 'aggressive']:
             return JsonResponse({'error': '잘못된 투자 성향입니다.'}, status=400)
-
+            
         profile = request.user.userprofile
         profile.investment_style = style
         profile.save()
-
+        
         return JsonResponse({'message': '투자 성향이 업데이트되었습니다.'})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-
 
 @login_required
 @require_POST
@@ -532,12 +466,13 @@ def update_auto_investment(request):
         # JSON 데이터 파싱
         data = json.loads(request.body)
         enabled = data.get('enabled', False)
-
+        print(enabled)
+        
         # UserProfile 업데이트
         profile = request.user.userprofile
         profile.auto_investment = enabled
         profile.save()
-
+        
         return JsonResponse({
             'success': True,
             'message': '자동투자 설정이 업데이트되었습니다.',
@@ -552,31 +487,40 @@ def update_auto_investment(request):
             'error': str(e)
         }, status=500)
 
-
 @login_required
 @require_POST
-def update_compound_setting(request):
+def update_portfolio_settings(request):
     try:
-        # POST 데이터에서 enabled 값을 정확하게 파싱
-        data = json.loads(request.body) if request.content_type == 'application/json' else request.POST
-        enabled = str(data.get('enabled')).lower() == 'true'
-
+        # JSON 데이터 파싱
+        data = json.loads(request.body)
+        total_investment = data.get('total_investment')
+        per_stock_amount = data.get('per_stock_amount')
+        
+        # 입력값 검증
+        if not total_investment or not per_stock_amount:
+            return JsonResponse({'error': '모든 필드를 입력해주세요.'}, status=400)
+            
+        try:
+            total_investment = float(total_investment)
+            per_stock_amount = float(per_stock_amount)
+        except ValueError:
+            return JsonResponse({'error': '유효한 숫자를 입력해주세요.'}, status=400)
+            
+        if total_investment < 0 or per_stock_amount < 0:
+            return JsonResponse({'error': '금액은 0보다 커야 합니다.'}, status=400)
+            
+        if per_stock_amount > total_investment:
+            return JsonResponse({'error': '종목당 투자금액은 총 투자금액을 초과할 수 없습니다.'}, status=400)
+        
         # UserProfile 업데이트
         profile = request.user.userprofile
-        profile.compound_rate = enabled
+        profile.total_investment = total_investment
+        profile.per_stock_amount = per_stock_amount
         profile.save()
-
-        # 디버깅을 위한 로그
-        print(f"Compound rate updated to: {enabled}")
-        print(f"Saved value in database: {profile.compound_rate}")
-
+        
         return JsonResponse({
             'success': True,
-            'message': '복리 운용 설정이 업데이트되었습니다.',
-            'enabled': enabled
+            'message': '포트폴리오 설정이 업데이트되었습니다.'
         })
     except Exception as e:
-        print(f"Error in update_compound_setting: {str(e)}")  # 디버깅용 로그
-        return JsonResponse({
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({'error': str(e)}, status=500)
