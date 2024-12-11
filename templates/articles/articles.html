@@ -3,926 +3,935 @@
 {% load static %}
 
 {% block content %}
-<style>
-    #main-content {
-        margin-left: 250px;
-    }
-
-    body {
-        background-color: #121212;
-        color: #e0e0e0;
-    }
-
-    .card {
-        height: auto;
-        min-height: 250px;
-        background-color: rgba(30, 30, 30, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        backdrop-filter: blur(10px);
-        transition: transform 0.2s, box-shadow 0.2s;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .card-body {
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }?
-
-    .card-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        line-height: 1.4;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .card-text {
-        color: #b0b0b0;
-        font-size: 0.95rem;
-        line-height: 1.6;
-        flex-grow: 1;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        margin-bottom: 1rem;
-    }
-
-    .table {
-        color: #e0e0e0;
-    }
-
-    .modal-content {
-        background: linear-gradient(180deg, #1a1a1f 0%, #24242b 100%);
-        border: none;
-        border-radius: 20px;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-    }
-
-    .article-summary-card {
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 20px;
-        padding: 25px;
-        margin: 15px 0;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        transition: all 0.3s ease;
-        backdrop-filter: blur(10px);
-    }
-
-    .summary-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .summary-icon {
-        background: linear-gradient(135deg, #2962ff, #3d6eff);
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 15px;
-        box-shadow: 0 5px 15px rgba(41, 98, 255, 0.2);
-    }
-
-    .summary-icon i {
-        color: white;
-        font-size: 1.3rem;
-    }
-
-    .summary-title {
-        color: #ffffff;
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin: 0;
-        letter-spacing: -0.02em;
-    }
-
-    .summary-content {
-        color: #b0b0b0;
-        line-height: 1.8;
-        font-size: 1rem;
-        padding: 10px 0;
-    }
-
-    .summary-actions {
-        margin-top: 25px;
-        display: flex;
-        gap: 12px;
-    }
-
-    .btn-summarize {
-        background: linear-gradient(135deg, #2962ff, #3d6eff);
-        border: none;
-        padding: 10px 24px;
-        border-radius: 12px;
-        color: white;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.95rem;
-        letter-spacing: 0.3px;
-    }
-
-    .btn-summarize i {
-        font-size: 1.1rem;
-    }
-
-    .btn-summarize:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(41, 98, 255, 0.3);
-    }
-
-    .loading-spinner {
-        background: rgba(0, 0, 0, 0.4);
-        border-radius: 16px;
-        padding: 30px;
-        text-align: center;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .loading-spinner .spinner-border {
-        width: 2.5rem;
-        height: 2.5rem;
-        color: #3d6eff;
-    }
-
-    .loading-spinner p {
-        color: #ffffff;
-        margin-top: 15px;
-        font-size: 0.95rem;
-        letter-spacing: 0.3px;
-    }
-
-    /* 모달 닫기 버튼 스타일 */
-    .modal-header .btn-close {
-        background: rgba(255, 255, 255, 0.1);
-        padding: 8px;
-        border-radius: 50%;
-        margin: -8px -8px -8px auto;
-    }
-
-    .modal-header {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        padding: 20px 25px;
-    }
-
-    .modal-body {
-        padding: 25px;
-    }
-
-    .bg-light {
-        background-color: #333 !important;
-    }
-
-    .text-dark {
-        color: #e0e0e0 !important;
-    }
-
-
-    .progress {
-        height: 12px;
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-
-    .progress-bar {
-        background: linear-gradient(45deg, #2962ff, #3d6eff);
-        background-size: 20px 20px;
-        animation: progress-animation 2s linear infinite;
-    }
-
-    @keyframes progress-animation {
-        0% {
-            background-position: 0 0;
-        }
-        100% {
-            background-position: 20px 0;
-        }
-    }
-
-    #progressMessage {
-        font-size: 0.9rem;
-        font-weight: 500;
-        color: #b0b0b0;
-        letter-spacing: 0.5px;
-    }
-
-    .fade-in {
-        animation: fadeIn 0.5s ease-in;
-    }
-
-    @keyframes fadeIn {
-        0% {
-            opacity: 0;
-        }
-        100% {
-            opacity: 1;
-        }
-    }
-
-    /* 사이드바 기본 스타일 */
-    #sidebar {
-        background: linear-gradient(180deg, #1a1a1f 0%, #24242b 100%);
-        position: fixed;
-        left: -280px;
-        width: 280px;
-        height: calc(100vh - 340px);
-        bottom: 20px;
-        z-index: 1000;
-        transition: all 0.3s ease;
-        border-radius: 0 16px 16px 0;
-        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
-        display: block !important;
-    }
-
-    #sidebar.show {
-        left: 0;
-    }
-
-    #sidebar:hover {
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    }
-
-    /* 사이드바 내부 컨텐츠 */
-    .sidebar-content {
-        height: 100%;
-        overflow-y: auto;
-        padding: 20px 0;
-    }
-
-    .sidebar-content::-webkit-scrollbar {
-        width: 5px;
-    }
-
-    .sidebar-content::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .sidebar-content::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 3px;
-    }
-
-    /* 사용자 프로필 섹션 */
-    .user-profile-section {
-        margin: 0 15px 20px;
-        padding: 15px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .user-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .user-avatar {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(45deg, #2962ff, #3d6eff);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-    }
-
-    .user-name {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #ffffff;
-    }
-
-    /* 네비게이션 링크 */
-    .nav-item {
-        margin: 3px 15px;
-    }
-
-    .nav-link {
-        padding: 12px 20px;
-        color: #a0a0a0 !important;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        transition: all 0.2s ease;
-        border-radius: 10px;
-    }
-
-    .nav-link:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #ffffff !important;
-        transform: translateX(5px);
-    }
-
-    .nav-link.active {
-        background: linear-gradient(45deg, #2962ff, #3d6eff);
-        color: #ffffff !important;
-    }
-
-    .nav-link i {
-        font-size: 1.2rem;
-    }
-
-    /* 로그아웃 버튼 */
-    .logout-btn {
-        margin-top: 10px;
-        padding: 8px 12px;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 8px;
-        color: #a0a0a0;
-        font-size: 0.85rem;
-        transition: all 0.2s ease;
-        text-decoration: none;
-    }
-
-    .logout-btn:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #ffffff;
-    }
-
-    /* 사이드바 토글 버튼 */
-    .sidebar-toggle {
-        position: fixed;
-        bottom: 20px;
-        left: 0;
-        z-index: 1001;
-        width: 45px;
-        height: 45px;
-        background: linear-gradient(45deg, #2962ff, #3d6eff);
-        border: none;
-        border-radius: 0 10px 10px 0;
-        color: white;
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 4px 0 15px rgba(41, 98, 255, 0.3);
-        cursor: pointer;
-    }
-
-    .sidebar-toggle:hover {
-        width: 50px;
-    }
-
-    .sidebar-toggle:active {
-        transform: scale(0.95);
-    }
-
-    .sidebar-toggle i {
-        font-size: 1.5rem;
-        transition: transform 0.3s ease;
-    }
-
-    .sidebar-toggle.active i {
-        transform: rotate(180deg);
-    }
-
-    /* 오버레이 */
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-        display: none;
-    }
-
-    .sidebar-overlay.show {
-        display: block;
-    }
-
-    /* 반응형 스타일 */
-    @media (max-width: 768px) {
-        #sidebar {
-            width: 250px;
-            height: 100vh;
-            top: 0;
-            bottom: auto;
-            border-radius: 0;
+    <style>
+        #main-content {
+            margin-left: 250px;
         }
 
-        .sidebar-toggle {
-            bottom: 20px;
-            left: 20px;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-        }
-
-        .container-fluid {
-            padding-left: 15px !important;
-            padding-right: 15px !important;
-        }
-    }
-
-    /* 컨테이너 여백 설정 */
-    .container-fluid {
-        padding-left: 100px !important;
-        padding-right: 100px !important;
-        width: calc(100% - 200px) !important;
-        margin: 0 auto !important;
-    }
-
-    /* 메인 컨텐츠 영역 */
-    main.col-md-9,
-    main.col-lg-10 {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        max-width: 100% !important;
-        flex: 0 0 100% !important;
-    }
-
-    /* 본 색상 변수 정의 */
-    :root {
-        --primary-bg: #191919;
-        --secondary-bg: #242424;
-        --input-bg: #2B2B2B;
-        --border-color: #404040;
-        --text-primary: #ffffff;
-        --text-secondary: #999999;
-        --accent-blue: #3182f6;
-    }
-
-    /* 버튼 스타일 업데이트 */
-    .btn-primary {
-        background: linear-gradient(45deg, #2962ff, #3d6eff);
-        border: none;
-        border-radius: 8px;
-        padding: 8px 16px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: all 0.2s;
-    }
-
-    .btn-primary:hover {
-        background: linear-gradient(45deg, #3d6eff, #2962ff);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(41, 98, 255, 0.3);
-    }
-
-    /* 카드 컨테이너 여백 설정 */
-    .article-card {
-        margin-bottom: 30px;  /* 카드 사이 세로 여백 */
-        padding: 0 15px;      /* 좌우 여백 */
-    }
-
-    .card {
-        height: auto;
-        min-height: 250px;
-        background-color: rgba(30, 30, 30, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        backdrop-filter: blur(10px);
-        transition: transform 0.2s, box-shadow 0.2s;
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* 반응형 여백 조정 */
-    @media (max-width: 768px) {
-        .article-card {
-            margin-bottom: 20px;
-            padding: 0 10px;
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
         }
 
         .card {
-            min-height: 200px;
+            height: auto;
+            min-height: 250px;
+            background-color: rgba(30, 30, 30, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
 
         .card-body {
-            padding: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
+        ?
+
         .card-title {
-            font-size: 1.1rem;
-            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .card-text {
+            color: #b0b0b0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .table {
+            color: #e0e0e0;
+        }
+
+        .modal-content {
+            background: linear-gradient(180deg, #1a1a1f 0%, #24242b 100%);
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .article-summary-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .summary-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .summary-icon {
+            background: linear-gradient(135deg, #2962ff, #3d6eff);
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            box-shadow: 0 5px 15px rgba(41, 98, 255, 0.2);
+        }
+
+        .summary-icon i {
+            color: white;
+            font-size: 1.3rem;
+        }
+
+        .summary-title {
+            color: #ffffff;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .summary-content {
+            color: #b0b0b0;
+            line-height: 1.8;
+            font-size: 1rem;
+            padding: 10px 0;
+        }
+
+        .summary-actions {
+            margin-top: 25px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-summarize {
+            background: linear-gradient(135deg, #2962ff, #3d6eff);
+            border: none;
+            padding: 10px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-summarize i {
+            font-size: 1.1rem;
+        }
+
+        .btn-summarize:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(41, 98, 255, 0.3);
+        }
+
+        .loading-spinner {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .loading-spinner .spinner-border {
+            width: 2.5rem;
+            height: 2.5rem;
+            color: #3d6eff;
+        }
+
+        .loading-spinner p {
+            color: #ffffff;
+            margin-top: 15px;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+        }
+
+        /* 모달 닫기 버튼 스타일 */
+        .modal-header .btn-close {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px;
+            border-radius: 50%;
+            margin: -8px -8px -8px auto;
+        }
+
+        .modal-header {
+            border-bottom: 0px solid rgba(255, 255, 255, 0.05);
+            padding: 0px 0px;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .bg-light {
+            background-color: #333 !important;
+        }
+
+        .text-dark {
+            color: #e0e0e0 !important;
+        }
+
+
+        .progress {
+            height: 12px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-bar {
+            background: linear-gradient(45deg, #2962ff, #3d6eff);
+            background-size: 20px 20px;
+            animation: progress-animation 2s linear infinite;
+        }
+
+        @keyframes progress-animation {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 20px 0;
+            }
+        }
+
+        #progressMessage {
             font-size: 0.9rem;
-            margin-bottom: 0.8rem;
+            font-weight: 500;
+            color: #b0b0b0;
+            letter-spacing: 0.5px;
         }
 
-        .btn-primary {
-            padding: 6px 12px;
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* 사이드바 기본 스타일 */
+        #sidebar {
+            background: linear-gradient(180deg, #1a1a1f 0%, #24242b 100%);
+            position: fixed;
+            left: -280px;
+            width: 280px;
+            height: calc(100vh - 340px);
+            bottom: 20px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            border-radius: 0 16px 16px 0;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+            display: block !important;
+        }
+
+        #sidebar.show {
+            left: 0;
+        }
+
+        #sidebar:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 사이드바 내부 컨텐츠 */
+        .sidebar-content {
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-content::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        /* 사용자 프로필 섹션 */
+        .user-profile-section {
+            margin: 0 15px 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #2962ff, #3d6eff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        /* 네비게이션 링크 */
+        .nav-item {
+            margin: 3px 15px;
+        }
+
+        .nav-link {
+            padding: 12px 20px;
+            color: #a0a0a0 !important;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            border-radius: 10px;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff !important;
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(45deg, #2962ff, #3d6eff);
+            color: #ffffff !important;
+        }
+
+        .nav-link i {
+            font-size: 1.2rem;
+        }
+
+        /* 로그아웃 버튼 */
+        .logout-btn {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: #a0a0a0;
             font-size: 0.85rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
         }
-    }
 
-    /* 컨테이너 여백 조정 */
-    @media (max-width: 576px) {
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+        /* 사이드바 토글 버튼 */
+        .sidebar-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            z-index: 1001;
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(45deg, #2962ff, #3d6eff);
+            border: none;
+            border-radius: 0 10px 10px 0;
+            color: white;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 4px 0 15px rgba(41, 98, 255, 0.3);
+            cursor: pointer;
+        }
+
+        .sidebar-toggle:hover {
+            width: 50px;
+        }
+
+        .sidebar-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .sidebar-toggle i {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-toggle.active i {
+            transform: rotate(180deg);
+        }
+
+        /* 오버레이 */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        /* 반응형 스타일 */
+        @media (max-width: 768px) {
+            #sidebar {
+                width: 250px;
+                height: 100vh;
+                top: 0;
+                bottom: auto;
+                border-radius: 0;
+            }
+
+            .sidebar-toggle {
+                bottom: 20px;
+                left: 20px;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+            }
+
+            .container-fluid {
+                padding-left: 15px !important;
+                padding-right: 15px !important;
+            }
+        }
+
+        /* 컨테이너 여백 설정 */
         .container-fluid {
-            padding-left: 15px !important;
-            padding-right: 15px !important;
-            width: 100% !important;
+            padding-left: 100px !important;
+            padding-right: 100px !important;
+            width: calc(100% - 200px) !important;
+            margin: 0 auto !important;
         }
 
+        /* 메인 컨텐츠 영역 */
+        main.col-md-9,
+        main.col-lg-10 {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            max-width: 100% !important;
+            flex: 0 0 100% !important;
+        }
+
+        /* 본 색상 변수 정의 */
+        :root {
+            --primary-bg: #191919;
+            --secondary-bg: #242424;
+            --input-bg: #2B2B2B;
+            --border-color: #404040;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --accent-blue: #3182f6;
+        }
+
+        /* 버튼 스타일 업데이트 */
+        .btn-primary {
+            background: linear-gradient(45deg, #2962ff, #3d6eff);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #3d6eff, #2962ff);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(41, 98, 255, 0.3);
+        }
+
+        /* 카드 컨테이너 여백 설정 */
         .article-card {
-            padding: 0 8px;
+            margin-bottom: 30px; /* 카드 사이 세로 여백 */
+            padding: 0 15px; /* 좌우 여백 */
         }
-    }
 
-    /* 뉴스 카드 컨테이너 스타일 */
-    .article-card {
-        margin-bottom: 30px;
-        padding: 0 15px;
-        transition: all 0.3s ease;
-    }
+        .card {
+            height: auto;
+            min-height: 250px;
+            background-color: rgba(30, 30, 30, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
 
-    /* 카드 기본 스타일 업데이트 */
-    .card {
-        background: rgba(30, 30, 30, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 20px;
-        backdrop-filter: blur(10px);
-        transition: all 0.3s ease;
-        overflow: hidden;
-        height: 100%;
-        position: relative;
-    }
+        /* 반응형 여백 조정 */
+        @media (max-width: 768px) {
+            .article-card {
+                margin-bottom: 20px;
+                padding: 0 10px;
+            }
 
-    .card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #2962ff, #3d6eff);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
+            .card {
+                min-height: 200px;
+            }
 
-    .card:hover::before {
-        opacity: 1;
-    }
+            .card-body {
+                padding: 1rem;
+            }
 
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-        background: rgba(35, 35, 35, 0.7);
-    }
+            .card-title {
+                font-size: 1.1rem;
+                margin-bottom: 0.8rem;
+            }
 
-    .card-body {
-        padding: 25px;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        gap: 15px;
-    }
+            .card-text {
+                font-size: 0.9rem;
+                margin-bottom: 0.8rem;
+            }
 
-    .card-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        line-height: 1.5;
-        margin: 0;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        color: #ffffff;
-    }
+            .btn-primary {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+        }
 
-    .card-title a {
-        text-decoration: none;
-        color: inherit;
-        transition: color 0.2s ease;
-    }
+        /* 컨테이너 여백 조정 */
+        @media (max-width: 576px) {
+            .container-fluid {
+                padding-left: 15px !important;
+                padding-right: 15px !important;
+                width: 100% !important;
+            }
 
-    .card-title a:hover {
-        color: #3d6eff;
-    }
+            .article-card {
+                padding: 0 8px;
+            }
+        }
 
-    .card-text {
-        color: #b0b0b0;
-        font-size: 1rem;
-        line-height: 1.7;
-        flex-grow: 1;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        margin: 0;
-    }
+        /* 뉴스 카드 컨테이너 스타일 */
+        .article-card {
+            margin-bottom: 30px;
+            padding: 0 15px;
+            transition: all 0.3s ease;
+        }
 
-    /* Read More 버튼 스타일 업데이트 */
-    .btn-read-more {
-        background: linear-gradient(135deg, #2962ff, #3d6eff);
-        border: none;
-        padding: 12px 24px;
-        border-radius: 12px;
-        color: white;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.95rem;
-        letter-spacing: 0.3px;
-        margin-top: auto;
-    }
+        /* 카드 기본 스타일 업데이트 */
+        .card {
+            background: rgba(30, 30, 30, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            height: 100%;
+            position: relative;
+        }
 
-    .btn-read-more i {
-        font-size: 1.1rem;
-        transition: transform 0.3s ease;
-    }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2962ff, #3d6eff);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
 
-    .btn-read-more:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(41, 98, 255, 0.3);
-    }
+        .card:hover::before {
+            opacity: 1;
+        }
 
-    .btn-read-more:hover i {
-        transform: translateX(3px);
-    }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            background: rgba(35, 35, 35, 0.7);
+        }
 
-    /* 카드 메타 정보 스타일 */
-    .card-meta {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        color: #888;
-        font-size: 0.9rem;
-        margin-bottom: 10px;
-    }
+        .card-body {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            gap: 15px;
+        }
 
-    .card-meta-item {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            line-height: 1.5;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: #ffffff;
+        }
 
-    .card-meta-item i {
-        font-size: 1rem;
-        color: #3d6eff;
-    }
-</style>
+        .card-title a {
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.2s ease;
+        }
 
-<!-- sidebar -->
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <nav id="sidebar">
-            <div class="sidebar-content">
-                {% if user.is_authenticated %}
-                <div class="user-profile-section">
-                    <div class="user-info">
-                        <div class="user-avatar">
-                            {{ user.username|make_list|first|upper }}
-                        </div>
-                        <div>
-                            <span class="user-name">{{ user.username }}</span>
-                            <a href="{% url 'logout' %}" class="logout-btn d-block">
-                                <i class="bi bi-box-arrow-right"></i> 로그아웃
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
+        .card-title a:hover {
+            color: #3d6eff;
+        }
 
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'dashboard' %}">
-                            <i class="bi bi-house-door"></i>
-                            <span>대시보드</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'trading' %}">
-                            <i class="bi bi-currency-exchange"></i>
-                            <span>트레이딩</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href={% url 'analytics2:index' %}>
-                            <i class="bi bi-graph-up"></i>
-                            <span>분석</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'portfolio' %}">
-                            <i class="bi bi-wallet2"></i>
-                            <span>포트폴리오</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#" onclick="location.reload(); return false;">
-                            <i class="bi bi-newspaper"></i>
-                            <span>뉴스</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+        .card-text {
+            color: #b0b0b0;
+            font-size: 1rem;
+            line-height: 1.7;
+            flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin: 0;
+        }
 
-        <div class="sidebar-overlay"></div>
+        /* Read More 버튼 스타일 업데이트 */
+        .btn-read-more {
+            background: linear-gradient(135deg, #2962ff, #3d6eff);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+            margin-top: auto;
+        }
 
-        <button class="sidebar-toggle">
-            <i class="bi bi-list"></i>
-        </button>
+        .btn-read-more i {
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+        }
 
-        <main id="main-content" class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">News</h1>
-            </div>
-            <!-- 프로그레스 바 및 메시지 -->
-            <div class="mb-3">
-                <div class="progress" style="height: 20px;">
-                    <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;"
-                         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%
-                    </div>
-                </div>
-                <p id="progressMessage" class="mt-2 text-center"></p>
-            </div>
+        .btn-read-more:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(41, 98, 255, 0.3);
+        }
 
-            <!-- 기사 컨테이너 -->
-            <div id="articlesContainer" class="row">
-                <!-- 기사 -->
-                <div class="row">
-                    {% for article in news %}
-                    <div class="col-md-4 article-card">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="card-meta">
-                                    <div class="card-meta-item">
-                                        <i class="bi bi-clock"></i>
-                                        <span>{{ article.pub_date|timesince }} 전</span>
-                                    </div>
-                                    <div class="card-meta-item">
-                                        <i class="bi bi-bookmark"></i>
-                                        <span>뉴스</span>
-                                    </div>
+        .btn-read-more:hover i {
+            transform: translateX(3px);
+        }
+
+        /* 카드 메타 정보 스타일 */
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .card-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .card-meta-item i {
+            font-size: 1rem;
+            color: #3d6eff;
+        }
+    </style>
+
+    <!-- sidebar -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar">
+                <div class="sidebar-content">
+                    {% if user.is_authenticated %}
+                        <div class="user-profile-section">
+                            <div class="user-info">
+                                <div class="user-avatar">
+                                    {{ user.username|make_list|first|upper }}
                                 </div>
-                                <h5 class="card-title">
-                                    <a href="{{ article.link }}" target="_blank">
-                                        {{ article.title }}
+                                <div>
+                                    <span class="user-name">{{ user.username }}</span>
+                                    <a href="{% url 'logout' %}" class="logout-btn d-block">
+                                        <i class="bi bi-box-arrow-right"></i> 로그아웃
                                     </a>
-                                </h5>
-                                <p class="card-text">
-                                    {{ article.content|truncatewords:30 }}
-                                </p>
-                                <button class="btn btn-read-more read-more"
-                                        data-content="{{ article.content }}"
-                                        data-title="{{ article.title }}"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#articleModal">
-                                    자세히 보기
-                                    <i class="bi bi-arrow-right"></i>
-                                </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+                    {% endif %}
 
-            <!-- Read More 모달 -->
-            <div class="modal fade" id="articleModal" tabindex="-1" aria-labelledby="articleModalLabel"
-                 aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="articleModalLabel">Article</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body" id="modal-body-content">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dashboard' %}">
+                                <i class="bi bi-house-door"></i>
+                                <span>대시보드</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'trading' %}">
+                                <i class="bi bi-currency-exchange"></i>
+                                <span>트레이딩</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href={% url 'analytics2:index' %}>
+                                <i class="bi bi-graph-up"></i>
+                                <span>분석</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'portfolio' %}">
+                                <i class="bi bi-wallet2"></i>
+                                <span>포트폴리오</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" onclick="location.reload(); return false;">
+                                <i class="bi bi-newspaper"></i>
+                                <span>뉴스</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="sidebar-overlay"></div>
+
+            <button class="sidebar-toggle">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <main id="main-content" class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">News</h1>
+                </div>
+                <!-- 프로그레스 바 및 메시지 -->
+                <div class="mb-3">
+                    <div class="progress" style="height: 20px;">
+                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;"
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <p id="progressMessage" class="mt-2 text-center"></p>
+                </div>
+
+                <!-- 기사 컨테이너 -->
+                <div id="articlesContainer" class="row">
+                    
+                </div>
+
+                <!-- Read More 모달 -->
+                <div class="modal fade" id="articleModal" tabindex="-1" aria-labelledby="articleModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header" id="articleModalLabel">
+                                {#                            <h5 class="modal-title" id="articleModalLabel"></h5>#}
+                                {#                            <button type="button" class="btn-close" data-bs-dismiss="modal"#}
+                                {#                                    aria-label="Close"></button>#}
+                            </div>
+                            <div class="modal-body" id="modal-body-content">
+                            </div>
+                        </div>
+                        {#                    <div class="modal-footer">#}
+                        {#                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>#}
+                        {#                    </div>#}
                     </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
-</div>
 
-<!-- 스크립트: 요약하기 버튼 클릭 시 Ajax 요청 -->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const progressBar = document.getElementById('progressBar');
-        const progressMessage = document.getElementById('progressMessage');
-        const articlesContainer = document.getElementById('articlesContainer');
-        const modalBodyContent = document.getElementById('modal-body-content');
-        const articleModalLabel = document.getElementById('articleModalLabel');
+    <!-- 스크립트: 요약하기 버튼 클릭 시 Ajax 요청 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const progressBar = document.getElementById('progressBar');
+            const progressMessage = document.getElementById('progressMessage');
+            const articlesContainer = document.getElementById('articlesContainer');
+            const modalBodyContent = document.getElementById('modal-body-content');
+            const articleModalLabel = document.getElementById('articleModalLabel');
 
-        let currentArticleTitle = '';
-        let currentArticleContent = '';
-        let lastMessage = '';
+            let currentArticleTitle = '';
+            let currentArticleContent = '';
+            let lastMessage = '';
 
-        const eventSource = new EventSource("{% url 'articles' %}");
+            const eventSource = new EventSource("{% url 'articles' %}");
 
-        eventSource.onmessage = function (event) {
-            const data = JSON.parse(event.data);
+            eventSource.onmessage = function (event) {
+                const data = JSON.parse(event.data);
 
-            // 프로그레스 바 업데이트
-            const progress = data.progress;
-            progressBar.style.width = progress + '%';
-            progressBar.setAttribute('aria-valuenow', progress);
-            progressBar.textContent = Math.round(progress) + '%';
+                // 프로그레스 바 업데이트
+                const progress = data.progress;
+                progressBar.style.width = progress + '%';
+                progressBar.setAttribute('aria-valuenow', progress);
+                progressBar.textContent = Math.round(progress) + '%';
 
-            // 프로그레스 메시지 업데이트 (새로운 메시지일 때만)
-            if (data.message !== lastMessage) {
-                progressMessage.classList.remove('fade-in');
-                void progressMessage.offsetWidth;
-                progressMessage.classList.add('fade-in');
-                progressMessage.textContent = data.message;
-                lastMessage = data.message;
-            }
+                // 프로그레스 메시지 업데이트 (새로운 메시지일 때만)
+                if (data.message !== lastMessage) {
+                    progressMessage.classList.remove('fade-in');
+                    void progressMessage.offsetWidth;
+                    progressMessage.classList.add('fade-in');
+                    progressMessage.textContent = data.message;
+                    lastMessage = data.message;
+                }
 
-            // 새 기사 추가
-            const article = data.article;
-            const articleCard = createArticleCard(article);
-            articlesContainer.appendChild(articleCard);
+                // 새 기사 추가
+                const article = data.article;
+                const articleCard = createArticleCard(article);
+                articlesContainer.appendChild(articleCard);
 
-            // 모든 기사가 로드되면 연결 종료
-            if (progress >= 100) {
+                // 모든 기사가 로드되면 연결 종료
+                if (progress >= 100) {
+                    eventSource.close();
+
+                    progressMessage.textContent = "모든 기사를 불러왔습니다!";
+                    progressMessage.style.color = '#28a745';
+                    progressBar.classList.remove('progress-bar-animated');
+
+                    setTimeout(() => {
+                        progressMessage.style.display = 'none';
+                        progressBar.style.display = 'none';
+                        document.querySelector('.progress').style.display = 'none';
+                    }, 1000);
+                }
+            };
+
+            eventSource.onerror = function (error) {
+                console.error("EventSource failed:", error);
                 eventSource.close();
+                progressMessage.textContent = "기사를 불러오는 중 오류가 발생했습니다.";
+                progressMessage.style.color = '#dc3545';
+            };
 
-                progressMessage.textContent = "모든 기사를 불러왔습니다!";
-                progressMessage.style.color = '#28a745';
-                progressBar.classList.remove('progress-bar-animated');
+            function createArticleCard(article) {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'col-md-4 article-card';
 
-                setTimeout(() => {
-                    progressMessage.style.display = 'none';
-                    progressBar.style.display = 'none';
-                    document.querySelector('.progress').style.display = 'none';
-                }, 1000);
-            }
-        };
+                let timeDisplay = '방금 전';
+                if (article.pub_date) {
+                    // YYYY-MM-DD HH:mm:ss 형식의 문자열을 Date 객체로 변환
+                    const [datePart, timePart] = article.pub_date.split(' ');
+                    const [year, month, day] = datePart.split('-');
+                    const [hours, minutes, seconds] = timePart.split(':');
 
-        eventSource.onerror = function (error) {
-            console.error("EventSource failed:", error);
-            eventSource.close();
-            progressMessage.textContent = "기사를 불러오는 중 오류가 발생했습니다.";
-            progressMessage.style.color = '#dc3545';
-        };
+                    const publishDate = new Date(year, month - 1, day, hours, minutes, seconds);
+                    if (!isNaN(publishDate.getTime())) {
+                        timeDisplay = formatPublishedTime(publishDate);
+                    }
+                }
 
-        function createArticleCard(article) {
-            const cardDiv = document.createElement('div');
-            cardDiv.className = 'col-md-4 article-card';
-            cardDiv.innerHTML = `
-                <div class="card">
-                    <div class="card-body">
-                        <div class="card-meta">
-                            <div class="card-meta-item">
-                                <i class="bi bi-clock"></i>
-                                <span>${article.pub_date ? formatTimeSince(new Date(article.pub_date)) : '방금 전'}</span>
+                cardDiv.innerHTML = `
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="card-meta">
+                                <div class="card-meta-item">
+                                    <i class="bi bi-clock"></i>
+                                    <span>${timeDisplay}</span>
+                                </div>
+                                <div class="card-meta-item">
+                                    
+                                </div>
                             </div>
+                            <h5 class="card-title">
+                                <a href="${article.link}" target="_blank">${article.title}</a>
+                            </h5>
+                            <p class="card-text">${article.content.substring(0, 150)}...</p>
+                            <button class="btn btn-read-more read-more" 
+                                    data-content="${article.content}" 
+                                    data-title="${article.title}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#articleModal">
+                                자세히 보기
+                                <i class="bi bi-arrow-right"></i>
+                            </button>
                         </div>
-                        <h5 class="card-title">
-                            <a href="${article.link}" target="_blank">${article.title}</a>
-                        </h5>
-                        <p class="card-text">${article.content.substring(0, 150)}...</p>
-                        <button class="btn btn-read-more read-more" 
-                                data-content="${article.content}" 
-                                data-title="${article.title}"
-                                data-bs-toggle="modal"
-                                data-bs-target="#articleModal">
-                            자세히 보기
-                            <i class="bi bi-arrow-right"></i>
-                        </button>
                     </div>
-                </div>
-            `;
-            return cardDiv;
-        }
+                `;
+                return cardDiv;
+            }
+            
+            
+            //시간 포맷팅
+            function formatPublishedTime(publishDate) {
+                const now = new Date();
+                const diffInSeconds = Math.floor((now - publishDate) / 1000);
 
-        // Read More 버튼 클릭 이벤트
-        articlesContainer.addEventListener('click', function (e) {
-            if (e.target.classList.contains('read-more')) {
-                const content = e.target.getAttribute('data-content');
-                const title = e.target.getAttribute('data-title');
-                modalBodyContent.innerHTML = `
+                if (diffInSeconds < 60) {
+                    return '방금 전';
+                } else if (diffInSeconds < 3600) {
+                    const minutes = Math.floor(diffInSeconds / 60);
+                    return `${minutes}분 전`;
+                } else if (diffInSeconds < 86400) {
+                    const hours = Math.floor(diffInSeconds / 3600);
+                    return `${hours}시간 전`;
+                } else if (diffInSeconds < 604800) {
+                    const days = Math.floor(diffInSeconds / 86400);
+                    return `${days}일 전`;
+                } else {
+                    return publishDate.toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                }
+            }
+
+            // Read More 버튼 클릭 이벤트
+            articlesContainer.addEventListener('click', function (e) {
+                if (e.target.classList.contains('read-more')) {
+                    const content = e.target.getAttribute('data-content');
+                    const title = e.target.getAttribute('data-title');
+                    modalBodyContent.innerHTML = `
                     <div class="article-summary-card">
                         <div class="summary-header">
                             <div class="summary-icon">
@@ -942,17 +951,17 @@
                     </div>
                     <div id="summary-container"></div>
                 `;
-                articleModalLabel.textContent = title;
-                currentArticleTitle = title;
-                currentArticleContent = content;
+                    {#articleModalLabel.textContent = title;#}
+                    currentArticleTitle = title;
+                    currentArticleContent = content;
 
-                document.getElementById('summarize-btn').addEventListener('click', summarizeArticle);
-            }
-        });
+                    document.getElementById('summarize-btn').addEventListener('click', summarizeArticle);
+                }
+            });
 
-        function summarizeArticle() {
-            const summaryContainer = document.getElementById('summary-container');
-            summaryContainer.innerHTML = `
+            function summarizeArticle() {
+                const summaryContainer = document.getElementById('summary-container');
+                summaryContainer.innerHTML = `
             <div class="loading-spinner">
                 <div class="spinner-border" role="status">
                     <span class="visually-hidden">Loading...</span>
@@ -961,20 +970,20 @@
             </div>
         `;
 
-            fetch("{% url 'summarize_article' %}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}',
-                },
-                body: JSON.stringify({
-                    title: currentArticleTitle,
-                    content: currentArticleContent
+                fetch("{% url 'summarize_article' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: JSON.stringify({
+                        title: currentArticleTitle,
+                        content: currentArticleContent
+                    })
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                summaryContainer.innerHTML = `
+                    .then(response => response.json())
+                    .then(data => {
+                        summaryContainer.innerHTML = `
                     <div class="article-summary-card">
                         <div class="summary-header">
                             <div class="summary-icon">
@@ -987,10 +996,10 @@
                         </div>
                     </div>
                 `;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                summaryContainer.innerHTML = `
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        summaryContainer.innerHTML = `
                     <div class="article-summary-card" style="border-color: rgba(220, 53, 69, 0.3);">
                         <div class="summary-header">
                             <div class="summary-icon" style="background: linear-gradient(135deg, #dc3545, #ff4d5a);">
@@ -1003,84 +1012,59 @@
                         </div>
                     </div>
                 `;
+                    });
+            }
+        });
+
+
+    </script>
+
+    <!-- 사이드바 관련 스크립트 추가 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.sidebar-toggle');
+            const overlay = document.querySelector('.sidebar-overlay');
+            let autoHideTimer;
+
+            function showSidebar() {
+                sidebar.classList.add('show');
+                overlay.classList.add('show');
+                toggle.classList.add('active');
+                clearTimeout(autoHideTimer);
+            }
+
+            function hideSidebar() {
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+                toggle.classList.remove('active');
+            }
+
+            toggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (sidebar.classList.contains('show')) {
+                    hideSidebar();
+                } else {
+                    showSidebar();
+                }
             });
-        }
-    });
 
+            overlay.addEventListener('click', hideSidebar);
 
-</script>
+            sidebar.addEventListener('mouseleave', function () {
+                autoHideTimer = setTimeout(hideSidebar, 3000);
+            });
 
-<!-- 사이드바 관련 스크립트 추가 -->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const sidebar = document.getElementById('sidebar');
-        const toggle = document.querySelector('.sidebar-toggle');
-        const overlay = document.querySelector('.sidebar-overlay');
-        let autoHideTimer;
+            sidebar.addEventListener('mouseenter', function () {
+                clearTimeout(autoHideTimer);
+            });
 
-        function showSidebar() {
-            sidebar.classList.add('show');
-            overlay.classList.add('show');
-            toggle.classList.add('active');
-            clearTimeout(autoHideTimer);
-        }
-
-        function hideSidebar() {
-            sidebar.classList.remove('show');
-            overlay.classList.remove('show');
-            toggle.classList.remove('active');
-        }
-
-        toggle.addEventListener('click', function (e) {
-            e.stopPropagation();
-            if (sidebar.classList.contains('show')) {
-                hideSidebar();
-            } else {
-                showSidebar();
-            }
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    hideSidebar();
+                }
+            });
         });
-
-        overlay.addEventListener('click', hideSidebar);
-
-        sidebar.addEventListener('mouseleave', function () {
-            autoHideTimer = setTimeout(hideSidebar, 3000);
-        });
-
-        sidebar.addEventListener('mouseenter', function () {
-            clearTimeout(autoHideTimer);
-        });
-
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                hideSidebar();
-            }
-        });
-    });
-</script>
-
-<!-- 시간 포맷팅 함수 추가 -->
-<script>
-    function formatTimeSince(date) {
-        const seconds = Math.floor((new Date() - date) / 1000);
-        
-        let interval = Math.floor(seconds / 31536000);
-        if (interval >= 1) return `${interval}년 전`;
-        
-        interval = Math.floor(seconds / 2592000);
-        if (interval >= 1) return `${interval}개월 전`;
-        
-        interval = Math.floor(seconds / 86400);
-        if (interval >= 1) return `${interval}일 전`;
-        
-        interval = Math.floor(seconds / 3600);
-        if (interval >= 1) return `${interval}시간 전`;
-        
-        interval = Math.floor(seconds / 60);
-        if (interval >= 1) return `${interval}분 전`;
-        
-        if(seconds < 10) return '방금 전';
-        
-        return `${Math.floor(seconds)}초 전`;
-    }
-</script>
+    </script>
+    
 {% endblock %}
