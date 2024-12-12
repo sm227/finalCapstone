@@ -1,10 +1,10 @@
 {% load static %}
 
-<!DOCTYPE html>
+<!DOCTYPE html> 
 
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" >
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 주식 분석기</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -291,7 +291,7 @@
                 <button onclick="toggleCompoundInvestment(event)"
                         id="compoundToggle"
                         class="relative group px-6 py-3 rounded-lg bg-opacity-20
-                               {% if user.userprofile.compound_rate %}
+                               {% if user.userprofile.compound_rate  %}
                                bg-blue-500 text-blue-400
                                {% else %}
                                bg-gray-700 text-gray-400
