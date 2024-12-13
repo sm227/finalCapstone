@@ -10,5 +10,4 @@ urlpatterns = [
     path('update-compound-setting/', views.update_compound_setting, name='update_compound_setting'),
     path('compound-interest/', views.compound_interest, name='compound_interest'),
 
-
 ]

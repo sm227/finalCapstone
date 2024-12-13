@@ -552,7 +552,6 @@ def update_auto_investment(request):
             'error': str(e)
         }, status=500)
 
-
 @login_required
 @require_POST
 def update_compound_setting(request):
