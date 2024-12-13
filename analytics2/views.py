@@ -578,5 +578,5 @@ def update_compound_setting(request):
     except Exception as e:
         print(f"Error in update_compound_setting: {str(e)}")  # 디버깅용 로그
         return JsonResponse({
-            'error': str(e)
+            'error':  str(e)
         }, status=500)

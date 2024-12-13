@@ -11,3 +11,4 @@ class StockRecommendation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     compound_rate = models.BooleanField(default=False)
     compound_interest = models.FloatField()
+
