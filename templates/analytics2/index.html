@@ -755,39 +755,39 @@
                 alert('오류가 발생했습니다: ' + error);
             });
         }
-
-        function toggleCompoundInvestment(event) {
-            // CSRF 토큰 가져오기
-            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            const isEnabled = event.target.checked;
-            const statusText = document.getElementById('compoundStatus');
-            const compoundRate = document.getElementById('compoundRate');
-
-            fetch('/analytics2/update-compound-setting/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': csrftoken
-                },
-                body: `enabled=${isEnabled}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert('오류가 발생했습니다: ' + data.error);
-                    event.target.checked = !isEnabled; // 토글 상태 되돌리기
-                } else {
-                    statusText.textContent = isEnabled ? 'ON' : 'OFF';
-                    compoundRate.textContent = isEnabled ? '+12%' : '+0%';
-                    alert(`복운용이 ${isEnabled ? '활성화' : '비활성화'} 되었습니다.`);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('오류가 발생했습니다: ' + error);
-                event.target.checked = !isEnabled; // 토글 상태 되돌리기
-            });
-        }
+        {##}
+        {#function toggleCompoundInvestment(event) {#}
+        {#    // CSRF 토큰 가져오기#}
+        {#    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;#}
+        {#    const isEnabled = event.target.checked;#}
+        {#    const statusText = document.getElementById('compoundStatus');#}
+        {#    const statusText = document.getElementById('compoundStatus');#}
+        {#    const compoundRate = document.getElementById('compoundRate');#}
+        {##}
+        {#    fetch('/analytics2/update-compound-setting/', {#}
+        {#        method: 'POST',#}
+        {#        headers: {#}
+        {#            'Content-Type': 'application/x-www-form-urlencoded',#}
+        {#            'X-CSRFToken': csrftoken#}
+        {#        },#}
+        {#        body: `enabled=${isEnabled}`#}
+        {#    })#}
+        {#    .then(response => response.json())#}
+        {#    .then(data => {#}
+        {#        if (data.error) {#}
+        {#            alert('오류가 발생했습니다: ' + data.error);#}
+        {#            event.target.checked = !isEnabled; // 토글 상태 되돌리기#}
+        {#        } else {#}
+        {#            statusText.textContent = isEnabled ? 'ON' : 'OFF';#}
+        {#            compoundRate.textContent = isEnabled ? '+12%' : '+0%';#}
+        {#            alert(`복리운용이 ${isEnabled ? '활성화' : '비활성화'} 되었습니다.`);#}
+        {#        }#}
+        {#    })#}
+        {#    .catch(error => {#}
+        {#        console.error('Error:', error);#}
+        {#        alert('오류가 발생했습니다: ' + error);#}
+        {#        event.target.checked = !isEnabled; // 토글 상태 되돌리기#}
+        {#    });#}
 
         function updateRatioDisplay(value) {
             document.getElementById('ratioDisplay').textContent = value + '%';
@@ -917,4 +917,4 @@
         }
     </script>
 </body>
-</html></html>
+</html>

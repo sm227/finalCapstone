@@ -141,7 +141,7 @@ def stock_analysis(request):
 
         # Gemini API 처리
         genai.configure(api_key=os.getenv('gemini_api_key'))  # API 키는 환경변수로 관리하는 것을 추천
-          # API 키는 환경변수로 관리하는 것을 추천
+        # API 키는 환경변수로 관리하는 것을 추천
         prompt = generate_summary_prompt(json.dumps(json_data, indent=2, ensure_ascii=False))
         model = genai.GenerativeModel("gemini-1.5-flash", safety_settings=safety_settings)
         response = model.generate_content(prompt)
@@ -303,6 +303,7 @@ def read_stocks_by_style(investment_style):
         print(f"파일을 찾을 수 없습니다: {file_name}")
         return []
 
+
 def analyze_and_store_stocks():
     global ANALYSIS_IN_PROGRESS
     try:
@@ -358,7 +359,8 @@ def analyze_and_store_stocks():
                             "rsi": round(float(row['RSI']), 2) if not pd.isna(row['RSI']) else None,
                             "macd": {
                                 "macd_line": round(float(row['MACD']), 2) if not pd.isna(row['MACD']) else None,
-                                "signal_line": round(float(row['Signal_Line']), 2) if not pd.isna(row['Signal_Line']) else None
+                                "signal_line": round(float(row['Signal_Line']), 2) if not pd.isna(
+                                    row['Signal_Line']) else None
                             },
                             "bollinger_bands": {
                                 "upper": round(float(row['BB_Upper']), 2) if not pd.isna(row['BB_Upper']) else None,
@@ -367,7 +369,6 @@ def analyze_and_store_stocks():
                             }
                         }
                     })
-
 
                 # 유해성 조정
                 safety_settings = [
@@ -429,7 +430,6 @@ def analyze_and_store_stocks():
                         except Exception as e:
                             print(f"Error buying for user {user_profile.user.username}: {str(e)}")
 
-
                 time.sleep(60)  # API 호출 제한 고려
 
     except Exception as e:
@@ -437,11 +437,13 @@ def analyze_and_store_stocks():
     finally:
         ANALYSIS_IN_PROGRESS = False
 
+
 def start_scheduler():
     scheduler = BackgroundScheduler()
     # 매일 밤 11시 40분에 ��행되도록 설정, 시간대 명시
     scheduler.add_job(analyze_and_store_stocks, 'cron', hour=23, minute=40, timezone=timezone('Asia/Seoul'))
     scheduler.start()
+
 
 @login_required
 @require_POST
@@ -458,6 +460,7 @@ def update_investment_style(request):
         return JsonResponse({'message': '투자 성향이 업데이트되었습니다.'})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
 
 @login_required
 @require_POST
@@ -488,7 +491,6 @@ def update_auto_investment(request):
         }, status=500)
 
 
-
 @login_required
 @require_POST
 def update_compound_setting(request):
@@ -516,6 +518,43 @@ def update_compound_setting(request):
         return JsonResponse({
             'error': str(e)
         }, status=500)
+
+
+@login_required
+@require_POST
+def compound_interest(request):
+    try:
+        user_profile = UserProfile.objects.get(user=request.user)
+
+        # 한국투자 API 연결
+        broker = mojito.KoreaInvestment(
+            api_key=user_profile.api_key,
+            api_secret=user_profile.api_secret,
+            acc_no=user_profile.acc_num,
+            exchange='나스닥',
+            mock=True
+        )
+
+        # 현재 자산 총액 조회
+        balance = broker.fetch_present_balance()
+        principal = float(balance['output3'].get('tot_asst_amt', 0))
+
+        # 복리 계산
+        rate = 0.03  # 2024 기준 3% 수익률
+        years = 1  # 복리 기간 설정
+        total_amount = int(principal * (1 + rate) ** years)  # 복리운용 시 예상 수익금
+
+        return JsonResponse({
+            'success': True,
+            'total_amount': total_amount  # round() 제거
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
 
 @login_required
 @require_POST
@@ -553,4 +592,4 @@ def update_portfolio_settings(request):
             'message': '포트폴리오 설정이 업데이트되었습니다.'
         })
     except Exception as e:
-        return JsonResponse({'error':  str(e)}, status=500)
+        return JsonResponse({'error': str(e)}, status=500)
