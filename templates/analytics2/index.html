@@ -387,24 +387,98 @@
                         <span class="font-medium" id="compoundStatus">
                             {% if user.userprofile.compound_rate %}활성화{% else %}비활성화{% endif %}
                         </span>
-                    </label>
-                </div>
-                <p class="text-gray-400 text-sm">복리운용을 활성화하면 수익금을 자동으로 재투자하여 더 높은 수익을 기대할 수 있습니다.</p>
-                <div class="mt-4 p-4 bg-blue-500 bg-opacity-10 rounded-lg">
-                    <div class="flex items-start gap-3">
-                        <svg class="w-6 h-6 text-blue-500 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <p class="text-sm text-gray-300">
-                            복리운용 시 예상 수익률: <span class="text-blue-400 font-semibold" id="compoundRate">+0%</span><br>
-                            <span class="text-xs text-gray-400">* 실제 수익률은 시장 상황에 따라 달라질 수 있습니다.</span>
-                        </p>
-                    </div>
+                    </span>
+                    <!-- 배경 효과 -->
+                    <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 opacity-0
+                                group-hover:opacity-10 transition-opacity duration-300"></div>
+                </button>
+            </div>
+            <p class="text-gray-400 text-sm">복리운용을 활성화하면 수익금을 자동으로 재투자하여 더 높은 수익을 기대할 수 있습니다.</p>
+            <div class="mt-4 p-4 bg-blue-500 bg-opacity-10 rounded-lg">
+                <div class="flex items-start gap-3">
+                    <svg class="w-6 h-6 text-blue-500 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-sm text-gray-300">
+                        복리운용 시 예상 수익금: <span class="text-blue-400 font-semibold" id="compoundRate">+0 원</span><br>
+                        <span class="text-xs text-gray-400">* 실제 수익률은 시장 상황에 따라 달라질 수 있습니다.</span>
+                    </p>
                 </div>
             </div>
         </div>
+    </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const compoundForm = document.getElementById('compoundForm');
+            if (compoundForm) {
+                compoundForm.addEventListener('submit', toggleCompoundInvestment);
+            }
+        });
+
+        function toggleCompoundInvestment(event) {
+            const button = event.currentTarget;
+            const statusText = document.getElementById('compoundStatus');
+            const compoundRate = document.getElementById('compoundRate');
+            const isCurrentlyEnabled = button.classList.contains('bg-blue-500');
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch('/analytics2/update-compound-setting/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    enabled: !isCurrentlyEnabled
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('서버 응답 오류');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    // UI 업데이트
+                    if (!isCurrentlyEnabled) {
+                        // 활성화 상태로 변경
+                        button.classList.remove('bg-gray-700', 'text-gray-400');
+                        button.classList.add('bg-blue-500', 'text-blue-400');
+                        statusText.textContent = '활성화';
+
+                        // 복리 계산 요청
+                        return fetch('/analytics2/compound-interest/', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': csrftoken
+                            }
+                        }).then(response => response.json());
+                    } else {
+                        // 비활성화 상태로 변경
+                        button.classList.remove('bg-blue-500', 'text-blue-400');
+                        button.classList.add('bg-gray-700', 'text-gray-400');
+                        statusText.textContent = '비활성화';
+                        compoundRate.textContent = '+0 원';
+                    }
+                })
+                .then(data => {
+                    if (data && data.success && data.total_amount) {
+                        compoundRate.textContent = `+${data.total_amount.toLocaleString()} 원`;
+                    }
+                    alert(`복리운용이 ${!isCurrentlyEnabled ? '활성화' : '비활성화'} 되었습니다.`);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('오류가 발생했습니다: ' + error.message);
+                });
+        }
+    </script>
 
 
         <div class="mb-8"></div>
@@ -681,39 +755,39 @@
                 alert('오류가 발생했습니다: ' + error);
             });
         }
-
-        function toggleCompoundInvestment(event) {
-            // CSRF 토큰 가져오기
-            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            const isEnabled = event.target.checked;
-            const statusText = document.getElementById('compoundStatus');
-            const compoundRate = document.getElementById('compoundRate');
-
-            fetch('/analytics2/update-compound-setting/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': csrftoken
-                },
-                body: `enabled=${isEnabled}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert('오류가 발생했습니다: ' + data.error);
-                    event.target.checked = !isEnabled; // 토글 상태 되돌리기
-                } else {
-                    statusText.textContent = isEnabled ? 'ON' : 'OFF';
-                    compoundRate.textContent = isEnabled ? '+12%' : '+0%';
-                    alert(`복운용이 ${isEnabled ? '활성화' : '비활성화'} 되었습니다.`);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('오류가 발생했습니다: ' + error);
-                event.target.checked = !isEnabled; // 토글 상태 되돌리기
-            });
-        }
+        {##}
+        {#function toggleCompoundInvestment(event) {#}
+        {#    // CSRF 토큰 가져오기#}
+        {#    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;#}
+        {#    const isEnabled = event.target.checked;#}
+        {#    const statusText = document.getElementById('compoundStatus');#}
+        {#    const statusText = document.getElementById('compoundStatus');#}
+        {#    const compoundRate = document.getElementById('compoundRate');#}
+        {##}
+        {#    fetch('/analytics2/update-compound-setting/', {#}
+        {#        method: 'POST',#}
+        {#        headers: {#}
+        {#            'Content-Type': 'application/x-www-form-urlencoded',#}
+        {#            'X-CSRFToken': csrftoken#}
+        {#        },#}
+        {#        body: `enabled=${isEnabled}`#}
+        {#    })#}
+        {#    .then(response => response.json())#}
+        {#    .then(data => {#}
+        {#        if (data.error) {#}
+        {#            alert('오류가 발생했습니다: ' + data.error);#}
+        {#            event.target.checked = !isEnabled; // 토글 상태 되돌리기#}
+        {#        } else {#}
+        {#            statusText.textContent = isEnabled ? 'ON' : 'OFF';#}
+        {#            compoundRate.textContent = isEnabled ? '+12%' : '+0%';#}
+        {#            alert(`복리운용이 ${isEnabled ? '활성화' : '비활성화'} 되었습니다.`);#}
+        {#        }#}
+        {#    })#}
+        {#    .catch(error => {#}
+        {#        console.error('Error:', error);#}
+        {#        alert('오류가 발생했습니다: ' + error);#}
+        {#        event.target.checked = !isEnabled; // 토글 상태 되돌리기#}
+        {#    });#}
 
         function updateRatioDisplay(value) {
             document.getElementById('ratioDisplay').textContent = value + '%';
@@ -843,4 +917,4 @@
         }
     </script>
 </body>
-</html></html>
+</html>

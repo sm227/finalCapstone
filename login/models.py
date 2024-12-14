@@ -25,5 +25,6 @@ class UserProfile(models.Model):
     per_stock_amount = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     compound_rate =  models.BooleanField(default=False)
 
+
     def __str__(self):
         return self.user.username
