@@ -483,7 +483,7 @@
             width: 100% !important;
         }
 
-        /* 사이드바 기본 스타일 */
+        /* 드바 기본 스타일 */
         #sidebar {
             background: linear-gradient(180deg, #1a1a1f 0%, #24242b 100%);
             position: fixed;
@@ -696,6 +696,69 @@
         .badge .bi {
             font-size: 0.9em;
             margin-right: 2px;
+        }
+
+        /* 테이블 관련 추가 스타일 */
+        .table {
+            font-size: 0.9rem;
+        }
+
+        .table th {
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .badge {
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .stock-link:hover {
+            color: #2962ff !important;
+        }
+
+        .btn-dark {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            line-height: 32px;
+        }
+
+        .btn-dark:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        /* 호버 효과 */
+        .table tbody tr:hover {
+            background-color: rgba(41, 98, 255, 0.1) !important;
+            transition: background-color 0.2s ease;
+        }
+
+        /* 스크롤바 스타일링 */
+        .table-responsive::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.4);
         }
     </style>
 
@@ -925,60 +988,150 @@
                     </div>
                 </div>
 
+                <!-- AI Auto Investment Banner -->
+                {% if auto_investment %}
+                <div class="card mb-4" style="background: linear-gradient(135deg, #1a237e, #0d47a1);">
+                    <div class="card-body d-flex justify-content-between align-items-center p-4">
+                        <div>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <i class="bi bi-robot fs-2"></i>
+                                <h4 class="mb-0">AI 자동투자 진행중</h4>
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle-fill"></i> 활성화
+                                </span>
+                            </div>
+                            <p class="mb-0 text-light opacity-75">
+                                AI가 <span class="fw-bold text-warning" style=" text-decoration: underline;">{{ investment_style }}</span> 전략으로 실시간 시장 분석 및 자동 매매를 진행하고 있습니다
+                            </p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <!-- <a href="{% url 'trading' %}" class="btn btn-light">
+                                <i class="bi bi-graph-up-arrow me-2"></i>트레이딩 현황 보기
+                            </a> -->
+                            <a href="{% url 'analytics2:index' %}" class="btn btn-outline-light">
+                                <i class="bi bi-clipboard-data me-2"></i>AI 분석 보기
+                            </a>
+                        </div>
+                    </div>
+                    <!-- <div class="progress" style="height: 4px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-light" 
+                             role="progressbar" 
+                             style="width: 100%" 
+                             aria-valuenow="100" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                        </div>
+                    </div> -->
+                </div>
+                {% else %}
+                <div class="card mb-4" style="background: linear-gradient(135deg, #424242, #212121);">
+                    <div class="card-body d-flex justify-content-between align-items-center p-4">
+                        <div>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <i class="bi bi-robot fs-2"></i>
+                                <h4 class="mb-0">AI 자동투자 비활성화</h4>
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-pause-circle-fill"></i> 중지됨
+                                </span>
+                            </div>
+                            <p class="mb-0 text-light opacity-75">
+                                AI 자동투자 기능이 현재 중지되어 있습니다. 활성화하시면 AI가 자동으로 투자를 진행합니다.
+                            </p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'analytics2:index' %}" class="btn btn-light">
+                                <i class="bi bi-toggle-on me-2"></i>자동투자 설정하기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
                 <!-- Stocks Table -->
                 <div class="card">
-                    <div class="card-header">
-                        <h5>Your Stocks</h5>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-table me-2"></i>보유 주식 현황
+                        </h5>
+                        <span class="badge bg-primary">{{ stocks|length }}개 종목</span>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-dark table-striped table-sm">
+                            <table class="table table-dark table-hover mb-0">
                                 <thead>
-                                <tr>
-                                    <th>Symbol</th>
-                                    <th>Name</th>
-                                    <th>Order</th>
-                                    <th>Community</th>
-                                    <th>Country</th>
-                                    <th>Exchange Code</th>
-                                    <th>Market Name</th>
-                                    <th>Profit Loss Rate</th>
-                                    <th>Exchange Rate</th>
-                                    <th>Last Updated</th>
-                                </tr>
+                                    <tr class="bg-dark" style="border-bottom: 2px solid #2962ff;">
+                                        <th class="px-4">Symbol</th>
+                                        <th>종목명</th>
+                                        <th class="text-center">주문타입</th>
+                                        <th class="text-center">수익률</th>
+                                        <th class="text-center">종목토론</th>
+                                        <th>국가</th>
+                                        <th>거래소</th>
+                                        <th>마켓</th>
+                                        <th class="text-end px-4">환율</th>
+                                        <th class="text-end px-4">최근 업데이트</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     {% for stock in stocks %}
-                                    <tr>
-                                        <td>{{ stock.symbol }}</td>
-                                        <td>
-                                            <a href="#" class="stock-link text-light" data-symbol="{{ stock.symbol }}">{{ stock.name }}</a>
+                                    <tr class="align-middle" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <td class="px-4">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <img src="{{ stock.logo_url }}"
+                                                     alt="{{ stock.symbol }}"
+                                                     style="width: 24px; height: 24px; border-radius: 4px;"
+                                                     onerror="this.style.display='none'">
+                                                <span class="fw-bold">{{ stock.symbol }}</span>
+                                            </div>
                                         </td>
                                         <td>
-                                            {% if stock.is_ai_recommended %}
-                                                <span class="badge bg-primary" data-bs-toggle="tooltip"
-                                                      data-bs-placement="right" title="AI 분석 기반 추천 종목">
-                                                    <i class="bi bi-robot"></i> AI
-                                                </span>
-                                            {% else %}
-                                                <span class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="직접 매수한 종목">
-                                                    <i class="bi bi-person"></i> Manual
-                                                </span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <a href="{% url 'community' stock.symbol %}" class="text-light" title="Go to Community">
-                                                💬
+                                            <a href="#" class="stock-link text-light text-decoration-none d-flex align-items-center gap-2"
+                                               data-symbol="{{ stock.symbol }}">
+                                                <span class="d-inline-block text-truncate" style="max-width: 150px;">{{ stock.name }}</span>
+                                                <i class="bi bi-graph-up-arrow text-primary"></i>
                                             </a>
                                         </td>
-                                        <td>{{ stock.country }}</td>
+                                        <td class="text-center">
+                                            {% if stock.is_ai_recommended %}
+                                            <span class="badge bg-primary px-3 py-2" style="font-size: 0.85rem;" data-bs-toggle="tooltip"
+                                                  data-bs-placement="right" title="AI 분석 기반 추천 종목">
+                                                <i class="bi bi-robot fs-6"></i>
+                                                <span class="ms-1">AI</span>
+                                            </span>
+                                            {% else %}
+                                            <span class="badge bg-secondary px-3 py-2" style="font-size: 0.85rem;" data-bs-toggle="tooltip"
+                                                  data-bs-placement="right" title="직접 매수한 종목">
+                                                <i class="bi bi-person fs-6"></i>
+                                                <span class="ms-1">Manual</span>
+                                            </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge {% if stock.profit_loss_rate > 0 %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} px-3 py-2" style="font-size: 0.9rem;">
+                                                {% if stock.profit_loss_rate > 0 %}+{% endif %}{{ stock.profit_loss_rate|floatformat:2 }}%
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{% url 'community' stock.symbol %}" 
+                                               class="btn btn-outline-primary btn-sm" 
+                                               style="min-width: 90px;"
+                                               title="커뮤니티로 이동">
+                                                <i class="bi bi-people-fill me-1"></i>
+                                                커뮤니티
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span class="d-flex align-items-center gap-2">
+                                                <i class="bi bi-globe2"></i>
+                                                {{ stock.country }}
+                                            </span>
+                                        </td>
                                         <td>{{ stock.exchange_code }}</td>
                                         <td>{{ stock.market_name }}</td>
-                                        <td style="color: {% if stock.profit_loss_rate > 0 %} #20b16c {% else %} #ef454a {% endif %};">
-                                            {{ stock.profit_loss_rate|floatformat:2 }}%
+                                        <td class="text-end px-4">{{ stock.exchange_rate }}</td>
+                                        <td class="text-end px-4 text-muted">
+                                            <small>{{ stock.last_updated|date:"Y.m.d H:i" }}</small>
                                         </td>
-                                        <td>{{ stock.exchange_rate }}</td>
-                                        <td>{{ stock.last_updated|date:"F d, Y H:i" }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -995,7 +1148,7 @@
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <div>
                                     <h5 class="mb-0">소비자물가지수 (CPI)</h5>
-                                    <small class="text-muted">Consumer Price Index - 물가상승률을 나타내는 경제지표</small>
+                                    <small class="text-muted">Consumer Price Index - 물가상승률을 나타내는 제지표</small>
                                 </div>
                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top"
                                    title="CPI는 소비자들이 구매하는 제품과 서비스의 가격 변동을 측정하는 지표입니다. 인플레이션을 판단하는 중요한 경제지표입니다."></i>
@@ -1038,7 +1191,7 @@
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <div>
                                     <h5 class="mb-0">생산자물가지수 (PPI)</h5>
-                                    <small class="text-muted">Producer Price Index - 생산단계의 물가동향을 나타내는 지표</small>
+                                    <small class="text-muted">Producer Price Index - 생산단계의 가동향을 나타내는 지표</small>
                                 </div>
                                 <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top"
                                    title="PPI는 생산자가 생산하는 제품의 가격 변동을 측정하는 지표입니다. 향후 소비자물가 변동을 예측하는데 도움이 됩니다."></i>

@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+
 app_name = "analytics2"
 urlpatterns = [
     path('', views.index, name='index'),
@@ -10,4 +11,5 @@ urlpatterns = [
     path('update-compound-setting/', views.update_compound_setting, name='update_compound_setting'),
     path('compound-interest/', views.compound_interest, name='compound_interest'),
 
+    path('update-portfolio-settings/', views.update_portfolio_settings, name='update_portfolio_settings'),
 ]

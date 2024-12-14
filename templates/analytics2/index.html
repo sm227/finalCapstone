@@ -4,7 +4,7 @@
 
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" >
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 주식 분석기</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -25,15 +25,9 @@
         }
 
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-            100% {
-                transform: scale(1);
-            }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         #particles-js {
@@ -116,88 +110,175 @@
                 font-size: 2rem;
             }
         }
+
+        /* 슬라이더 스타일링 */
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 8px;
+            background: #1a1a2e;
+            border-radius: 5px;
+            background-image: linear-gradient(#3B82F6, #3B82F6);
+            background-repeat: no-repeat;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #3B82F6;
+            cursor: pointer;
+            box-shadow: 0 0 2px 0 #555;
+            transition: background .3s ease-in-out;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #2563EB;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            -webkit-appearance: none;
+            box-shadow: none;
+            border: none;
+            background: transparent;
+        }
     </style>
 </head>
 <body class="gradient-bg min-h-screen text-white">
-{% csrf_token %}
-<div id="particles-js"></div>
-<div class="content-wrapper container mx-auto px-4 py-8">
-    <div class="flex items-center justify-between mb-8">
-        <div class="text-center w-full">
-            <div class="ai-pulse inline-block bg-blue-500 px-4 py-2 rounded-full text-sm mb-4">
-                AI 실시간 분석 중
+    {% csrf_token %}
+    <div id="particles-js"></div>
+    <div class="content-wrapper container mx-auto px-4 py-8">
+        <div class="flex items-center justify-between mb-8">
+            <div class="text-center w-full">
+                <div class="ai-pulse inline-block bg-blue-500 px-4 py-2 rounded-full text-sm mb-4">
+                    AI 실시간 분석 중
+                </div>
+                <h1 class="text-4xl md:text-5xl font-bold mb-2">AI Stock Analytics</h1>
+                <p class="text-gray-400">인공지능이 분석하는 실시간 주식 투자 가이드</p>
             </div>
-            <h1 class="text-4xl md:text-5xl font-bold mb-2">AI Stock Analytics</h1>
-            <p class="text-gray-400">인공지능이 분석하는 실시간 주식 투자 가이드</p>
         </div>
-    </div>
 
 
-    <div class="mb-8">
-        <div class="analysis-card p-6 rounded-xl">
-            <h2 class="text-2xl font-bold mb-4">AI 투자 성향 설정</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- 안정형 -->
-                <div class="investment-type-card cursor-pointer p-4 rounded-lg border-2
+
+        <div class="mb-8">
+            <div class="analysis-card p-6 rounded-xl">
+                <h2 class="text-2xl font-bold mb-4">AI 투자 성향 설정</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- 안정형 -->
+                    <div class="investment-type-card cursor-pointer p-4 rounded-lg border-2
                         {% if investment_style == 'conservative' %}border-blue-500{% else %}border-transparent{% endif %} 
                         hover:border-blue-500 transition-all"
-                     onclick="selectInvestmentType('conservative', event)">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="bg-blue-500 bg-opacity-20 p-2 rounded-lg">
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
+                         onclick="selectInvestmentType('conservative', event)">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="bg-blue-500 bg-opacity-20 p-2 rounded-lg">
+                                <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold">안정형</h3>
                         </div>
-                        <h3 class="text-lg font-semibold">안정형</h3>
+                        <p class="text-gray-400 text-sm">원금 보존을 중시하며 안정적인 수익을 추구합니다.</p>
                     </div>
-                    <p class="text-gray-400 text-sm">원금 보존을 중시하며 안정적인 수익을 추구합니다.</p>
-                </div>
 
-                <!-- 중립형 -->
-                <div class="investment-type-card cursor-pointer p-4 rounded-lg border-2
+                    <!-- 중립형 -->
+                    <div class="investment-type-card cursor-pointer p-4 rounded-lg border-2
                         {% if investment_style == 'balanced' %}border-blue-500{% else %}border-transparent{% endif %} 
                         hover:border-blue-500 transition-all"
-                     onclick="selectInvestmentType('balanced', event)">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="bg-blue-500 bg-opacity-20 p-2 rounded-lg">
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
-                            </svg>
+                         onclick="selectInvestmentType('balanced', event)">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="bg-blue-500 bg-opacity-20 p-2 rounded-lg">
+                                <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold">중립형</h3>
                         </div>
-                        <h3 class="text-lg font-semibold">중립형</h3>
+                        <p class="text-gray-400 text-sm">위험과 수익의 균형을 추구합니다.</p>
                     </div>
-                    <p class="text-gray-400 text-sm">위험과 수익의 균형을 추구합니다.</p>
-                </div>
 
-                <!-- 공격형 -->
-                <div class="investment-type-card cursor-pointer p-4 rounded-lg border-2
+                    <!-- 공격형 -->
+                    <div class="investment-type-card cursor-pointer p-4 rounded-lg border-2
                         {% if investment_style == 'aggressive' %}border-blue-500{% else %}border-transparent{% endif %} 
                         hover:border-blue-500 transition-all"
-                     onclick="selectInvestmentType('aggressive', event)">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="bg-blue-500 bg-opacity-20 p-2 rounded-lg">
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                            </svg>
+                         onclick="selectInvestmentType('aggressive', event)">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="bg-blue-500 bg-opacity-20 p-2 rounded-lg">
+                                <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold">공격형</h3>
                         </div>
-                        <h3 class="text-lg font-semibold">공격형</h3>
+                        <p class="text-gray-400 text-sm">높은 수익을 추구하며 그에 따른 위험을 감수합니다.</p>
                     </div>
-                    <p class="text-gray-400 text-sm">높은 수익을 추구하며 그에 따른 위험을 감수합니다.</p>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="mb-8">
-        <div class="analysis-card p-6 rounded-xl">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold">자동투자 설정</h2>
-                <button onclick="toggleAutoInvestment(event)"
-                        id="autoInvestToggle"
-                        class="relative group px-6 py-3 rounded-lg bg-opacity-20
+        <div class="mb-8">
+            <div class="analysis-card p-6 rounded-xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">포트폴리오 설정</h2>
+                    <button onclick="savePortfolioSettings()"
+                            class="relative group px-6 py-3 rounded-lg bg-blue-500 bg-opacity-20 text-blue-400 transition-all duration-300 hover:bg-opacity-30">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="font-medium">설정 저장</span>
+                        </span>
+                        <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 opacity-0
+                                    group-hover:opacity-10 transition-opacity duration-300"></div>
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 총 투자금액 설정 -->
+                    <div class="input-group">
+                        <label class="block text-gray-400 mb-2">총 투자금액</label>
+                        <input type="text"
+                               id="totalInvestment"
+                               class="w-full px-4 py-2 rounded-lg bg-opacity-10 bg-white border border-gray-600"
+                               placeholder="예: 10,000,000"
+                               oninput="formatCurrencyInput(this)">
+                    </div>
+
+                    <!-- 종목당 투자금액 설정 -->
+                    <div class="input-group">
+                        <label class="block text-gray-400 mb-2">종목당 투자금액</label>
+                        <input type="text"
+                               id="perStockAmount"
+                               class="w-full px-4 py-2 rounded-lg bg-opacity-10 bg-white border border-gray-600"
+                               placeholder="예: 1,000,000"
+                               oninput="formatCurrencyInput(this)">
+                    </div>
+                </div>
+
+                <!-- 포트폴리오 요약 -->
+                <div class="mt-6 p-4 bg-blue-500 bg-opacity-10 rounded-lg">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-blue-500 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <h4 class="font-semibold mb-2">포트폴리오 구성 예시</h4>
+                            <div id="portfolioSummary" class="text-sm text-gray-300">
+                                <!-- 자바스크립트로 동적 업데이트 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <div class="analysis-card p-6 rounded-xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">자동투자 설정</h2>
+                    <button onclick="toggleAutoInvestment(event)"
+                            id="autoInvestToggle"
+                            class="relative group px-6 py-3 rounded-lg bg-opacity-20
                                    {% if user.userprofile.auto_investment %}
                                    bg-blue-500 text-blue-400
                                    {% else %}
@@ -213,44 +294,44 @@
                                 {% if user.userprofile.auto_investment %}활성화{% else %}비활성화{% endif %}
                             </span>
                         </span>
-                    <!-- 배경 효과 -->
-                    <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 opacity-0
+                        <!-- 배경 효과 -->
+                        <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 opacity-0
                                     group-hover:opacity-10 transition-opacity duration-300"></div>
-                </button>
-            </div>
-            <p class="text-gray-400 text-sm">자동투자를 활성화하면 AI가 매수를 추천할 때 자동으로 주문이 실행됩니다.</p>
-            <div class="mt-4 p-4 bg-blue-500 bg-opacity-10 rounded-lg">
-                <div class="flex items-start gap-3">
-                    <svg class="w-6 h-6 text-blue-500 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <p class="text-sm text-gray-300">
-                        자동투자는 AI가 매수를 추천할 때마다 자동으로 주문을 실행합니다.<br>
-                        <span class="text-xs text-gray-400">* 설정된 투자 금액과 전략에 따라 주문이 실행됩니다.</span>
-                    </p>
+                    </button>
+                </div>
+                <p class="text-gray-400 text-sm">자동투자를 활성화하면 AI가 매수를 추천할 때 자동으로 주문이 실행됩니다.</p>
+                <div class="mt-4 p-4 bg-blue-500 bg-opacity-10 rounded-lg">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-blue-500 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-sm text-gray-300">
+                            자동투자는 AI가 매수를 추천할 때마다 자동으로 주문을 실행합니다.<br>
+                            <span class="text-xs text-gray-400">* 설정된 투자 금액과 전략에 따라 주문이 실행됩니다.</span>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        function toggleAutoInvestment(event) {
-            const button = event.currentTarget;
-            const statusText = document.getElementById('autoInvestStatus');
-            const isCurrentlyEnabled = button.classList.contains('bg-blue-500');
-            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        <script>
+            function toggleAutoInvestment(event) {
+                const button = event.currentTarget;
+                const statusText = document.getElementById('autoInvestStatus');
+                const isCurrentlyEnabled = button.classList.contains('bg-blue-500');
+                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-            fetch('/analytics2/update-auto-investment/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken
-                },
-                body: JSON.stringify({
-                    enabled: !isCurrentlyEnabled
+                fetch('/analytics2/update-auto-investment/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({
+                        enabled: !isCurrentlyEnabled
+                    })
                 })
-            })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('서버 응답 오류');
@@ -281,8 +362,9 @@
                     console.error('Error:', error);
                     alert('오류가 발생했습니다: ' + error.message);
                 });
-        }
-    </script>
+            }
+            </script>
+
 
     <div class="mb-8">
         <div class="analysis-card p-6 rounded-xl">
@@ -291,7 +373,7 @@
                 <button onclick="toggleCompoundInvestment(event)"
                         id="compoundToggle"
                         class="relative group px-6 py-3 rounded-lg bg-opacity-20
-                               {% if user.userprofile.compound_rate %}
+                               {% if user.userprofile.compound_rate%}
                                bg-blue-500 text-blue-400
                                {% else %}
                                bg-gray-700 text-gray-400
@@ -399,28 +481,28 @@
     </script>
 
 
-    <div class="mb-8"></div>
-    <div class="analysis-card p-6 rounded-xl">
-        <h2 class="text-2xl font-bold mb-4">최근 AI 추천 종목</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {% for rec in recommendations %}
-                <div class="card p-4 rounded-lg bg-[#16213e]">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-xl font-bold">{{ rec.symbol }}</h3>
-                        <span class="px-3 py-1 rounded-full bg-green-500 bg-opacity-20 text-green-500 text-sm">
+        <div class="mb-8"></div>
+            <div class="analysis-card p-6 rounded-xl">
+                <h2 class="text-2xl font-bold mb-4">최근 AI 추천 종목</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for rec in recommendations %}
+                    <div class="card p-4 rounded-lg bg-[#16213e]">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xl font-bold">{{ rec.symbol }}</h3>
+                            <span class="px-3 py-1 rounded-full bg-green-500 bg-opacity-20 text-green-500 text-sm">
                                 {{ rec.action }}
                             </span>
-                    </div>
-                    <div class="space-y-2">
-                        <div class="text-sm">
-                            <span class="text-gray-400">목표가:</span>
-                            <span class="text-green-400">${{ rec.price_target }}</span>
                         </div>
-                        <div class="text-sm">
-                            <span class="text-gray-400">손절가:</span>
-                            <span class="text-red-400">${{ rec.stop_loss }}</span>
-                        </div>
-                        {% if rec.profit_rate is not None %}
+                        <div class="space-y-2">
+                            <div class="text-sm">
+                                <span class="text-gray-400">목표가:</span>
+                                <span class="text-green-400">${{ rec.price_target }}</span>
+                            </div>
+                            <div class="text-sm">
+                                <span class="text-gray-400">손절가:</span>
+                                <span class="text-red-400">${{ rec.stop_loss }}</span>
+                            </div>
+                            {% if rec.profit_rate is not None %}
                             <div class="text-sm">
                                 <span class="text-gray-400">추천가:</span>
                                 <span class="text-blue-400">${{ rec.rec_close }}</span>
@@ -435,129 +517,127 @@
                                     {{ rec.profit_rate }}%
                                 </span>
                             </div>
-                        {% endif %}
-                        <div class="text-sm">
-                            <span class="text-gray-400">추천일:</span>
-                            <span class="text-blue-400">{{ rec.created_at|date:"Y-m-d H:i" }}</span>
-                        </div>
-                        <div class="mt-2 text-sm text-gray-300">
-                            {{ rec.reason|truncatechars:100 }}
+                            {% endif %}
+                            <div class="text-sm">
+                                <span class="text-gray-400">추천일:</span>
+                                <span class="text-blue-400">{{ rec.created_at|date:"Y-m-d H:i" }}</span>
+                            </div>
+                            <div class="mt-2 text-sm text-gray-300">
+                                {{ rec.reason|truncatechars:100 }}
+                            </div>
                         </div>
                     </div>
+                    {% empty %}
+                    <div class="col-span-3 text-center py-8 text-gray-400">
+                        아직 추천된 종목이 없습니다.
+                    </div>
+                    {% endfor %}
                 </div>
-            {% empty %}
-                <div class="col-span-3 text-center py-8 text-gray-400">
-                    아직 추천된 종목이 없습니다.
-                </div>
-            {% endfor %}
+            </div>
+        </div>
+
+        <div class="mb-8 w-full">
+            <div class="input-section flex flex-col md:flex-row gap-4 max-w-3xl mx-auto">
+                <input type="text" id="symbolInput"
+                       class="flex-1 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="주식 심 입력 (예: AAPL)">
+                <button onclick="analyzeStock()"
+                        class="px-6 py-3 rounded-lg font-semibold bg-blue-500 hover:bg-blue-600">
+                    분석하기
+                </button>
+            </div>
+        </div>
+
+        <div id="loading" class="text-center py-8 hidden">
+            <div class="ai-pulse inline-block">
+                <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+            <p class="mt-4 text-gray-400">AI가 분석중입니다...</p>
+        </div>
+
+        <div id="result" class="hidden">
+            <h2 class="text-2xl font-bold mb-6 text-white">분석 결과</h2>
+            <div id="analysisResult" class="space-y-6">
+                <!-- 분석 결과가 여기에 동적으로 삽입됩니 -->
+            </div>
         </div>
     </div>
-</div>
 
-<div class="mb-8 w-full">
-    <div class="input-section flex flex-col md:flex-row gap-4 max-w-3xl mx-auto">
-        <input type="text" id="symbolInput"
-               class="flex-1 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-               placeholder="주식 심볼 입력 (예: AAPL)">
-        <button onclick="analyzeStock()"
-                class="px-6 py-3 rounded-lg font-semibold bg-blue-500 hover:bg-blue-600">
-            분석하기
-        </button>
-    </div>
-</div>
-
-<div id="loading" class="text-center py-8 hidden">
-    <div class="ai-pulse inline-block">
-        <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none"
-             viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-    </div>
-    <p class="mt-4 text-gray-400">AI가 분석중입니다...</p>
-</div>
-
-<div id="result" class="hidden">
-    <h2 class="text-2xl font-bold mb-6 text-white">분석 결과</h2>
-    <div id="analysisResult" class="space-y-6">
-        <!-- 분석 결과가 여기에 동적으로 삽입됩니다 -->
-    </div>
-</div>
-</div>
-
-<script>
-    // Particles.js 설정
-    particlesJS('particles-js', {
-        "particles": {
-            "number": {
-                "value": 80,
-                "density": {
-                    "enable": true,
-                    "value_area": 800
-                }
-            },
-            "color": {
-                "value": "#ffffff"
-            },
-            "opacity": {
-                "value": 0.1
-            },
-            "size": {
-                "value": 3
-            },
-            "line_linked": {
-                "enable": true,
-                "distance": 150,
-                "color": "#ffffff",
-                "opacity": 0.1,
-                "width": 1
-            },
-            "move": {
-                "enable": true,
-                "speed": 2
-            }
-        }
-    });
-
-    async function analyzeStock() {
-        const symbolInput = document.getElementById('symbolInput');
-        const loading = document.getElementById('loading');
-        const result = document.getElementById('result');
-        const analysisResult = document.getElementById('analysisResult');
-
-        // 입력값 검증
-        if (!symbolInput.value.trim()) {
-            alert('주식 심볼을 입력주세요.');
-            return;
-        }
-
-        try {
-            // 로딩 표시
-            loading.style.display = 'block';
-            result.style.display = 'none';
-
-            // API 호출
-            const response = await fetch(`/analytics2/stock-analysis/?symbol=${symbolInput.value.trim()}`);
-            const data = await response.json();
-
-            if (response.ok) {
-                // 분석 결과 표시
-                let analysisData = data;
-
-                // 마크다운 코드 블록 제거 및 JSON 파싱
-                if (typeof analysisData === 'string') {
-                    try {
-                        // 마크다운 코드 블록 제거
-                        const jsonStr = analysisData.replace(/```json\n|\n```/g, '');
-                        analysisData = JSON.parse(jsonStr);
-                    } catch (e) {
-                        console.error('JSON 파싱 에러:', e);
+    <script>
+        // Particles.js 설정
+        particlesJS('particles-js', {
+            "particles": {
+                "number": {
+                    "value": 80,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
                     }
+                },
+                "color": {
+                    "value": "#ffffff"
+                },
+                "opacity": {
+                    "value": 0.1
+                },
+                "size": {
+                    "value": 3
+                },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#ffffff",
+                    "opacity": 0.1,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 2
                 }
+            }
+        });
 
-                // 결과 표시 형식 변경
-                analysisResult.innerHTML = `
+        async function analyzeStock() {
+            const symbolInput = document.getElementById('symbolInput');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const analysisResult = document.getElementById('analysisResult');
+
+            // 입력값 검증
+            if (!symbolInput.value.trim()) {
+                alert('주식 심볼을 입력주세요.');
+                return;
+            }
+
+            try {
+                // 로딩 표시
+                loading.style.display = 'block';
+                result.style.display = 'none';
+
+                // API 호출
+                const response = await fetch(`/analytics2/stock-analysis/?symbol=${symbolInput.value.trim()}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 분석 결과 표시
+                    let analysisData = data;
+
+                    // 마크다운 코드 블록 제거 및 JSON 파싱
+                    if (typeof analysisData === 'string') {
+                        try {
+                            // 마크다운 코드 블록 제거
+                            const jsonStr = analysisData.replace(/```json\n|\n```/g, '');
+                            analysisData = JSON.parse(jsonStr);
+                        } catch (e) {
+                            console.error('JSON 파싱 에러:', e);
+                        }
+                    }
+
+                    // 결과 표시 형식 변경
+                    analysisResult.innerHTML = `
                         <div class="analysis-card p-6 rounded-xl bg-[#1a1a2e]">
                             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                                 <div class="flex items-center gap-4 mb-4 md:mb-0">
@@ -573,13 +653,13 @@
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <div class="px-4 py-2 rounded-lg ${
-                    analysisData.action.toLowerCase() === 'buy'
-                        ? 'bg-green-500 bg-opacity-20 text-green-500'
-                        : 'bg-red-500 bg-opacity-20 text-red-500'
-                }">
+                                        analysisData.action.toLowerCase() === 'buy'
+                                        ? 'bg-green-500 bg-opacity-20 text-green-500'
+                                        : 'bg-red-500 bg-opacity-20 text-red-500'
+                                    }">
                                         <span class="text-lg font-semibold">${
-                    analysisData.action.toLowerCase() === 'buy' ? '매수 추천' : '매도 추천'
-                }</span>
+                                            analysisData.action.toLowerCase() === 'buy' ? '매수 추천' : '매도 추천'
+                                        }</span>
                                     </div>
                                     <div class="ai-pulse bg-blue-500 bg-opacity-20 text-blue-500 px-4 py-2 rounded-lg">
                                         <span class="text-sm">신뢰도 95%</span>
@@ -613,43 +693,43 @@
                         </div>
                     `;
 
+                    result.style.display = 'block';
+                } else {
+                    throw new Error(data.error || '분석 중 오류가 발생했습니다.');
+                }
+            } catch (error) {
+                analysisResult.innerHTML = `<div class="error">오류: ${error.message}</div>`;
                 result.style.display = 'block';
-            } else {
-                throw new Error(data.error || '분석 중 오류가 발생했습니다.');
+            } finally {
+                loading.style.display = 'none';
             }
-        } catch (error) {
-            analysisResult.innerHTML = `<div class="error">오류: ${error.message}</div>`;
-            result.style.display = 'block';
-        } finally {
-            loading.style.display = 'none';
         }
-    }
 
-    // Enter 키 입력 시 분석 실행
-    document.getElementById('symbolInput').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            analyzeStock();
-        }
-    });
+        // Enter 키 입력 시 분석 실행
+        document.getElementById('symbolInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzeStock();
+            }
+        });
 
-    function selectInvestmentType(style, event) {
-        // 이벤트 버블링 방지
-        event.preventDefault();
+        function selectInvestmentType(style, event) {
+            // 이벤트 버블링 방지
+            event.preventDefault();
 
-        // CSRF 토큰 가져오기
-        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            // CSRF 토큰 가져오기
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-        // 클릭된 카드 요소 찾기
-        const clickedCard = event.currentTarget;
+            // 클릭된 카드 요소 찾기
+            const clickedCard = event.currentTarget;
 
-        fetch('/analytics2/update-investment-style/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': csrftoken
-            },
-            body: `style=${style}`
-        })
+            fetch('/analytics2/update-investment-style/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrftoken
+                },
+                body: `style=${style}`
+            })
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
@@ -671,43 +751,170 @@
                 }
             })
             .catch(error => {
-                console.error('Error: ', error);
+                console.error('Error:', error);
                 alert('오류가 발생했습니다: ' + error);
             });
-    }
+        }
 
-    {#function toggleCompoundInvestment(event) {#}
-    {#    // CSRF 토큰 가져오기#}
-    {#    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;#}
-    {#    const isEnabled = event.target.checked;#}
-    {#    const statusText = document.getElementById('compoundStatus');#}
-    {#    const compoundRate = document.getElementById('compoundRate');#}
-    {##}
-    {#    fetch('/analytics2/update-compound-setting/', {#}
-    {#        method: 'POST',#}
-    {#        headers: {#}
-    {#            'Content-Type': 'application/x-www-form-urlencoded',#}
-    {#            'X-CSRFToken': csrftoken#}
-    {#        },#}
-    {#        body: `enabled=${isEnabled}`#}
-    {#    })#}
-    {#        .then(response => response.json())#}
-    {#        .then(data => {#}
-    {#            if (data.error) {#}
-    {#                alert('오류가 발생했습니다: ' + data.error);#}
-    {#                event.target.checked = !isEnabled; // 토글 상태 되돌리기#}
-    {#            } else {#}
-    {#                statusText.textContent = isEnabled ? 'ON' : 'OFF';#}
-    {#                compoundRate.textContent = isEnabled ? '+12%' : '+0%';#}
-    {#                alert(`복리운용이 ${isEnabled ? '활성화' : '비활성화'} 되었습니다.`);#}
-    {#            }#}
-    {#        })#}
-    {#        .catch(error => {#}
-    {#            console.error('Error:', error);#}
-    {#            alert('오류가 발생했습니다: ' + error);#}
-    {#            event.target.checked = !isEnabled; // 토글 상태 되돌리기#}
-    {#        });#}
-    }
-</script>
+        function toggleCompoundInvestment(event) {
+            // CSRF 토큰 가져오기
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const isEnabled = event.target.checked;
+            const statusText = document.getElementById('compoundStatus');
+            const compoundRate = document.getElementById('compoundRate');
+
+            fetch('/analytics2/update-compound-setting/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrftoken
+                },
+                body: `enabled=${isEnabled}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('오류가 발생했습니다: ' + data.error);
+                    event.target.checked = !isEnabled; // 토글 상태 되돌리기
+                } else {
+                    statusText.textContent = isEnabled ? 'ON' : 'OFF';
+                    compoundRate.textContent = isEnabled ? '+12%' : '+0%';
+                    alert(`복운용이 ${isEnabled ? '활성화' : '비활성화'} 되었습니다.`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('오류가 발생했습니다: ' + error);
+                event.target.checked = !isEnabled; // 토글 상태 되돌리기
+            });
+        }
+
+        function updateRatioDisplay(value) {
+            document.getElementById('ratioDisplay').textContent = value + '%';
+            const numStocks = Math.floor(100 / value);
+            document.getElementById('portfolioEstimate').textContent =
+                `약 ${numStocks}개 종목 (종목당 ${value}% 투자)`;
+        }
+
+        function updateInvestmentRatio(value) {
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch('/analytics2/update-investment-ratio/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    ratio: parseInt(value)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                alert('투자 비율이 업데이트되었습니다.');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('오류가 발생했습니다: ' + error.message);
+            });
+        }
+
+        function updatePortfolioSettings() {
+            // 쉼표를 제거하고 숫자로 변환
+            const totalInvestment = parseInt(document.getElementById('totalInvestment').value.replace(/,/g, '')) || 0;
+            const perStockAmount = parseInt(document.getElementById('perStockAmount').value.replace(/,/g, '')) || 0;
+
+            if (!totalInvestment || !perStockAmount) return;
+
+            const possibleStocks = Math.floor(totalInvestment / perStockAmount);
+            const remainingFunds = totalInvestment - (perStockAmount * possibleStocks);
+
+            const summaryElement = document.getElementById('portfolioSummary');
+            summaryElement.innerHTML = `
+                <p class="mb-2">• 구성 가능한 종목 수: ${possibleStocks}개</p>
+                <p class="mb-2">• 종목당 투자금액: ${formatCurrency(perStockAmount)}</p>
+                <p class="mb-2">• 남은 투자금: ${formatCurrency(remainingFunds)}</p>
+                <p class="text-xs text-gray-400 mt-2">* 설정된 금액으로 최대한 많은 종목에 분산 투자됩니다.</p>
+            `;
+        }
+
+        function selectStrategy(strategy) {
+            // 전략 선택 시 서버에 업데이트
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch('/analytics2/update-portfolio-strategy/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({ strategy })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // UI 업데이트
+                    document.querySelectorAll('.strategy-card').forEach(card => {
+                        card.classList.remove('border-blue-500');
+                    });
+                    event.currentTarget.classList.add('border-blue-500');
+                }
+            });
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('ko-KR', {
+                style: 'currency',
+                currency: 'KRW'
+            }).format(amount);
+        }
+
+        function savePortfolioSettings() {
+            // 쉼표를 제거하고 숫자로 변환
+            const totalInvestment = document.getElementById('totalInvestment').value.replace(/,/g, '');
+            const perStockAmount = document.getElementById('perStockAmount').value.replace(/,/g, '');
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            // 입력값 검증
+            if (!totalInvestment || !perStockAmount) {
+                alert('모든 필드를 입력해주세요.');
+                return;
+            }
+
+            fetch('/analytics2/update-portfolio-settings/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    total_investment: parseInt(totalInvestment),
+                    per_stock_amount: parseInt(perStockAmount)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                alert('포트폴리오 설정이 저장되었습니다.');
+                updatePortfolioSettings(); // 화면 업데이트
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('오류가 발생했습니다: ' + error.message);
+            });
+        }
+
+        function formatCurrencyInput(input) {
+            const value = input.value.replace(/,/g, '');
+            if (!isNaN(value) && value !== '') {
+                input.value = parseInt(value).toLocaleString('ko-KR');
+            }
+        }
+    </script>
 </body>
-</html>
+</html></html>

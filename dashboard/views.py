@@ -43,6 +43,9 @@ def dashboard(request):
     ai_recommendations = StockRecommendation.objects.values_list('symbol', flat=True)
 
     for comp in balance['output1']:
+        # 로고 URL 생성 (FMP API 형식 사용)
+        logo_url = f"https://financialmodelingprep.com/image-stock/{comp['pdno']}.png"
+
         # Stock 모델에 데이터 추가 또는 존재 시 업데이트
         stock, created = Stock.objects.get_or_create(
             symbol=comp['pdno'],
@@ -62,7 +65,8 @@ def dashboard(request):
             'exchange_rate': float(comp['bass_exrt']),
             'unit_amt': float(comp['frcr_pchs_amt']),
             'last_updated': timezone.now(),
-            'is_ai_recommended': comp['pdno'] in ai_recommendations
+            'is_ai_recommended': comp['pdno'] in ai_recommendations,
+            'logo_url': logo_url  # 로고 URL 추가
         })
 
     total_value = balance['output3'].get('tot_asst_amt', 0)
@@ -89,7 +93,9 @@ def dashboard(request):
         'cpi_data': cpi_data,
         'ppi_data': ppi_data,
         'ai_recommendations_count': ai_recommendations_count,  # 추가
-        'ai_accuracy': round(ai_accuracy, 1)  # 추가 (소수점 첫째자리까지 표시)
+        'ai_accuracy': round(ai_accuracy, 1),  # 추가 (소수점 첫째자리까지 표시)
+        'auto_investment': user_profile.auto_investment,  # 자동투자 상태 추가
+        'investment_style': user_profile.get_investment_style_display()  # 투자 스타일 추가
     }
 
     return render(request, 'dashboard/dashboard.html', context)
