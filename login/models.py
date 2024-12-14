@@ -21,6 +21,8 @@ class UserProfile(models.Model):
         default='balanced'
     )
     auto_investment = models.BooleanField(default=False)
+    total_investment = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
+    per_stock_amount = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     compound_rate =  models.BooleanField(default=False)
 
     def __str__(self):
