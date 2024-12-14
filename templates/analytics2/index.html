@@ -4,7 +4,7 @@
 
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" >
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 주식 분석기</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -158,14 +158,14 @@
             </div>
         </div>
 
-    
+
 
         <div class="mb-8">
             <div class="analysis-card p-6 rounded-xl">
                 <h2 class="text-2xl font-bold mb-4">AI 투자 성향 설정</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- 안정형 -->
-                    <div class="investment-type-card cursor-pointer p-4 rounded-lg border-2 
+                    <div class="investment-type-card cursor-pointer p-4 rounded-lg border-2
                         {% if investment_style == 'conservative' %}border-blue-500{% else %}border-transparent{% endif %} 
                         hover:border-blue-500 transition-all"
                          onclick="selectInvestmentType('conservative', event)">
@@ -181,7 +181,7 @@
                     </div>
 
                     <!-- 중립형 -->
-                    <div class="investment-type-card cursor-pointer p-4 rounded-lg border-2 
+                    <div class="investment-type-card cursor-pointer p-4 rounded-lg border-2
                         {% if investment_style == 'balanced' %}border-blue-500{% else %}border-transparent{% endif %} 
                         hover:border-blue-500 transition-all"
                          onclick="selectInvestmentType('balanced', event)">
@@ -197,7 +197,7 @@
                     </div>
 
                     <!-- 공격형 -->
-                    <div class="investment-type-card cursor-pointer p-4 rounded-lg border-2 
+                    <div class="investment-type-card cursor-pointer p-4 rounded-lg border-2
                         {% if investment_style == 'aggressive' %}border-blue-500{% else %}border-transparent{% endif %} 
                         hover:border-blue-500 transition-all"
                          onclick="selectInvestmentType('aggressive', event)">
@@ -219,16 +219,16 @@
             <div class="analysis-card p-6 rounded-xl">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold">포트폴리오 설정</h2>
-                    <button onclick="savePortfolioSettings()" 
+                    <button onclick="savePortfolioSettings()"
                             class="relative group px-6 py-3 rounded-lg bg-blue-500 bg-opacity-20 text-blue-400 transition-all duration-300 hover:bg-opacity-30">
                         <span class="flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M5 13l4 4L19 7"></path>
                             </svg>
                             <span class="font-medium">설정 저장</span>
                         </span>
-                        <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 opacity-0 
+                        <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 opacity-0
                                     group-hover:opacity-10 transition-opacity duration-300"></div>
                     </button>
                 </div>
@@ -236,13 +236,13 @@
                     <!-- 총 투자금액 설정 -->
                     <div class="input-group">
                         <label class="block text-gray-400 mb-2">총 투자금액</label>
-                        <input type="text" 
+                        <input type="text"
                                id="totalInvestment"
                                class="w-full px-4 py-2 rounded-lg bg-opacity-10 bg-white border border-gray-600"
                                placeholder="예: 10,000,000"
                                oninput="formatCurrencyInput(this)">
                     </div>
-                    
+
                     <!-- 종목당 투자금액 설정 -->
                     <div class="input-group">
                         <label class="block text-gray-400 mb-2">종목당 투자금액</label>
@@ -258,7 +258,7 @@
                 <div class="mt-6 p-4 bg-blue-500 bg-opacity-10 rounded-lg">
                     <div class="flex items-start gap-3">
                         <svg class="w-6 h-6 text-blue-500 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <div>
@@ -276,9 +276,9 @@
             <div class="analysis-card p-6 rounded-xl">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold">자동투자 설정</h2>
-                    <button onclick="toggleAutoInvestment(event)" 
+                    <button onclick="toggleAutoInvestment(event)"
                             id="autoInvestToggle"
-                            class="relative group px-6 py-3 rounded-lg bg-opacity-20 
+                            class="relative group px-6 py-3 rounded-lg bg-opacity-20
                                    {% if user.userprofile.auto_investment %}
                                    bg-blue-500 text-blue-400
                                    {% else %}
@@ -287,7 +287,7 @@
                                    transition-all duration-300 hover:bg-opacity-30">
                         <span class="flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M13 10V3L4 14h7v7l9-11h-7z"/>
                             </svg>
                             <span class="font-medium" id="autoInvestStatus">
@@ -295,7 +295,7 @@
                             </span>
                         </span>
                         <!-- 배경 효과 -->
-                        <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 opacity-0 
+                        <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 opacity-0
                                     group-hover:opacity-10 transition-opacity duration-300"></div>
                     </button>
                 </div>
@@ -303,7 +303,7 @@
                 <div class="mt-4 p-4 bg-blue-500 bg-opacity-10 rounded-lg">
                     <div class="flex items-start gap-3">
                         <svg class="w-6 h-6 text-blue-500 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <p class="text-sm text-gray-300">
@@ -321,7 +321,7 @@
                 const statusText = document.getElementById('autoInvestStatus');
                 const isCurrentlyEnabled = button.classList.contains('bg-blue-500');
                 const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-                
+
                 fetch('/analytics2/update-auto-investment/', {
                     method: 'POST',
                     headers: {
@@ -342,7 +342,7 @@
                     if (data.error) {
                         throw new Error(data.error);
                     }
-                    
+
                     // UI 업데이트
                     if (!isCurrentlyEnabled) {
                         // 활성화 상태로 변경
@@ -355,7 +355,7 @@
                         button.classList.add('bg-gray-700', 'text-gray-400');
                         statusText.textContent = '비활성화';
                     }
-                    
+
                     alert(`자동투자가 ${!isCurrentlyEnabled ? '활성화' : '비활성화'} 되었습니다.`);
                 })
                 .catch(error => {
@@ -364,21 +364,28 @@
                 });
             }
             </script>
-        
 
-        <div class="mb-8">
-            <div class="analysis-card p-6 rounded-xl">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold">복리운용 설정</h2>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="compoundToggle" class="sr-only peer" onchange="toggleCompoundInvestment(event)">
-                        <div class="w-14 h-7 bg-gray-700 peer-focus:outline-none rounded-full peer 
-                                    peer-checked:after:translate-x-full peer-checked:after:border-white 
-                                    after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
-                                    after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all 
-                                    peer-checked:bg-blue-500"></div>
-                        <span class="ml-3 text-sm font-medium text-gray-300">
-                            <span id="compoundStatus">OFF</span>
+
+    <div class="mb-8">
+        <div class="analysis-card p-6 rounded-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">복리운용 설정</h2>
+                <button onclick="toggleCompoundInvestment(event)"
+                        id="compoundToggle"
+                        class="relative group px-6 py-3 rounded-lg bg-opacity-20
+                               {% if user.userprofile.compound_rate%}
+                               bg-blue-500 text-blue-400
+                               {% else %}
+                               bg-gray-700 text-gray-400
+                               {% endif %}
+                               transition-all duration-300 hover:bg-opacity-30">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                        <span class="font-medium" id="compoundStatus">
+                            {% if user.userprofile.compound_rate %}활성화{% else %}비활성화{% endif %}
                         </span>
                     </label>
                 </div>
@@ -386,7 +393,7 @@
                 <div class="mt-4 p-4 bg-blue-500 bg-opacity-10 rounded-lg">
                     <div class="flex items-start gap-3">
                         <svg class="w-6 h-6 text-blue-500 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <p class="text-sm text-gray-300">
@@ -457,7 +464,7 @@
 
         <div class="mb-8 w-full">
             <div class="input-section flex flex-col md:flex-row gap-4 max-w-3xl mx-auto">
-                <input type="text" id="symbolInput" 
+                <input type="text" id="symbolInput"
                        class="flex-1 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                        placeholder="주식 심 입력 (예: AAPL)">
                 <button onclick="analyzeStock()"
@@ -543,7 +550,7 @@
                 if (response.ok) {
                     // 분석 결과 표시
                     let analysisData = data;
-                    
+
                     // 마크다운 코드 블록 제거 및 JSON 파싱
                     if (typeof analysisData === 'string') {
                         try {
@@ -572,8 +579,8 @@
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <div class="px-4 py-2 rounded-lg ${
-                                        analysisData.action.toLowerCase() === 'buy' 
-                                        ? 'bg-green-500 bg-opacity-20 text-green-500' 
+                                        analysisData.action.toLowerCase() === 'buy'
+                                        ? 'bg-green-500 bg-opacity-20 text-green-500'
                                         : 'bg-red-500 bg-opacity-20 text-red-500'
                                     }">
                                         <span class="text-lg font-semibold">${
@@ -611,7 +618,7 @@
                             </div>
                         </div>
                     `;
-                    
+
                     result.style.display = 'block';
                 } else {
                     throw new Error(data.error || '분석 중 오류가 발생했습니다.');
@@ -634,13 +641,13 @@
         function selectInvestmentType(style, event) {
             // 이벤트 버블링 방지
             event.preventDefault();
-            
+
             // CSRF 토큰 가져오기
             const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            
+
             // 클릭된 카드 요소 찾기
             const clickedCard = event.currentTarget;
-            
+
             fetch('/analytics2/update-investment-style/', {
                 method: 'POST',
                 headers: {
@@ -659,13 +666,13 @@
                         card.classList.remove('border-blue-500');
                         card.classList.add('border-transparent');
                     });
-                    
+
                     // 선택된 드 스타일 적용
                     if (clickedCard) {
                         clickedCard.classList.remove('border-transparent');
                         clickedCard.classList.add('border-blue-500');
                     }
-                    
+
                     alert('투자 성향이 업데이트되었습니다.');
                 }
             })
@@ -681,7 +688,7 @@
             const isEnabled = event.target.checked;
             const statusText = document.getElementById('compoundStatus');
             const compoundRate = document.getElementById('compoundRate');
-            
+
             fetch('/analytics2/update-compound-setting/', {
                 method: 'POST',
                 headers: {
@@ -711,13 +718,13 @@
         function updateRatioDisplay(value) {
             document.getElementById('ratioDisplay').textContent = value + '%';
             const numStocks = Math.floor(100 / value);
-            document.getElementById('portfolioEstimate').textContent = 
+            document.getElementById('portfolioEstimate').textContent =
                 `약 ${numStocks}개 종목 (종목당 ${value}% 투자)`;
         }
 
         function updateInvestmentRatio(value) {
             const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            
+
             fetch('/analytics2/update-investment-ratio/', {
                 method: 'POST',
                 headers: {
@@ -745,12 +752,12 @@
             // 쉼표를 제거하고 숫자로 변환
             const totalInvestment = parseInt(document.getElementById('totalInvestment').value.replace(/,/g, '')) || 0;
             const perStockAmount = parseInt(document.getElementById('perStockAmount').value.replace(/,/g, '')) || 0;
-            
+
             if (!totalInvestment || !perStockAmount) return;
-            
+
             const possibleStocks = Math.floor(totalInvestment / perStockAmount);
             const remainingFunds = totalInvestment - (perStockAmount * possibleStocks);
-            
+
             const summaryElement = document.getElementById('portfolioSummary');
             summaryElement.innerHTML = `
                 <p class="mb-2">• 구성 가능한 종목 수: ${possibleStocks}개</p>
@@ -763,7 +770,7 @@
         function selectStrategy(strategy) {
             // 전략 선택 시 서버에 업데이트
             const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            
+
             fetch('/analytics2/update-portfolio-strategy/', {
                 method: 'POST',
                 headers: {
