@@ -517,3 +517,40 @@ def update_compound_setting(request):
             'error': str(e)
         }, status=500)
 
+@login_required
+@require_POST
+def update_portfolio_settings(request):
+    try:
+        # JSON 데이터 파싱
+        data = json.loads(request.body)
+        total_investment = data.get('total_investment')
+        per_stock_amount = data.get('per_stock_amount')
+
+        # 입력값 검증
+        if not total_investment or not per_stock_amount:
+            return JsonResponse({'error': '모든 필드를 입력해주세요.'}, status=400)
+
+        try:
+            total_investment = float(total_investment)
+            per_stock_amount = float(per_stock_amount)
+        except ValueError:
+            return JsonResponse({'error': '유효한 숫자를 입력해주세요.'}, status=400)
+
+        if total_investment < 0 or per_stock_amount < 0:
+            return JsonResponse({'error': '금액은 0보다 커야 합니다.'}, status=400)
+
+        if per_stock_amount > total_investment:
+            return JsonResponse({'error': '종목당 투자금액은 총 투자금액을 초과할 수 없습니다.'}, status=400)
+
+        # UserProfile 업데이트
+        profile = request.user.userprofile
+        profile.total_investment = total_investment
+        profile.per_stock_amount = per_stock_amount
+        profile.save()
+
+        return JsonResponse({
+            'success': True,
+            'message': '포트폴리오 설정이 업데이트되었습니다.'
+        })
+    except Exception as e:
+        return JsonResponse({'error':  str(e)}, status=500)
