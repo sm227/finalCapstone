@@ -525,6 +525,7 @@ def update_investment_style(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+
 @login_required
 @require_POST
 def update_auto_investment(request):
