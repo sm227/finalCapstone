@@ -31,10 +31,18 @@ def crawl_news():
         link = news['href']
         if not link.startswith("https"):
             link = 'https://www.investing.com' + link
+
+        parent = news.find_parent('article')
+        time_element = parent.select_one('time[data-test="article-publish-date"]') if parent else None
+        pub_date = time_element['datetime'] if time_element else None
+
         news_data.append({
             'title': title,
-            'link': link
+            'link': link,
+            'pub_date': pub_date
         })
+    print(news_data)
+
     return news_data
 
 
@@ -77,7 +85,7 @@ def articles(request):
             progress = (i / total_articles) * 100
             message_index = min(4, i * 5 // total_articles)
             message = messages[message_index]
-            yield f"data: {json.dumps({'progress': progress, 'message': message, 'article': {'title': news['title'], 'link': news['link'], 'content': article_content}})}\n\n"
+            yield f"data: {json.dumps({'progress': progress, 'message': message, 'article': {'title': news['title'], 'link': news['link'], 'content': article_content, 'pub_date': news['pub_date']}})}\n\n"
 
     return StreamingHttpResponse(generate_progress(), content_type='text/event-stream')
 
@@ -106,8 +114,9 @@ def generate_summary_prompt(article_title, article_content):
     - 불필요한 기호나 목록 표시 없이 깔끔하게 작성하세요.
     - 가독성이 좋게 문단을 나눠주고 줄바꿈을 확실하게 해주세요.
     - 만약, 기사 내용이 너무 짧다면, 기사 전문을 한국어로 번역을 해주세요.
-    - 기사 내용을 바탕으로 마지막에 어떤 투자 전략을 취하면 좋을지 간략하게 작성바랍니다.
-    - 투자 전략을 말해줄 때, '투자 결정은 본인의 판단과 책임 하에 이루어 져야 합니다' 와 같은 말을 '꼭' 첨부하세요.
+    - 기사 내용을 바탕으로 마지막에 어떤 투자 전략을 취하면 좋을지 상세하게 작성바랍니다.
+    - 특수기호는 삽입하지 마세요.
+    - 투자 전략을 말해줄 때, '투자 결정은 본인의 판단과 책임 하에 이루어 져야 합니다' 와 같은 말을 문단을 구분해 마지막에 '꼭' 첨부하세요.
     """
     return prompt
 
